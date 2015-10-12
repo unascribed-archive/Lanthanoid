@@ -192,10 +192,19 @@ public class OreCompositor extends AbstractResourcePack {
 
 	private void loadBackdrops() throws IOException {
 		for (Backdrop b : Backdrop.values()) {
-			backdrops.put(b, readImage(b.loc));
+			backdrops.put(b, cropToWidth(readImage(b.loc)));
 		}
 	}
 	
+	private BufferedImage cropToWidth(BufferedImage img) {
+		int s = img.getWidth();
+		BufferedImage target = new BufferedImage(s, s, BufferedImage.TYPE_4BYTE_ABGR);
+		int[] arr = new int[s*s];
+		img.getRGB(0, 0, s, s, arr, 0, s);
+		target.setRGB(0, 0, s, s, arr, 0, s);
+		return target;
+	}
+
 	private BufferedImage readImage(ResourceLocation loc) throws IOException {
 		InputStream in = rm.getResource(loc).getInputStream();
 		BufferedImage img = ImageIO.read(in);

@@ -68,7 +68,6 @@ public class Lanthanoid {
 		if (Loader.isModLoaded("farrago")) {
 			log.warn("Farrago is deprecated, and duplicates some of the functionality in Lanthanoid. It is recommended you remove it.");
 		}
-		
 		SimpleReloadableResourceManager srrm = ((SimpleReloadableResourceManager)Minecraft.getMinecraft().getResourceManager());
 		srrm.registerReloadListener(it -> {
 			compositor = new OreCompositor(srrm);
