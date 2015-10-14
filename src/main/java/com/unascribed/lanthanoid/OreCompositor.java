@@ -31,7 +31,11 @@ public class OreCompositor extends AbstractResourcePack {
 
 	public enum Type {
 		METAL,
-		GEM
+		GEM,
+		SQUARE,
+		LUMPY,
+		ROUGH,
+		TRACE
 	}
 	
 	public enum Backdrop {
@@ -186,7 +190,9 @@ public class OreCompositor extends AbstractResourcePack {
 
 	private BufferedImage copy(BufferedImage img) {
 		BufferedImage out = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
-		img.copyData(out.getRaster());
+		Graphics2D g2d = out.createGraphics();
+		g2d.drawImage(img, 0, 0, out.getWidth(), out.getHeight(), null);
+		g2d.dispose();
 		return out;
 	}
 
@@ -214,16 +220,24 @@ public class OreCompositor extends AbstractResourcePack {
 	private void loadSteps() throws IOException {
 		loadStandardSteps(Type.METAL);
 		loadStandardSteps(Type.GEM);
+		loadStandardSteps(Type.SQUARE);
+		loadSingleStep(Type.LUMPY);
+		loadSingleStep(Type.ROUGH);
+		loadStandardSteps(Type.TRACE);
 	}
 
 
+	private void loadSingleStep(Type type) throws IOException {
+		types.put(type, Lists.newArrayList(new CompositeStep(readImage(new ResourceLocation("lanthanoid", "textures/composite/"+type.name().toLowerCase()+".png")), Mode.COLORIZE)));
+	}
+
 	private void loadStandardSteps(Type type) throws IOException {
 		List<CompositeStep> li = Lists.newArrayList();
-		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", "textures/composite/ore_"+type.name().toLowerCase()+"_basis.png")), Mode.COLORIZE));
-		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", "textures/composite/ore_"+type.name().toLowerCase()+"_bevel.png")), Mode.NORMAL));
-		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", "textures/composite/ore_"+type.name().toLowerCase()+"_shine.png")), Mode.NORMAL));
-		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", "textures/composite/ore_"+type.name().toLowerCase()+"_glint.png")), Mode.SCREEN));
-		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", "textures/composite/ore_"+type.name().toLowerCase()+"_shade.png")), Mode.NORMAL));
+		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", "textures/composite/"+type.name().toLowerCase()+"_basis.png")), Mode.COLORIZE));
+		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", "textures/composite/"+type.name().toLowerCase()+"_bevel.png")), Mode.NORMAL));
+		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", "textures/composite/"+type.name().toLowerCase()+"_shine.png")), Mode.NORMAL));
+		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", "textures/composite/"+type.name().toLowerCase()+"_glint.png")), Mode.SCREEN));
+		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", "textures/composite/"+type.name().toLowerCase()+"_shade.png")), Mode.NORMAL));
 		types.put(type, li);
 	}
 

@@ -10,6 +10,8 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.SimpleReloadableResourceManager;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
 
 @Mod(
 	modid="lanthanoid",
@@ -24,6 +26,12 @@ public class Lanthanoid {
 	
 	
 	public OreCompositor compositor;
+	public CreativeTabs creativeTab = new CreativeTabs("lanthanoid") {
+		@Override
+		public Item getTabIconItem() {
+			return Item.getItemFromBlock(LBlocks.ore);
+		}
+	};
 	
 	@Mod.EventHandler
 	public void preInit(FMLPreInitializationEvent e) {
@@ -73,17 +81,31 @@ public class Lanthanoid {
 			compositor = new OreCompositor(srrm);
 			compositor.addOre(   "copper", 0x944A09, OreCompositor.Type.METAL, OreCompositor.Backdrop.STONE);
 			compositor.addOre(     "yttr", 0x496B6E, OreCompositor.Type.METAL, OreCompositor.Backdrop.STONE);
+			compositor.addOre(      "bar", 0x39190A, OreCompositor.Type.METAL, OreCompositor.Backdrop.STONE);
+			
 			compositor.addOre(   "ytterb", 0x423D00, OreCompositor.Type.METAL, OreCompositor.Backdrop.STONE);
 			compositor.addOre("praseodym", 0x2B4929, OreCompositor.Type.METAL, OreCompositor.Backdrop.STONE);
 			compositor.addOre(   "neodym", 0x363662, OreCompositor.Type.METAL, OreCompositor.Backdrop.STONE);
 			compositor.addOre(     "holm", 0xA8A18D, OreCompositor.Type.METAL, OreCompositor.Backdrop.STONE);
 			
-			compositor.addOre(  "thulite", 0xCA5E52, OreCompositor.Type.GEM, OreCompositor.Backdrop.STONE);
+			compositor.addOre(    "europ", 0x1A3996, OreCompositor.Type.TRACE, OreCompositor.Backdrop.STONE);
+			compositor.addOre(  "gadolin", 0x157952, OreCompositor.Type.TRACE, OreCompositor.Backdrop.STONE);
+			compositor.addOre(  "dyspros", 0x4F0059, OreCompositor.Type.TRACE, OreCompositor.Backdrop.STONE);
+			
+			
+			compositor.addOre("actinolite", 0x40AD83, OreCompositor.Type.GEM, OreCompositor.Backdrop.STONE);
+			compositor.addOre(  "diaspore", 0x674BC3, OreCompositor.Type.GEM, OreCompositor.Backdrop.STONE);
+			
+			compositor.addOre(   "thulite", 0xCA5E52, OreCompositor.Type.ROUGH, OreCompositor.Backdrop.STONE);
+			
+			compositor.addOre(  "rosasite", 0x00A6C3, OreCompositor.Type.LUMPY, OreCompositor.Backdrop.STONE);
+			
+			compositor.addOre(   "raspite", 0xC67226, OreCompositor.Type.SQUARE, OreCompositor.Backdrop.STONE);
 			
 			compositor.generate();
 		});
 		
-		GameRegistry.registerBlock(new BlockOre(), "ore");
+		GameRegistry.registerBlock(LBlocks.ore = new BlockOre(), ItemBlockWithCustomName.class, "ore");
 		
 	}
 	
