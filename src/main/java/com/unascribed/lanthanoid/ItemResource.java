@@ -6,6 +6,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
+import net.minecraftforge.oredict.OreDictionary;
 
 public class ItemResource extends Item {
 	private String[] names;
@@ -16,6 +17,9 @@ public class ItemResource extends Item {
 		this.names = names;
 		icons = new IIcon[names.length];
 		setCreativeTab(Lanthanoid.inst.creativeTab);
+		for (int i = 0; i < names.length; i++) {
+			OreDictionary.registerOre(names[i], new ItemStack(this, 1, i));
+		}
 	}
 	
 	@Override

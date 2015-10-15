@@ -10,6 +10,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
+import net.minecraftforge.oredict.OreDictionary;
 
 public class BlockOre extends Block implements NameDelegate {
 	private String[] names;
@@ -23,6 +24,9 @@ public class BlockOre extends Block implements NameDelegate {
 		setCreativeTab(Lanthanoid.inst.creativeTab);
 		setHardness(3);
 		setHarvestLevel("pickaxe", 2);
+		for (int i = 0; i < names.length; i++) {
+			OreDictionary.registerOre(names[i], new ItemStack(this, 1, i));
+		}
 	}
 	
 	@Override
