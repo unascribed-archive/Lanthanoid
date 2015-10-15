@@ -3,6 +3,10 @@ package com.unascribed.lanthanoid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.unascribed.lanthanoid.TextureCompositor.BlockBackdrop;
+import com.unascribed.lanthanoid.TextureCompositor.BlockType;
+import com.unascribed.lanthanoid.TextureCompositor.ItemType;
+
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Instance;
@@ -25,11 +29,11 @@ public class Lanthanoid {
 	public static Lanthanoid inst;
 	
 	
-	public OreCompositor compositor;
+	public TextureCompositor compositor;
 	public CreativeTabs creativeTab = new CreativeTabs("lanthanoid") {
 		@Override
 		public Item getTabIconItem() {
-			return Item.getItemFromBlock(LBlocks.ore);
+			return Item.getItemFromBlock(LBlocks.ore_ium);
 		}
 	};
 	
@@ -78,34 +82,70 @@ public class Lanthanoid {
 		}
 		SimpleReloadableResourceManager srrm = ((SimpleReloadableResourceManager)Minecraft.getMinecraft().getResourceManager());
 		srrm.registerReloadListener(it -> {
-			compositor = new OreCompositor(srrm);
-			compositor.addOre(   "copper", 0x944A09, OreCompositor.Type.METAL, OreCompositor.Backdrop.STONE);
-			compositor.addOre(     "yttr", 0x496B6E, OreCompositor.Type.METAL, OreCompositor.Backdrop.STONE);
-			compositor.addOre(      "bar", 0x39190A, OreCompositor.Type.METAL, OreCompositor.Backdrop.STONE);
+			compositor = new TextureCompositor(srrm);
+			compositor.load();
+			compositor.addBlock("oreCopper", 0x944A09, BlockType.METAL, BlockBackdrop.STONE);
+			compositor.addBlock("oreYttrium", 0x496B6E, BlockType.METAL, BlockBackdrop.STONE);
+			compositor.addBlock("oreBarium", 0x39190A, BlockType.METAL, BlockBackdrop.STONE);
 			
-			compositor.addOre(   "ytterb", 0x423D00, OreCompositor.Type.METAL, OreCompositor.Backdrop.STONE);
-			compositor.addOre("praseodym", 0x2B4929, OreCompositor.Type.METAL, OreCompositor.Backdrop.STONE);
-			compositor.addOre(   "neodym", 0x363662, OreCompositor.Type.METAL, OreCompositor.Backdrop.STONE);
-			compositor.addOre(     "holm", 0xA8A18D, OreCompositor.Type.METAL, OreCompositor.Backdrop.STONE);
+			compositor.addBlock("oreYtterbium", 0x423D00, BlockType.METAL, BlockBackdrop.STONE);
+			compositor.addBlock("orePraseodymium", 0x2B4929, BlockType.METAL, BlockBackdrop.STONE);
+			compositor.addBlock("oreNeodymium", 0x363662, BlockType.METAL, BlockBackdrop.STONE);
+			compositor.addBlock("oreHolmium", 0xA8A18D, BlockType.METAL, BlockBackdrop.STONE);
 			
-			compositor.addOre(    "europ", 0x1A3996, OreCompositor.Type.TRACE, OreCompositor.Backdrop.STONE);
-			compositor.addOre(  "gadolin", 0x157952, OreCompositor.Type.TRACE, OreCompositor.Backdrop.STONE);
-			compositor.addOre(  "dyspros", 0x4F0059, OreCompositor.Type.TRACE, OreCompositor.Backdrop.STONE);
+			compositor.addBlock("oreEuropium", 0x1A3996, BlockType.TRACE, BlockBackdrop.STONE);
+			compositor.addBlock("oreGadolinium", 0x157952, BlockType.TRACE, BlockBackdrop.STONE);
+			compositor.addBlock("oreDysprosium", 0x4F0059, BlockType.TRACE, BlockBackdrop.STONE);
 			
 			
-			compositor.addOre("actinolite", 0x40AD83, OreCompositor.Type.GEM, OreCompositor.Backdrop.STONE);
-			compositor.addOre(  "diaspore", 0x674BC3, OreCompositor.Type.GEM, OreCompositor.Backdrop.STONE);
+			compositor.addBlock("oreActinolite", 0x40AD83, BlockType.GEM, BlockBackdrop.STONE);
+			compositor.addBlock("oreEmpholite", 0x674BC3, BlockType.GEM, BlockBackdrop.STONE);
 			
-			compositor.addOre(   "thulite", 0xCA5E52, OreCompositor.Type.ROUGH, OreCompositor.Backdrop.STONE);
+			compositor.addBlock("oreThulite", 0xCA5E52, BlockType.ROUGH, BlockBackdrop.STONE);
 			
-			compositor.addOre(  "rosasite", 0x00A6C3, OreCompositor.Type.LUMPY, OreCompositor.Backdrop.STONE);
+			compositor.addBlock("oreRosasite", 0x00A6C3, BlockType.LUMPY, BlockBackdrop.STONE);
 			
-			compositor.addOre(   "raspite", 0xC67226, OreCompositor.Type.SQUARE, OreCompositor.Backdrop.STONE);
+			compositor.addBlock("oreRaspite", 0xC67226, BlockType.SQUARE, BlockBackdrop.STONE);
+			
+			compositor.addBlock("oreGypsum", 0xCACACA, BlockType.CRYSTAL, BlockBackdrop.NONE);
+			
+			
+			compositor.addItem("gemRaspite", 0xC67226, ItemType.WAFER);
+			compositor.addItem("dustRaspite", 0xC67226, ItemType.DUST);
+			
+			compositor.addItem("ingotYttrium", 0x496B6E, ItemType.INGOT);
+			compositor.addItem("dustYttrium", 0x496B6E, ItemType.DUST);
 			
 			compositor.generate();
 		});
 		
-		GameRegistry.registerBlock(LBlocks.ore = new BlockOre(), ItemBlockWithCustomName.class, "ore");
+		GameRegistry.registerBlock(LBlocks.ore_ium = new BlockOre(
+				"oreCopper",
+				"oreYttrium",
+				"oreYtterbium",
+				"orePraseodymium",
+				"oreNeodymium",
+				"oreHolmium",
+				"oreBarium",
+				"oreEuropium",
+				"oreGadolinium",
+				"oreDysprosium"), ItemBlockWithCustomName.class, "ore_ium");
+		GameRegistry.registerBlock(LBlocks.ore_ite = new BlockOre(
+				"oreActinolite",
+				"oreEmpholite",
+				"oreRaspite",
+				"oreRosasite",
+				"oreThulite"), ItemBlockWithCustomName.class, "ore_ite");
+		GameRegistry.registerBlock(LBlocks.ore_other = new BlockOre(
+				"oreGypsum"), ItemBlockWithCustomName.class, "ore_other");
+		
+		
+		GameRegistry.registerItem(LItems.resource = new ItemResource(
+				"gemRaspite",
+				"dustRaspite",
+				
+				"ingotYttrium",
+				"dustYttrium"), "resource");
 		
 	}
 	

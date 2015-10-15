@@ -1,0 +1,27 @@
+tile.error.name=Invalid
+
+tile.oreCopper.name=Copper Ore
+tile.oreYttrium.name=Yttrium Ore
+tile.oreYtterbium.name=Ytterbium Ore
+tile.orePraseodymium.name=Praseodymium Ore
+tile.oreNeodymium.name=Neodymium Ore
+tile.oreHolmium.name=Holmium Ore
+tile.oreBarium.name=Barium Ore
+tile.oreEuropium.name=Europium Ore
+tile.oreGadolinium.name=Gadolinium Ore
+tile.oreDysprosium.name=Dysprosium Ore
+
+tile.oreGypsum.name=Gypsum Crystal
+
+tile.oreActinolite.name=Actinolite Ore
+tile.oreEmpholite.name=Empholite Ore
+tile.oreRaspite.name=Raspite Ore
+tile.oreRosasite.name=Rosasite Ore
+tile.oreThulite.name=Thulite Ore
+
+
+item.gemRaspite.name=Raspite
+item.dustRaspite.name=Raspite Dust
+
+item.ingotYttrium.name=Yttrium Ingot
+item.dustYttrium.name=Yttrium Dust
