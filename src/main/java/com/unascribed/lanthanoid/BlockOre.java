@@ -24,9 +24,6 @@ public class BlockOre extends Block implements NameDelegate {
 		setCreativeTab(Lanthanoid.inst.creativeTab);
 		setHardness(3);
 		setHarvestLevel("pickaxe", 2);
-		for (int i = 0; i < names.length; i++) {
-			OreDictionary.registerOre(names[i], new ItemStack(this, 1, i));
-		}
 	}
 	
 	@Override
@@ -66,6 +63,12 @@ public class BlockOre extends Block implements NameDelegate {
 	public String getUnlocalizedName(int meta) {
 		if (meta < 0 || meta >= names.length) return "tile.error";
 		return "tile."+names[meta];
+	}
+	
+	public void registerOres() {
+		for (int i = 0; i < names.length; i++) {
+			OreDictionary.registerOre(names[i], new ItemStack(this, 1, i));
+		}
 	}
 
 }

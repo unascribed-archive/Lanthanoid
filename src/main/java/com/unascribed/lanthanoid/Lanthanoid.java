@@ -9,13 +9,19 @@ import com.unascribed.lanthanoid.TextureCompositor.ItemType;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.SimpleReloadableResourceManager;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.ICommandSender;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.util.Vec3;
 
 @Mod(
 	modid="lanthanoid",
@@ -37,7 +43,7 @@ public class Lanthanoid {
 		}
 	};
 	
-	@Mod.EventHandler
+	@EventHandler
 	public void preInit(FMLPreInitializationEvent e) {
 		log.info("\n"+
 		"╔════╗                                                                                                                 ╔════╗\n" + 
@@ -159,8 +165,35 @@ public class Lanthanoid {
 					"Thulite"
 				))), "resource");
 		
+		LBlocks.ore_metal.registerOres();
+		LBlocks.ore_gem.registerOres();
+		LBlocks.ore_other.registerOres();
+		LItems.resource.registerOres();
 	}
 
+	@EventHandler
+	public void onServerStart(FMLServerStartingEvent e) {
+		e.registerServerCommand(new CommandBase() {
+			
+			@Override
+			public void processCommand(ICommandSender sender, String[] args) {
+				EntityPlayer p = ((EntityPlayer)sender);
+				Vec3 look = p.getLookVec();
+				Generate.spike(p.worldObj, LBlocks.ore_other, 0, (int)p.posX, (int)p.posY, (int)p.posZ, (float)look.xCoord, (float)look.yCoord, (float)look.zCoord, parseInt(sender, args[0]));
+			}
+			
+			@Override
+			public String getCommandUsage(ICommandSender sender) {
+				return "hi";
+			}
+			
+			@Override
+			public String getCommandName() {
+				return "lanspike";
+			}
+		});
+	}
+	
 	private String[] union(String[]... arr) {
 		int len = 0;
 		for (String[] s : arr) {
