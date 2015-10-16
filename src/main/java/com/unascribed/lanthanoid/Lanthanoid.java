@@ -20,6 +20,7 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.util.Vec3;
 
@@ -94,22 +95,22 @@ public class Lanthanoid {
 			addAll("Yttrium", 0x496B6E, BlockType.METAL, BlockBackdrop.STONE, ItemType.INGOT);
 			addAll("Barium", 0x39190A, BlockType.METAL, BlockBackdrop.STONE, ItemType.INGOT);
 			
-			addAll("Ytterbium", 0x423D00, BlockType.METAL, BlockBackdrop.STONE, ItemType.INGOT);
-			addAll("Praseodymium", 0x2B4929, BlockType.METAL, BlockBackdrop.STONE, ItemType.INGOT);
-			addAll("Neodymium", 0x363662, BlockType.METAL, BlockBackdrop.STONE, ItemType.INGOT);
+			addAll("Ytterbium", 0x423D00, BlockType.METAL, BlockBackdrop.NETHERRACK, ItemType.INGOT);
+			addAll("Praseodymium", 0x2B4929, BlockType.METAL, BlockBackdrop.GRAVEL, ItemType.INGOT);
+			addAll("Neodymium", 0x363662, BlockType.METAL, BlockBackdrop.NETHER_BRICK, ItemType.INGOT);
 			addAll("Holmium", 0xA8A18D, BlockType.METAL, BlockBackdrop.STONE, ItemType.INGOT);
 			
-			addAll("Europium", 0x1A3996, BlockType.TRACE, BlockBackdrop.STONE, ItemType.INGOT);
-			addAll("Gadolinium", 0x157952, BlockType.TRACE, BlockBackdrop.STONE, ItemType.INGOT);
-			addAll("Dysprosium", 0x4F0059, BlockType.TRACE, BlockBackdrop.STONE, ItemType.INGOT);
+			addAll("Erbium", 0x1A3996, BlockType.TRACE, BlockBackdrop.END_STONE, ItemType.INGOT);
+			addAll("Gadolinium", 0x157952, BlockType.TRACE, BlockBackdrop.END_STONE, ItemType.INGOT);
+			addAll("Dysprosium", 0x4F0059, BlockType.TRACE, BlockBackdrop.OBSIDIAN, ItemType.INGOT);
 			
 			
-			addAll("Actinolite", 0x40AD83, BlockType.GEM, BlockBackdrop.STONE, ItemType.WAFER);
-			addAll("Empholite", 0x674BC3, BlockType.GEM, BlockBackdrop.STONE, ItemType.WAFER);
+			addAll("Actinolite", 0x40AD83, BlockType.GEM, BlockBackdrop.STONE, ItemType.SQUARE_GEM);
+			addAll("Diaspore", 0x674BC3, BlockType.GEM, BlockBackdrop.STONE, ItemType.ROUND_GEM);
 			
-			addAll("Thulite", 0xCA5E52, BlockType.ROUGH, BlockBackdrop.STONE, ItemType.WAFER);
+			addAll("Thulite", 0xCA5E52, BlockType.ROUGH, BlockBackdrop.STONE, ItemType.HEX_GEM);
 			
-			addAll("Rosasite", 0x00A6C3, BlockType.LUMPY, BlockBackdrop.STONE, ItemType.WAFER);
+			addAll("Rosasite", 0x00A6C3, BlockType.LUMPY, BlockBackdrop.STONE, ItemType.ORB);
 			
 			addAll("Raspite", 0xC67226, BlockType.SQUARE, BlockBackdrop.STONE, ItemType.WAFER);
 			
@@ -127,17 +128,23 @@ public class Lanthanoid {
 				"oreNeodymium",
 				"oreHolmium",
 				"oreBarium",
-				"oreEuropium",
+				"oreErbium",
 				"oreGadolinium",
-				"oreDysprosium"), ItemBlockWithCustomName.class, "ore_metal");
+				"oreDysprosium")
+				.setBackdrop("oreYtterbium", Blocks.netherrack)
+				.setBackdrop("orePraseodymium", Blocks.gravel)
+				.setBackdrop("oreNeodymium", Blocks.nether_brick)
+				.setBackdrop("oreErbium", Blocks.end_stone)
+				.setBackdrop("oreGadolinium", Blocks.end_stone)
+				.setBackdrop("oreDysprosium", Blocks.obsidian), ItemBlockWithCustomName.class, "ore_metal");
 		GameRegistry.registerBlock(LBlocks.ore_gem = new BlockOre(
 				"oreActinolite",
-				"oreEmpholite",
-				"oreRaspite",
-				"oreRosasite",
-				"oreThulite"), ItemBlockWithCustomName.class, "ore_gem");
+				"oreDiaspore",
+				"oreRaspite"), ItemBlockWithCustomName.class, "ore_gem");
 		GameRegistry.registerBlock(LBlocks.ore_other = new BlockOre(
-				"oreGypsum"), ItemBlockWithCustomName.class, "ore_other");
+				"oreGypsum",
+				"oreRosasite",
+				"oreThulite"), ItemBlockWithCustomName.class, "ore_other");
 		
 		
 		GameRegistry.registerItem(LItems.resource = new ItemResource(union(
@@ -146,12 +153,12 @@ public class Lanthanoid {
 					
 					"Copper",
 					"Yttrium",
-					"Barium",
 					"Ytterbium",
 					"Praseodymium",
 					"Neodymium",
 					"Holmium",
-					"Europium",
+					"Barium",
+					"Erbium",
 					"Gadolinium",
 					"Dysprosium"
 				),
@@ -159,7 +166,7 @@ public class Lanthanoid {
 					"gem",
 					
 					"Actinolite",
-					"Empholite",
+					"Diaspore",
 					"Raspite",
 					"Rosasite",
 					"Thulite"
@@ -169,6 +176,83 @@ public class Lanthanoid {
 		LBlocks.ore_gem.registerOres();
 		LBlocks.ore_other.registerOres();
 		LItems.resource.registerOres();
+		
+		GeneratorGroup group = new GeneratorGroup();
+		
+		// Copper (SEEN)
+		group.add(OreGenerator.create("Copper")
+				.block(LBlocks.ore_metal, 0)
+				.frequency(12)
+				.range(48, 64)
+				.size(5));
+		// Yttrium
+		group.add(OreGenerator.create("Yttrium")
+				.block(LBlocks.ore_metal, 1)
+				.frequency(10)
+				.range(8, 48)
+				.size(2));
+		// Ytterbium
+		group.add(OreGenerator.create("Ytterbium")
+				.block(LBlocks.ore_metal, 2)
+				.target(Blocks.netherrack)
+				.frequency(10)
+				.range(8, 128)
+				.dimension(OreGenerator.NETHER)
+				.size(4));
+		// Praseodymium
+		group.add(OreGenerator.create("Praseodymium")
+				.block(LBlocks.ore_metal, 3)
+				.target(Blocks.gravel)
+				.frequency(8)
+				.range(16, 24)
+				.size(4));
+		// Neodymium
+		group.add(OreGenerator.create("Neodymium")
+				.block(LBlocks.ore_metal, 4)
+				.target(Blocks.nether_brick)
+				.dimension(OreGenerator.NETHER)
+				.frequency(24)
+				.range(8, 128)
+				.size(4));
+		// Holmium
+		group.add(OreGenerator.create("Holmium")
+				.block(LBlocks.ore_metal, 5)
+				.frequency(8)
+				.range(80, 256)
+				.size(6));
+		// Barium (SEEN)
+		group.add(OreGenerator.create("Barium")
+				.block(LBlocks.ore_metal, 6)
+				.frequency(12)
+				.range(24, 52)
+				.size(4));
+		// Erbium (SEEN)
+		group.add(OreGenerator.create("Erbium")
+				.block(LBlocks.ore_metal, 7)
+				.target(Blocks.end_stone)
+				.dimension(OreGenerator.THE_END)
+				.frequency(12)
+				.range(8, 128)
+				.size(6));
+		// Gadolinium (SEEN)
+		group.add(OreGenerator.create("Gadolinium")
+				.block(LBlocks.ore_metal, 8)
+				.target(Blocks.end_stone)
+				.dimension(OreGenerator.THE_END)
+				.frequency(12)
+				.range(8, 128)
+				.size(6));
+		// Dysprosium
+		group.add(OreGenerator.create("Dysprosium")
+				.block(LBlocks.ore_metal, 9)
+				.target(Blocks.obsidian)
+				.dimension(OreGenerator.THE_END)
+				.frequency(48)
+				.range(8, 128)
+				.size(12));
+		
+		
+		GameRegistry.registerWorldGenerator(group, 4);
 	}
 
 	@EventHandler

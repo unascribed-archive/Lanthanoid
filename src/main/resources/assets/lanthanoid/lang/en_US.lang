@@ -1,5 +1,7 @@
 tile.error.name=Invalid
 
+itemGroup.lanthanoid=Lanthanoid
+
 tile.oreCopper.name=Copper Ore
 tile.oreYttrium.name=Yttrium Ore
 tile.oreYtterbium.name=Ytterbium Ore
@@ -7,21 +9,61 @@ tile.orePraseodymium.name=Praseodymium Ore
 tile.oreNeodymium.name=Neodymium Ore
 tile.oreHolmium.name=Holmium Ore
 tile.oreBarium.name=Barium Ore
-tile.oreEuropium.name=Europium Ore
+tile.oreErbium.name=Erbium Ore
 tile.oreGadolinium.name=Gadolinium Ore
 tile.oreDysprosium.name=Dysprosium Ore
 
 tile.oreGypsum.name=Gypsum Crystal
 
 tile.oreActinolite.name=Actinolite Ore
-tile.oreEmpholite.name=Empholite Ore
+tile.oreDiaspore.name=Diaspore Ore
 tile.oreRaspite.name=Raspite Ore
 tile.oreRosasite.name=Rosasite Ore
 tile.oreThulite.name=Thulite Ore
 
 
-item.gemRaspite.name=Raspite
-item.dustRaspite.name=Raspite Dust
+item.ingotCopper.name=Copper Ingot
+item.dustCopper.name=Copper Dust
 
 item.ingotYttrium.name=Yttrium Ingot
 item.dustYttrium.name=Yttrium Dust
+
+item.ingotBarium.name=Barium Ingot
+item.dustBarium.name=Barium Dust
+
+item.ingotYtterbium.name=Ytterbium Ingot
+item.dustYtterbium.name=Ytterbium Dust
+
+item.ingotPraseodymium.name=Praseodymium Ingot
+item.dustPraseodymium.name=Praseodymium Dust
+
+item.ingotNeodymium.name=Neodymium Ingot
+item.dustNeodymium.name=Neodymium Dust
+
+item.ingotHolmium.name=Holmium Ingot
+item.dustHolmium.name=Holmium Dust
+
+item.ingotErbium.name=Erbium Ingot
+item.dustErbium.name=Erbium Dust
+
+item.ingotGadolinium.name=Gadolinium Ingot
+item.dustGadolinium.name=Gadolinium Dust
+
+item.ingotDysprosium.name=Dysprosium Ingot
+item.dustDysprosium.name=Dysprosium Dust
+
+
+item.gemActinolite.name=Actinolite
+item.dustActinolite.name=Actinolite Dust
+
+item.gemDiaspore.name=Diaspore
+item.dustDiaspore.name=Diaspore Dust
+
+item.gemRaspite.name=Raspite
+item.dustRaspite.name=Raspite Dust
+
+item.gemRosasite.name=Rosasite
+item.dustRosasite=Rosasite Dust
+
+item.gemThulite.name=Thulite
+item.dustThulite.name=Thulite Dust

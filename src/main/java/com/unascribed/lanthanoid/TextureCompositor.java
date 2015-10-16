@@ -27,12 +27,13 @@ public class TextureCompositor implements IResourcePack {
 
 	public interface CompositeType {
 		String name();
+		String prefix();
 	}
 	
 	public enum BlendMode {
 		NORMAL,
 		OVERLAY,
-		COLORIZE
+		COLORIZE,
 	}
 
 	public enum BlockType implements CompositeType {
@@ -42,13 +43,22 @@ public class TextureCompositor implements IResourcePack {
 		LUMPY,
 		ROUGH,
 		TRACE,
-		CRYSTAL
+		CRYSTAL,
+		;
+		public String prefix() { return "blocks/"; }
 	}
 	
 	public enum ItemType implements CompositeType {
 		WAFER,
 		INGOT,
-		DUST
+		DUST,
+		HEX_GEM,
+		ROUND_GEM,
+		SQUARE_GEM,
+		TRIANGLE_GEM,
+		ORB,
+		;
+		public String prefix() { return "items/"; }
 	}
 	
 	public enum BlockBackdrop {
@@ -62,6 +72,7 @@ public class TextureCompositor implements IResourcePack {
 		RED_SAND("minecraft", "textures/blocks/red_sand.png"),
 		DIRT("minecraft", "textures/blocks/dirt.png"),
 		SANDSTONE("minecraft", "textures/blocks/sandstone_bottom.png"),
+		OBSIDIAN("minecraft", "textures/blocks/obsidian.png"),
 		;
 		public final ResourceLocation loc;
 		BlockBackdrop() {
@@ -269,33 +280,50 @@ public class TextureCompositor implements IResourcePack {
 		loadFiveStep(BlockType.TRACE);
 		loadSingleStep(BlockType.CRYSTAL);
 		
-		loadTwoStep(ItemType.WAFER);
-		loadTwoStep(ItemType.INGOT);
-		loadTwoStep(ItemType.DUST);
+		loadTwoStepGlint(ItemType.WAFER);
+		loadTwoStepGlint(ItemType.INGOT);
+		loadTwoStepGlint(ItemType.DUST);
+		loadTwoStepBevel(ItemType.HEX_GEM);
+		loadTwoStepBevel(ItemType.ROUND_GEM);
+		loadTwoStepBevel(ItemType.TRIANGLE_GEM);
+		loadTwoStepBevel(ItemType.SQUARE_GEM);
+		loadTwoStepGlint(ItemType.ORB);
 	}
 
 
-	private void loadTwoStep(CompositeType type) throws IOException {
+	private void loadTwoStepGlint(CompositeType type) throws IOException {
 		List<CompositeStep> li = Lists.newArrayList();
 		String name = type.name().toLowerCase();
-		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+name+"_basis.png")), BlendMode.COLORIZE));
-		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+name+"_glint.png")), BlendMode.OVERLAY));
+		String prefix = type.prefix();
+		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+prefix+name+"_basis.png")), BlendMode.COLORIZE));
+		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+prefix+name+"_glint.png")), BlendMode.OVERLAY));
+		types.put(type, li);
+	}
+	
+	private void loadTwoStepBevel(CompositeType type) throws IOException {
+		List<CompositeStep> li = Lists.newArrayList();
+		String name = type.name().toLowerCase();
+		String prefix = type.prefix();
+		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+prefix+name+"_basis.png")), BlendMode.COLORIZE));
+		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+prefix+name+"_bevel.png")), BlendMode.NORMAL));
 		types.put(type, li);
 	}
 
 	private void loadSingleStep(CompositeType type) throws IOException {
 		String name = type.name().toLowerCase();
-		types.put(type, Lists.newArrayList(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+name+".png")), BlendMode.COLORIZE)));
+		String prefix = type.prefix();
+		types.put(type, Lists.newArrayList(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+prefix+name+".png")), BlendMode.COLORIZE)));
 	}
 
 	private void loadFiveStep(CompositeType type) throws IOException {
 		List<CompositeStep> li = Lists.newArrayList();
 		String name = type.name().toLowerCase();
-		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+name+"_basis.png")), BlendMode.COLORIZE));
-		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+name+"_bevel.png")), BlendMode.NORMAL));
-		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+name+"_shine.png")), BlendMode.NORMAL));
-		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+name+"_glint.png")), BlendMode.OVERLAY));
-		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+name+"_shade.png")), BlendMode.NORMAL));
+		String prefix = type.prefix();
+		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+prefix+name+"_basis.png")), BlendMode.COLORIZE));
+		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+prefix+name+"_bevel.png")), BlendMode.NORMAL));
+		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+prefix+name+"_shine.png")), BlendMode.NORMAL));
+		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+prefix+name+"_glint.png")), BlendMode.OVERLAY));
+		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+prefix+name+"_shade.png")), BlendMode.NORMAL));
 		types.put(type, li);
 	}
 
