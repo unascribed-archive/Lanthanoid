@@ -3,6 +3,8 @@ package com.unascribed.lanthanoid;
 import java.util.Arrays;
 import java.util.List;
 
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -16,20 +18,29 @@ import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
 public class BlockMulti extends BlockBase implements NameDelegate {
-	private String[] names;
-	private Block[] templates;
-	private IIcon errorIcon;
-	private IIcon[] icons;
+	protected String[] names;
+	protected TObjectIntMap<String> reverseNames;
+	protected Block[] templates;
+	protected IIcon errorIcon;
+	protected IIcon[] icons;
 	
-	private boolean useCompositor = true;
+	protected boolean useCompositor = true;
 	
 	protected BlockMulti(Material materialIn, Block defaultTemplate, String... names) {
 		super(materialIn);
 		this.names = names;
 		icons = new IIcon[names.length];
 		templates = new Block[names.length];
+		reverseNames = new TObjectIntHashMap<>(names.length);
+		for (int i = 0; i < names.length; i++) {
+			reverseNames.put(names[i], i);
+		}
 		Arrays.fill(templates, defaultTemplate);
 		setStepSound(defaultTemplate.stepSound);
+	}
+	
+	public int getMetaForName(String name) {
+		return reverseNames.get(name);
 	}
 	
 	public BlockMulti disableCompositor() {
@@ -97,8 +108,9 @@ public class BlockMulti extends BlockBase implements NameDelegate {
 		}
 	}
 	
+	
 	@Override
-	public void registerIcons(IIconRegister reg) {
+	public void registerBlockIcons(IIconRegister reg) {
 		errorIcon = reg.registerIcon("lanthanoid:error");
 		for (int i = 0; i < names.length; i++) {
 			String domain;

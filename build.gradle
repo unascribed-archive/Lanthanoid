@@ -35,15 +35,27 @@ retrolambda {
 	
 }
 
+repositories {
+	maven {
+		name = "chickenbones"
+			url = "http://chickenbones.net/maven"
+	}
+}
+
+
+dependencies {
+	compile 'codechicken:CodeChickenLib:1.7.10-1.1.3.127:dev'
+	compile 'codechicken:CodeChickenCore:1.7.10-1.0.4.29:dev'
+	compile 'codechicken:NotEnoughItems:1.7.10-1.0.3.74:dev'
+}
+
 minecraft {
-    version = "1.7.10-10.13.4.1472-1.7.10"
+    version = "1.7.10-10.13.2.1307-1.7.10"
     runDir = "eclipse"
 	
 	replaceIn "src/main/java/com/unascribed/lanthanoid/Lanthanoid.java"
 	replace "@VERSION@", project.version
 	replace "@MCVERSION@", project.minecraft.version
-	
-	mappings = "snapshot_20140925"
 }
 
 processResources {

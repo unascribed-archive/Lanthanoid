@@ -13,6 +13,6 @@ public class ItemBlockWithCustomName extends ItemBlockWithMetadata {
 	
 	@Override
 	public String getUnlocalizedName(ItemStack p_77667_1_) {
-		return block.getUnlocalizedName(p_77667_1_.getCurrentDurability());
+		return block.getUnlocalizedName(p_77667_1_.getItemDamage());
 	}
 }

@@ -59,6 +59,7 @@ public class TextureCompositor implements IResourcePack {
 		SQUARE_GEM,
 		TRIANGLE_GEM,
 		ORB,
+		NUGGET,
 		;
 		public String prefix() { return "items/"; }
 	}
@@ -300,6 +301,7 @@ public class TextureCompositor implements IResourcePack {
 		loadTwoStepBevel(ItemType.TRIANGLE_GEM);
 		loadTwoStepBevel(ItemType.SQUARE_GEM);
 		loadTwoStepGlint(ItemType.ORB);
+		loadTwoStepGlint(ItemType.NUGGET);
 	}
 
 

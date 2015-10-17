@@ -1,6 +1,7 @@
 package com.unascribed.lanthanoid;
 
 import java.util.List;
+import java.util.Random;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +19,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockOre;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.SimpleReloadableResourceManager;
@@ -27,10 +29,15 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
+import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.oredict.ShapelessOreRecipe;
+import scala.actors.threadpool.Arrays;
 
 @Mod(
 	modid="lanthanoid",
@@ -133,6 +140,12 @@ public class Lanthanoid {
 			compositor.generate();
 		});
 		
+		
+		GameRegistry.registerItem(LItems.resource = new ItemResource(union(
+				all(metals, "ingot", "dust", "nugget"),
+				all(gems, "gem", "dust"),
+				new String[] { "gemRosasite", "dustRosasite" })), "resource");
+		
 		GameRegistry.registerBlock(LBlocks.ore_metal = new BlockMulti(
 				Material.rock,
 				Blocks.stone,
@@ -143,16 +156,34 @@ public class Lanthanoid {
 				.setTemplate("oreNeodymium", Blocks.nether_brick)
 				.setTemplate("oreErbium", Blocks.end_stone)
 				.setTemplate("oreGadolinium", Blocks.end_stone), ItemBlockWithCustomName.class, "ore_metal");
-		GameRegistry.registerBlock(LBlocks.ore_gem = new BlockMulti(
-				Material.rock,
-				Blocks.stone,
-				
-				all(gems, "ore")), ItemBlockWithCustomName.class, "ore_gem");
+		GameRegistry.registerBlock(LBlocks.ore_gem = new BlockMulti(Material.rock, Blocks.stone, all(gems, "ore")) {
+			@Override
+			public Item getItemDropped(int p_149650_1_, Random p_149650_2_, int p_149650_3_) {
+				return LItems.resource;
+			}
+			@Override
+			public int damageDropped(int meta) {
+				if (meta < 0 || meta >= names.length) return 3000+meta;
+				System.out.println(names[meta].replace("ore", "gem"));
+				return LItems.resource.getMetaForName(names[meta].replaceFirst("ore", "gem"));
+			}
+			@Override
+			public int quantityDroppedWithBonus(int bonus, Random random) {
+				if (bonus <= 0) return 1;
+				return Math.max(1, random.nextInt(bonus + 2)+1);
+			}
+			private Random rand = new Random();
+			@Override
+			public int getExpDrop(IBlockAccess world, int metadata, int fortune) {
+				return MathHelper.getRandomIntegerInRange(rand, 3, 7);
+			}
+		}, ItemBlockWithCustomName.class, "ore_gem");
 		GameRegistry.registerBlock(LBlocks.ore_other = new BlockMulti(
 				Material.rock,
 				Blocks.stone,
 				
 				all(others, "ore")), ItemBlockWithCustomName.class, "ore_other");
+		
 		GameRegistry.registerBlock(LBlocks.storage = new BlockMulti(
 				Material.iron,
 				Blocks.iron_block,
@@ -161,14 +192,38 @@ public class Lanthanoid {
 				), ItemBlockWithCustomName.class, "storage");
 		
 		
-		GameRegistry.registerItem(LItems.resource = new ItemResource(union(
-				all(metals, "ingot", "dust"),
-				all(gems, "gem", "dust"))), "resource");
 		
 		LBlocks.ore_metal.registerOres();
 		LBlocks.ore_gem.registerOres();
 		LBlocks.ore_other.registerOres();
+		LBlocks.storage.registerOres();
 		LItems.resource.registerOres();
+		
+		for (String s : metals) {
+			GameRegistry.addSmelting(new ItemStack(LBlocks.ore_metal, 1, LBlocks.ore_metal.getMetaForName("ore"+s)),
+					new ItemStack(LItems.resource, 1, LItems.resource.getMetaForName("ingot"+s)), 1.0f);
+			GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(LItems.resource, 9, LItems.resource.getMetaForName("nugget"+s)),
+					"ingot"+s));
+			GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(LItems.resource, 1, LItems.resource.getMetaForName("ingot"+s)),
+					"nugget"+s, "nugget"+s, "nugget"+s,
+					"nugget"+s, "nugget"+s, "nugget"+s,
+					"nugget"+s, "nugget"+s, "nugget"+s));
+			
+			GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(LBlocks.storage, 1, LBlocks.storage.getMetaForName("block"+s)),
+					"ingot"+s, "ingot"+s, "ingot"+s,
+					"ingot"+s, "ingot"+s, "ingot"+s,
+					"ingot"+s, "ingot"+s, "ingot"+s));
+			GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(LItems.resource, 9, LItems.resource.getMetaForName("ingot"+s)),
+					"block"+s));
+		}
+		for (String s : gems) {	
+			GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(LBlocks.storage, 1, LBlocks.storage.getMetaForName("block"+s)),
+					"gem"+s, "gem"+s, "gem"+s,
+					"gem"+s, "gem"+s, "gem"+s,
+					"gem"+s, "gem"+s, "gem"+s));
+			GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(LItems.resource, 9, LItems.resource.getMetaForName("gem"+s)),
+					"block"+s));
+		}
 		
 		GeneratorGroup group = new GeneratorGroup();
 		
@@ -205,7 +260,7 @@ public class Lanthanoid {
 		group.add(OreGenerator.create("Holmium")
 				.block(LBlocks.ore_metal, 5)
 				.frequency(8)
-				.range(80, 256)
+				.range(80, 120)
 				.size(6));
 		group.add(OreGenerator.create("Barium")
 				.block(LBlocks.ore_metal, 6)
@@ -227,8 +282,40 @@ public class Lanthanoid {
 				.range(8, 128)
 				.size(6));
 		
+		group.add(OreGenerator.create("Actinolite")
+				.block(LBlocks.ore_gem, 0)
+				.frequency(12)
+				.range(8, 64)
+				.size(4));
+		group.add(OreGenerator.create("Diaspore")
+				.block(LBlocks.ore_gem, 1)
+				.frequency(4)
+				.range(8, 24)
+				.size(6));
+		group.add(OreGenerator.create("Thulite")
+				.block(LBlocks.ore_gem, 2)
+				.frequency(8)
+				.range(24, 48)
+				.size(5));
+		group.add(OreGenerator.create("Raspite")
+				.block(LBlocks.ore_gem, 3)
+				.frequency(2)
+				.range(18, 32)
+				.size(8));
 		
 		GameRegistry.registerWorldGenerator(group, 5000);
+	}
+
+	private <T> List<T> union(List<T>... lis) {
+		int len = 0;
+		for (List<T> li : lis) {
+			len += li.size();
+		}
+		List<T> res = Lists.newArrayListWithCapacity(len);
+		for (List<T> li : lis) {
+			res.addAll(li);
+		}
+		return res;
 	}
 
 	@EventHandler
@@ -278,9 +365,11 @@ public class Lanthanoid {
 	private String[] all(List<String> types, String... prefixes) {
 		int count = prefixes.length;
 		String[] res = new String[types.size()*count];
+		int idx = 0;
 		for (int j = 0; j < count; j++) {
 			for (int i = 0; i < types.size(); i++) {
-				res[(i*count)+j] = prefixes[j]+types.get(i);
+				res[idx] = prefixes[j]+types.get(i);
+				idx++;
 			}
 		}
 		return res;
@@ -290,6 +379,7 @@ public class Lanthanoid {
 		compositor.addBlock("ore"+name, color, blockType, backdrop);
 		if (itemType == ItemType.INGOT) {
 			compositor.addItem("ingot"+name, color, itemType);
+			compositor.addItem("nugget"+name, color, ItemType.NUGGET);
 		} else {
 			compositor.addItem("gem"+name, color, itemType);
 		}

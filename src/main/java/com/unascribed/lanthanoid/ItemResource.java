@@ -1,6 +1,9 @@
 package com.unascribed.lanthanoid;
 
 import java.util.List;
+
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -10,13 +13,22 @@ import net.minecraftforge.oredict.OreDictionary;
 
 public class ItemResource extends Item {
 	private String[] names;
+	private TObjectIntMap<String> reverseNames;
 	private IIcon errorIcon;
 	private IIcon[] icons;
 	
 	protected ItemResource(String... names) {
 		this.names = names;
 		icons = new IIcon[names.length];
+		reverseNames = new TObjectIntHashMap<>(names.length);
+		for (int i = 0; i < names.length; i++) {
+			reverseNames.put(names[i], i);
+		}
 		setCreativeTab(Lanthanoid.inst.creativeTab);
+	}
+	
+	public int getMetaForName(String name) {
+		return reverseNames.get(name);
 	}
 	
 	@Override
@@ -49,7 +61,7 @@ public class ItemResource extends Item {
 
 	@Override
 	public String getUnlocalizedName(ItemStack stack) {
-		int meta = stack.getCurrentDurability();
+		int meta = stack.getItemDamage();
 		if (meta < 0 || meta >= names.length) return "tile.error";
 		return "item."+names[meta];
 	}

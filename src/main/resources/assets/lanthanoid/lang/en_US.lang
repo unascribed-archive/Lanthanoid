@@ -22,34 +22,61 @@ tile.oreRosasite.name=Rosasite Ore
 tile.oreThulite.name=Thulite Ore
 
 
+tile.blockCopper.name=Block of Copper
+tile.blockYttrium.name=Block of Yttrium
+tile.blockYtterbium.name=Block of Ytterbium
+tile.blockPraseodymium.name=Block of Praseodymium
+tile.blockNeodymium.name=Block of Neodymium
+tile.blockHolmium.name=Block of Holmium
+tile.blockBarium.name=Block of Barium
+tile.blockErbium.name=Block of Erbium
+tile.blockGadolinium.name=Block of Gadolinium
+tile.blockDysprosium.name=Block of Dysprosium
+
+tile.blockActinolite.name=Block of Actinolite
+tile.blockDiaspore.name=Block of Diaspore
+tile.blockRaspite.name=Block of Raspite
+tile.blockThulite.name=Block of Thulite
+
+
 item.ingotCopper.name=Copper Ingot
+item.nuggetCopper.name=Copper Nugget
 item.dustCopper.name=Copper Dust
 
 item.ingotYttrium.name=Yttrium Ingot
+item.nuggetYttrium.name=Yttrium Nugget
 item.dustYttrium.name=Yttrium Dust
 
 item.ingotBarium.name=Barium Ingot
+item.nuggetBarium.name=Barium Nugget
 item.dustBarium.name=Barium Dust
 
 item.ingotYtterbium.name=Ytterbium Ingot
+item.nuggetYtterbium.name=Ytterbium Nugget
 item.dustYtterbium.name=Ytterbium Dust
 
 item.ingotPraseodymium.name=Praseodymium Ingot
+item.nuggetPraseodymium.name=Praseodymium Nugget
 item.dustPraseodymium.name=Praseodymium Dust
 
 item.ingotNeodymium.name=Neodymium Ingot
+item.nuggetNeodymium.name=Neodymium Nugget
 item.dustNeodymium.name=Neodymium Dust
 
 item.ingotHolmium.name=Holmium Ingot
+item.nuggetHolmium.name=Holmium Nugget
 item.dustHolmium.name=Holmium Dust
 
 item.ingotErbium.name=Erbium Ingot
+item.nuggetErbium.name=Erbium Nugget
 item.dustErbium.name=Erbium Dust
 
 item.ingotGadolinium.name=Gadolinium Ingot
+item.nuggetGadolinium.name=Gadolinium Nugget
 item.dustGadolinium.name=Gadolinium Dust
 
 item.ingotDysprosium.name=Dysprosium Ingot
+item.nuggetDysprosium.name=Dysprosium Nugget
 item.dustDysprosium.name=Dysprosium Dust
 
 
