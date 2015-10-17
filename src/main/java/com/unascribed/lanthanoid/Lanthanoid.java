@@ -1,8 +1,11 @@
 package com.unascribed.lanthanoid;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.google.common.collect.Lists;
 import com.unascribed.lanthanoid.TextureCompositor.BlockBackdrop;
 import com.unascribed.lanthanoid.TextureCompositor.BlockType;
 import com.unascribed.lanthanoid.TextureCompositor.ItemType;
@@ -14,6 +17,8 @@ import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.SimpleReloadableResourceManager;
 import net.minecraft.command.CommandBase;
@@ -22,6 +27,9 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatStyle;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.Vec3;
 
 @Mod(
@@ -43,6 +51,10 @@ public class Lanthanoid {
 			return Item.getItemFromBlock(LBlocks.ore_metal);
 		}
 	};
+	
+	private List<String> metals = Lists.newArrayList();
+	private List<String> gems = Lists.newArrayList();
+	private List<String> others = Lists.newArrayList();
 	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent e) {
@@ -88,89 +100,70 @@ public class Lanthanoid {
 			log.warn("Farrago is deprecated, and duplicates some of the functionality in Lanthanoid. It is recommended you remove it.");
 		}
 		SimpleReloadableResourceManager srrm = ((SimpleReloadableResourceManager)Minecraft.getMinecraft().getResourceManager());
+		compositor = new TextureCompositor(srrm);
+		
+		addAll("Copper", 0x944A09, BlockType.METAL_ORE, BlockBackdrop.STONE, ItemType.INGOT);
+		addAll("Yttrium", 0x496B6E, BlockType.METAL_ORE, BlockBackdrop.STONE, ItemType.INGOT);
+		addAll("Barium", 0x39190A, BlockType.METAL_ORE, BlockBackdrop.STONE, ItemType.INGOT);
+		
+		addAll("Ytterbium", 0x423D00, BlockType.METAL_ORE, BlockBackdrop.NETHERRACK, ItemType.INGOT);
+		addAll("Praseodymium", 0x2B4929, BlockType.METAL_ORE, BlockBackdrop.GRAVEL, ItemType.INGOT);
+		addAll("Neodymium", 0x363662, BlockType.METAL_ORE, BlockBackdrop.NETHER_BRICK, ItemType.INGOT);
+		addAll("Holmium", 0xA8A18D, BlockType.METAL_ORE, BlockBackdrop.STONE, ItemType.INGOT);
+		
+		addAll("Erbium", 0x1A3996, BlockType.TRACE_ORE, BlockBackdrop.END_STONE, ItemType.INGOT);
+		addAll("Gadolinium", 0x157952, BlockType.TRACE_ORE, BlockBackdrop.END_STONE, ItemType.INGOT);
+		addAll("Dysprosium", 0x4F0059, BlockType.TRACE_ORE, BlockBackdrop.STONE, ItemType.INGOT);
+		
+		
+		addAll("Actinolite", 0x40AD83, BlockType.GEM_ORE, BlockBackdrop.STONE, ItemType.SQUARE_GEM);
+		addAll("Diaspore", 0x674BC3, BlockType.GEM_ORE, BlockBackdrop.STONE, ItemType.ROUND_GEM);
+		
+		addAll("Thulite", 0xCA5E52, BlockType.GEM_ORE, BlockBackdrop.STONE, ItemType.HEX_GEM);
+		
+		addAll("Rosasite", 0x00A6C3, BlockType.LUMPY_ORE, BlockBackdrop.NONE, ItemType.ORB);
+		
+		addAll("Raspite", 0xC67226, BlockType.GEM_SQUARE_ORE, BlockBackdrop.STONE, ItemType.WAFER);
+		
+		compositor.addBlock("oreGypsum", 0xCBCBCB, BlockType.CRYSTAL);
+		others.add("Gypsum");
+		
 		srrm.registerReloadListener(it -> {
-			compositor = new TextureCompositor(srrm);
 			compositor.load();
-			addAll("Copper", 0x944A09, BlockType.METAL, BlockBackdrop.STONE, ItemType.INGOT);
-			addAll("Yttrium", 0x496B6E, BlockType.METAL, BlockBackdrop.STONE, ItemType.INGOT);
-			addAll("Barium", 0x39190A, BlockType.METAL, BlockBackdrop.STONE, ItemType.INGOT);
-			
-			addAll("Ytterbium", 0x423D00, BlockType.METAL, BlockBackdrop.NETHERRACK, ItemType.INGOT);
-			addAll("Praseodymium", 0x2B4929, BlockType.METAL, BlockBackdrop.GRAVEL, ItemType.INGOT);
-			addAll("Neodymium", 0x363662, BlockType.METAL, BlockBackdrop.NETHER_BRICK, ItemType.INGOT);
-			addAll("Holmium", 0xA8A18D, BlockType.METAL, BlockBackdrop.STONE, ItemType.INGOT);
-			
-			addAll("Erbium", 0x1A3996, BlockType.TRACE, BlockBackdrop.END_STONE, ItemType.INGOT);
-			addAll("Gadolinium", 0x157952, BlockType.TRACE, BlockBackdrop.END_STONE, ItemType.INGOT);
-			addAll("Dysprosium", 0x4F0059, BlockType.TRACE, BlockBackdrop.OBSIDIAN, ItemType.INGOT);
-			
-			
-			addAll("Actinolite", 0x40AD83, BlockType.GEM, BlockBackdrop.STONE, ItemType.SQUARE_GEM);
-			addAll("Diaspore", 0x674BC3, BlockType.GEM, BlockBackdrop.STONE, ItemType.ROUND_GEM);
-			
-			addAll("Thulite", 0xCA5E52, BlockType.ROUGH, BlockBackdrop.STONE, ItemType.HEX_GEM);
-			
-			addAll("Rosasite", 0x00A6C3, BlockType.LUMPY, BlockBackdrop.STONE, ItemType.ORB);
-			
-			addAll("Raspite", 0xC67226, BlockType.SQUARE, BlockBackdrop.STONE, ItemType.WAFER);
-			
-			compositor.addBlock("oreGypsum", 0xCACACA, BlockType.CRYSTAL, BlockBackdrop.NONE);
-			
-			
 			compositor.generate();
 		});
 		
-		GameRegistry.registerBlock(LBlocks.ore_metal = new BlockOre(
-				"oreCopper",
-				"oreYttrium",
-				"oreYtterbium",
-				"orePraseodymium",
-				"oreNeodymium",
-				"oreHolmium",
-				"oreBarium",
-				"oreErbium",
-				"oreGadolinium",
-				"oreDysprosium")
-				.setBackdrop("oreYtterbium", Blocks.netherrack)
-				.setBackdrop("orePraseodymium", Blocks.gravel)
-				.setBackdrop("oreNeodymium", Blocks.nether_brick)
-				.setBackdrop("oreErbium", Blocks.end_stone)
-				.setBackdrop("oreGadolinium", Blocks.end_stone)
-				.setBackdrop("oreDysprosium", Blocks.obsidian), ItemBlockWithCustomName.class, "ore_metal");
-		GameRegistry.registerBlock(LBlocks.ore_gem = new BlockOre(
-				"oreActinolite",
-				"oreDiaspore",
-				"oreRaspite"), ItemBlockWithCustomName.class, "ore_gem");
-		GameRegistry.registerBlock(LBlocks.ore_other = new BlockOre(
-				"oreGypsum",
-				"oreRosasite",
-				"oreThulite"), ItemBlockWithCustomName.class, "ore_other");
+		GameRegistry.registerBlock(LBlocks.ore_metal = new BlockMulti(
+				Material.rock,
+				Blocks.stone,
+				
+				all(metals, "ore"))
+				.setTemplate("oreYtterbium", Blocks.netherrack)
+				.setTemplate("orePraseodymium", Blocks.gravel)
+				.setTemplate("oreNeodymium", Blocks.nether_brick)
+				.setTemplate("oreErbium", Blocks.end_stone)
+				.setTemplate("oreGadolinium", Blocks.end_stone), ItemBlockWithCustomName.class, "ore_metal");
+		GameRegistry.registerBlock(LBlocks.ore_gem = new BlockMulti(
+				Material.rock,
+				Blocks.stone,
+				
+				all(gems, "ore")), ItemBlockWithCustomName.class, "ore_gem");
+		GameRegistry.registerBlock(LBlocks.ore_other = new BlockMulti(
+				Material.rock,
+				Blocks.stone,
+				
+				all(others, "ore")), ItemBlockWithCustomName.class, "ore_other");
+		GameRegistry.registerBlock(LBlocks.storage = new BlockMulti(
+				Material.iron,
+				Blocks.iron_block,
+				
+				union(all(metals, "block"), all(gems, "block"))
+				), ItemBlockWithCustomName.class, "storage");
 		
 		
 		GameRegistry.registerItem(LItems.resource = new ItemResource(union(
-				all(
-					"ingot",
-					
-					"Copper",
-					"Yttrium",
-					"Ytterbium",
-					"Praseodymium",
-					"Neodymium",
-					"Holmium",
-					"Barium",
-					"Erbium",
-					"Gadolinium",
-					"Dysprosium"
-				),
-				all(
-					"gem",
-					
-					"Actinolite",
-					"Diaspore",
-					"Raspite",
-					"Rosasite",
-					"Thulite"
-				))), "resource");
+				all(metals, "ingot", "dust"),
+				all(gems, "gem", "dust"))), "resource");
 		
 		LBlocks.ore_metal.registerOres();
 		LBlocks.ore_gem.registerOres();
@@ -179,34 +172,29 @@ public class Lanthanoid {
 		
 		GeneratorGroup group = new GeneratorGroup();
 		
-		// Copper (SEEN)
 		group.add(OreGenerator.create("Copper")
 				.block(LBlocks.ore_metal, 0)
 				.frequency(12)
 				.range(48, 64)
 				.size(5));
-		// Yttrium
 		group.add(OreGenerator.create("Yttrium")
 				.block(LBlocks.ore_metal, 1)
 				.frequency(10)
 				.range(8, 48)
-				.size(2));
-		// Ytterbium
+				.size(5));
 		group.add(OreGenerator.create("Ytterbium")
 				.block(LBlocks.ore_metal, 2)
 				.target(Blocks.netherrack)
 				.frequency(10)
 				.range(8, 128)
 				.dimension(OreGenerator.NETHER)
-				.size(4));
-		// Praseodymium
+				.size(5));
 		group.add(OreGenerator.create("Praseodymium")
 				.block(LBlocks.ore_metal, 3)
 				.target(Blocks.gravel)
 				.frequency(8)
 				.range(16, 24)
-				.size(4));
-		// Neodymium
+				.size(5));
 		group.add(OreGenerator.create("Neodymium")
 				.block(LBlocks.ore_metal, 4)
 				.target(Blocks.nether_brick)
@@ -214,19 +202,16 @@ public class Lanthanoid {
 				.frequency(24)
 				.range(8, 128)
 				.size(4));
-		// Holmium
 		group.add(OreGenerator.create("Holmium")
 				.block(LBlocks.ore_metal, 5)
 				.frequency(8)
 				.range(80, 256)
 				.size(6));
-		// Barium (SEEN)
 		group.add(OreGenerator.create("Barium")
 				.block(LBlocks.ore_metal, 6)
 				.frequency(12)
 				.range(24, 52)
 				.size(4));
-		// Erbium (SEEN)
 		group.add(OreGenerator.create("Erbium")
 				.block(LBlocks.ore_metal, 7)
 				.target(Blocks.end_stone)
@@ -234,7 +219,6 @@ public class Lanthanoid {
 				.frequency(12)
 				.range(8, 128)
 				.size(6));
-		// Gadolinium (SEEN)
 		group.add(OreGenerator.create("Gadolinium")
 				.block(LBlocks.ore_metal, 8)
 				.target(Blocks.end_stone)
@@ -242,17 +226,9 @@ public class Lanthanoid {
 				.frequency(12)
 				.range(8, 128)
 				.size(6));
-		// Dysprosium
-		group.add(OreGenerator.create("Dysprosium")
-				.block(LBlocks.ore_metal, 9)
-				.target(Blocks.obsidian)
-				.dimension(OreGenerator.THE_END)
-				.frequency(48)
-				.range(8, 128)
-				.size(12));
 		
 		
-		GameRegistry.registerWorldGenerator(group, 4);
+		GameRegistry.registerWorldGenerator(group, 5000);
 	}
 
 	@EventHandler
@@ -263,12 +239,19 @@ public class Lanthanoid {
 			public void processCommand(ICommandSender sender, String[] args) {
 				EntityPlayer p = ((EntityPlayer)sender);
 				Vec3 look = p.getLookVec();
-				Generate.spike(p.worldObj, LBlocks.ore_other, 0, (int)p.posX, (int)p.posY, (int)p.posZ, (float)look.xCoord, (float)look.yCoord, (float)look.zCoord, parseInt(sender, args[0]));
+				Block block = getBlockByText(sender, args[0]);
+				int meta = parseIntBounded(sender, args[1], 0, 15);
+				int length = parseIntBounded(sender, args[2], 1, 150);
+				int changed = Generate.spike(p.worldObj, block, meta,
+						(int)p.posX, (int)p.posY, (int)p.posZ,
+						(float)look.xCoord, (float)look.yCoord, (float)look.zCoord,
+						length);
+				sender.addChatMessage(new ChatComponentText(changed+" blocks changed").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.LIGHT_PURPLE)));
 			}
 			
 			@Override
 			public String getCommandUsage(ICommandSender sender) {
-				return "hi";
+				return "/lanspike <TileName> <dataValue> <length>";
 			}
 			
 			@Override
@@ -292,11 +275,13 @@ public class Lanthanoid {
 		return res;
 	}
 	
-	private String[] all(String prefix, String... types) {
-		String[] res = new String[types.length*2];
-		for (int i = 0; i < types.length; i++) {
-			res[i*2] = prefix+types[i];
-			res[(i*2)+1] = "dust"+types[i];
+	private String[] all(List<String> types, String... prefixes) {
+		int count = prefixes.length;
+		String[] res = new String[types.size()*count];
+		for (int j = 0; j < count; j++) {
+			for (int i = 0; i < types.size(); i++) {
+				res[(i*count)+j] = prefixes[j]+types.get(i);
+			}
 		}
 		return res;
 	}
@@ -307,6 +292,16 @@ public class Lanthanoid {
 			compositor.addItem("ingot"+name, color, itemType);
 		} else {
 			compositor.addItem("gem"+name, color, itemType);
+		}
+		if (blockType == BlockType.METAL_ORE || blockType == BlockType.TRACE_ORE) {
+			compositor.addBlock("block"+name, color, BlockType.METAL_BLOCK);
+			metals.add(name);
+		} else if (blockType == BlockType.GEM_ORE || blockType == BlockType.GEM_SQUARE_ORE) {
+			compositor.addBlock("block"+name, color, BlockType.GEM_BLOCK);
+			gems.add(name);
+		} else {
+			compositor.addBlock("block"+name, color, blockType);
+			others.add(name);
 		}
 		compositor.addItem("dust"+name, color, ItemType.DUST);
 	}

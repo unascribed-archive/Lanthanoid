@@ -31,7 +31,7 @@ public class OreGenerator implements IWorldGenerator {
 	private OreGenerator(String name) {
 		this.name = name;
 	}
-	
+
 	@Override
 	public void generate(Random random, int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider) {
 		if (dirty) {
@@ -47,12 +47,14 @@ public class OreGenerator implements IWorldGenerator {
 				int x = (chunkX*16) + random.nextInt(16);
 				int y = random.nextInt(maxHeight-minHeight)+minHeight;
 				int z = (chunkZ*16) + random.nextInt(16);
-				if (world.getBlock(x, y, z).isReplaceableOreGen(world, x, y, z, target)) {
-					Lanthanoid.log.info("Generating {} at {}, {}, {} in {} ({}) as {}@{}", name, x, y, z, world.provider.getDimensionName(), world.provider.dimensionId, Block.blockRegistry.getNameForObject(block), meta);
-					gen.generate(world, random, x, y, z);
-				}
+				gen.generate(world, random, x, y, z);
 			}
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return name+" Ore Generator";
 	}
 	
 	public OreGenerator target(Block target) {

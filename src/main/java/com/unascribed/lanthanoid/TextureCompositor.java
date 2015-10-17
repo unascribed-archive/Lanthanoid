@@ -14,6 +14,7 @@ import java.util.Set;
 
 import javax.imageio.ImageIO;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -37,13 +38,14 @@ public class TextureCompositor implements IResourcePack {
 	}
 
 	public enum BlockType implements CompositeType {
-		METAL,
-		GEM,
-		SQUARE,
-		LUMPY,
-		ROUGH,
-		TRACE,
+		METAL_ORE,
+		GEM_ORE,
+		GEM_SQUARE_ORE,
+		LUMPY_ORE,
+		TRACE_ORE,
 		CRYSTAL,
+		METAL_BLOCK,
+		GEM_BLOCK,
 		;
 		public String prefix() { return "blocks/"; }
 	}
@@ -68,10 +70,6 @@ public class TextureCompositor implements IResourcePack {
 		NETHERRACK("minecraft", "textures/blocks/netherrack.png"),
 		NETHER_BRICK("minecraft", "textures/blocks/nether_brick.png"),
 		GRAVEL("minecraft", "textures/blocks/gravel.png"),
-		SAND("minecraft", "textures/blocks/sand.png"),
-		RED_SAND("minecraft", "textures/blocks/red_sand.png"),
-		DIRT("minecraft", "textures/blocks/dirt.png"),
-		SANDSTONE("minecraft", "textures/blocks/sandstone_bottom.png"),
 		OBSIDIAN("minecraft", "textures/blocks/obsidian.png"),
 		;
 		public final ResourceLocation loc;
@@ -90,9 +88,9 @@ public class TextureCompositor implements IResourcePack {
 	}
 	
 	private static class CompositeStep {
-		public BufferedImage img;
+		public LazyReference<BufferedImage> img;
 		public BlendMode mode;
-		public CompositeStep(BufferedImage img, BlendMode mode) {
+		public CompositeStep(LazyReference<BufferedImage> img, BlendMode mode) {
 			this.img = img;
 			this.mode = mode;
 		}
@@ -111,12 +109,17 @@ public class TextureCompositor implements IResourcePack {
 	
 	public TextureCompositor(SimpleReloadableResourceManager rm) {
 		this.rm = rm;
+		try {
+			loadSteps();
+		} catch (IOException e) {
+			Lanthanoid.log.error("Failed to load steps", e);
+		}
 	}
 
 	public void load() {
 		try {
-			loadBackdrops();
 			loadSteps();
+			loadBackdrops();
 		} catch (Exception e) {
 			Lanthanoid.log.error("Failed to load backdrops and steps", e);
 		}
@@ -152,8 +155,8 @@ public class TextureCompositor implements IResourcePack {
 		int w = 0;
 		int h = 0;
 		for (CompositeStep step : task.steps) {
-			w = Math.max(step.img.getWidth(), w);
-			h = Math.max(step.img.getHeight(), h);
+			w = Math.max(step.img.get().getWidth(), w);
+			h = Math.max(step.img.get().getHeight(), h);
 		}
 		BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_4BYTE_ABGR);
 		float inR = ((task.color >> 16) & 0xFF) / 255f;
@@ -164,10 +167,10 @@ public class TextureCompositor implements IResourcePack {
 			BufferedImage draw;
 			switch (step.mode) {
 				case NORMAL:
-					draw = step.img;
+					draw = step.img.get();
 					break;
 				case COLORIZE:
-					draw = copy(step.img);
+					draw = copy(step.img.get());
 					for (int x = 0; x < draw.getWidth(); x++) {
 						for (int y = 0; y < draw.getHeight(); y++) {
 							int rgb = draw.getRGB(x, y);
@@ -188,7 +191,7 @@ public class TextureCompositor implements IResourcePack {
 					}
 					break;
 				case OVERLAY:
-					draw = buffer(step.img.getScaledInstance(w, h, Image.SCALE_FAST));
+					draw = buffer(step.img.get().getScaledInstance(w, h, Image.SCALE_FAST));
 					for (int x = 0; x < w; x++) {
 						for (int y = 0; y < h; y++) {
 							int srcRgb = draw.getRGB(x, y);
@@ -250,9 +253,10 @@ public class TextureCompositor implements IResourcePack {
 	}
 
 	private void loadBackdrops() throws IOException {
+		backdrops.clear();
 		for (BlockBackdrop b : BlockBackdrop.values()) {
 			if (b.loc == null) continue;
-			backdrops.put(b, cropToWidth(readImage(b.loc)));
+			backdrops.put(b, cropToWidth(readImage(b.loc).get()));
 		}
 	}
 	
@@ -265,20 +269,28 @@ public class TextureCompositor implements IResourcePack {
 		return target;
 	}
 
-	private BufferedImage readImage(ResourceLocation loc) throws IOException {
-		InputStream in = rm.getResource(loc).getInputStream();
-		BufferedImage img = ImageIO.read(in);
-		return img;
+	private LazyReference<BufferedImage> readImage(ResourceLocation loc) throws IOException {
+		return new LazyReference<>(() -> {
+			try {
+				InputStream in = rm.getResource(loc).getInputStream();
+				BufferedImage img = ImageIO.read(in);
+				return img;
+			} catch (Exception e) {
+				throw Throwables.propagate(e);
+			}
+		});
 	}
 
 	private void loadSteps() throws IOException {
-		loadFiveStep(BlockType.METAL);
-		loadFiveStep(BlockType.GEM);
-		loadFiveStep(BlockType.SQUARE);
-		loadSingleStep(BlockType.LUMPY);
-		loadSingleStep(BlockType.ROUGH);
-		loadFiveStep(BlockType.TRACE);
+		types.clear();
+		loadFourStep(BlockType.METAL_ORE);
+		loadFourStep(BlockType.GEM_ORE);
+		loadFourStep(BlockType.GEM_SQUARE_ORE);
+		loadSingleStep(BlockType.LUMPY_ORE);
+		loadFourStep(BlockType.TRACE_ORE);
 		loadSingleStep(BlockType.CRYSTAL);
+		loadTwoStepGlint(BlockType.METAL_BLOCK);
+		loadTwoStepBevel(BlockType.GEM_BLOCK);
 		
 		loadTwoStepGlint(ItemType.WAFER);
 		loadTwoStepGlint(ItemType.INGOT);
@@ -315,26 +327,28 @@ public class TextureCompositor implements IResourcePack {
 		types.put(type, Lists.newArrayList(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+prefix+name+".png")), BlendMode.COLORIZE)));
 	}
 
-	private void loadFiveStep(CompositeType type) throws IOException {
+	private void loadFourStep(CompositeType type) throws IOException {
 		List<CompositeStep> li = Lists.newArrayList();
 		String name = type.name().toLowerCase();
 		String prefix = type.prefix();
 		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+prefix+name+"_basis.png")), BlendMode.COLORIZE));
 		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+prefix+name+"_bevel.png")), BlendMode.NORMAL));
-		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+prefix+name+"_shine.png")), BlendMode.NORMAL));
 		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+prefix+name+"_glint.png")), BlendMode.OVERLAY));
 		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+prefix+name+"_shade.png")), BlendMode.NORMAL));
 		types.put(type, li);
 	}
 
-
+	public void addBlock(String name, int color, BlockType type) {
+		addBlock(name, color, type, BlockBackdrop.NONE);
+	}
+	
 	public void addBlock(String name, int color, BlockType type, BlockBackdrop backdrop) {
 		Task o = new Task();
 		o.name = "blocks/"+name;
 		o.color = color;
 		o.steps = Lists.newArrayList();
 		if (backdrop.loc != null) {
-			o.steps.add(new CompositeStep(backdrops.get(backdrop), BlendMode.NORMAL));
+			o.steps.add(new CompositeStep(new LazyReference<>(() -> backdrops.get(backdrop)), BlendMode.NORMAL));
 		}
 		o.steps.addAll(types.get(type));
 		tasks.add(o);
