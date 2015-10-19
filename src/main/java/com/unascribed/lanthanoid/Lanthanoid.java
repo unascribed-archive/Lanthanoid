@@ -1,15 +1,25 @@
 package com.unascribed.lanthanoid;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Lists;
-import com.unascribed.lanthanoid.TextureCompositor.BlockBackdrop;
-import com.unascribed.lanthanoid.TextureCompositor.BlockType;
-import com.unascribed.lanthanoid.TextureCompositor.ItemType;
+import com.google.common.collect.Maps;
+import com.unascribed.lanthanoid.block.BlockMulti;
+import com.unascribed.lanthanoid.item.ItemBlockWithCustomName;
+import com.unascribed.lanthanoid.item.ItemMulti;
+import com.unascribed.lanthanoid.item.ItemTeleporter;
+import com.unascribed.lanthanoid.util.Generate;
+import com.unascribed.lanthanoid.util.GeneratorGroup;
+import com.unascribed.lanthanoid.util.OreGenerator;
+import com.unascribed.lanthanoid.util.TextureCompositor;
+import com.unascribed.lanthanoid.util.TextureCompositor.BlockBackdrop;
+import com.unascribed.lanthanoid.util.TextureCompositor.BlockType;
+import com.unascribed.lanthanoid.util.TextureCompositor.ItemType;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
@@ -19,7 +29,6 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockOre;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.SimpleReloadableResourceManager;
@@ -28,6 +37,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentText;
@@ -36,8 +46,9 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
-import scala.actors.threadpool.Arrays;
 
 @Mod(
 	modid="lanthanoid",
@@ -62,6 +73,7 @@ public class Lanthanoid {
 	private List<String> metals = Lists.newArrayList();
 	private List<String> gems = Lists.newArrayList();
 	private List<String> others = Lists.newArrayList();
+	private Map<String, Integer> colors = Maps.newHashMap();
 	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent e) {
@@ -115,7 +127,7 @@ public class Lanthanoid {
 		
 		addAll("Ytterbium", 0x423D00, BlockType.METAL_ORE, BlockBackdrop.NETHERRACK, ItemType.INGOT);
 		addAll("Praseodymium", 0x2B4929, BlockType.METAL_ORE, BlockBackdrop.GRAVEL, ItemType.INGOT);
-		addAll("Neodymium", 0x363662, BlockType.METAL_ORE, BlockBackdrop.NETHER_BRICK, ItemType.INGOT);
+		addAll("Neodymium", 0x363662, BlockType.METAL_ORE, BlockBackdrop.NETHERRACK, ItemType.INGOT);
 		addAll("Holmium", 0xA8A18D, BlockType.METAL_ORE, BlockBackdrop.STONE, ItemType.INGOT);
 		
 		addAll("Erbium", 0x1A3996, BlockType.TRACE_ORE, BlockBackdrop.END_STONE, ItemType.INGOT);
@@ -135,13 +147,17 @@ public class Lanthanoid {
 		compositor.addBlock("oreGypsum", 0xCBCBCB, BlockType.CRYSTAL);
 		others.add("Gypsum");
 		
+		for (String s : ItemTeleporter.flavors) {
+			compositor.addItem("teleporter"+s, colors.get(s), ItemType.TELEPORTER);
+		}
+		
 		srrm.registerReloadListener(it -> {
 			compositor.load();
 			compositor.generate();
 		});
 		
 		
-		GameRegistry.registerItem(LItems.resource = new ItemResource(union(
+		GameRegistry.registerItem(LItems.resource = new ItemMulti(union(
 				all(metals, "ingot", "dust", "nugget"),
 				all(gems, "gem", "dust"),
 				new String[] { "gemRosasite", "dustRosasite" })), "resource");
@@ -163,9 +179,9 @@ public class Lanthanoid {
 			}
 			@Override
 			public int damageDropped(int meta) {
-				if (meta < 0 || meta >= names.length) return 3000+meta;
-				System.out.println(names[meta].replace("ore", "gem"));
-				return LItems.resource.getMetaForName(names[meta].replaceFirst("ore", "gem"));
+				String name = helper.getNameForMeta(meta);
+				if (name == null) return 3000+meta;
+				return LItems.resource.getMetaForName(name.replaceFirst("ore", "gem"));
 			}
 			@Override
 			public int quantityDroppedWithBonus(int bonus, Random random) {
@@ -191,13 +207,28 @@ public class Lanthanoid {
 				union(all(metals, "block"), all(gems, "block"))
 				), ItemBlockWithCustomName.class, "storage");
 		
-		
+		GameRegistry.registerItem(LItems.teleporter = new ItemTeleporter(), "teleporter");
 		
 		LBlocks.ore_metal.registerOres();
 		LBlocks.ore_gem.registerOres();
 		LBlocks.ore_other.registerOres();
 		LBlocks.storage.registerOres();
 		LItems.resource.registerOres();
+		
+		OreDictionary.registerOre("lanthanoidPrivate-blockEndMetal", LBlocks.storage.getStackForName("blockErbium"));
+		OreDictionary.registerOre("lanthanoidPrivate-blockEndMetal", LBlocks.storage.getStackForName("blockGadolinium"));
+		
+		int i = 0;
+		for (String s : ItemTeleporter.flavors) {
+			GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.teleporter, 1, i++), 
+					" o ",
+					"lel",
+					"lLl",
+					'o', "nugget"+s,
+					'l', "ingot"+s,
+					'L', "lanthanoidPrivate-blockEndMetal",
+					'e', Items.ender_pearl));
+		}
 		
 		for (String s : metals) {
 			GameRegistry.addSmelting(new ItemStack(LBlocks.ore_metal, 1, LBlocks.ore_metal.getMetaForName("ore"+s)),
@@ -241,7 +272,7 @@ public class Lanthanoid {
 				.block(LBlocks.ore_metal, 2)
 				.target(Blocks.netherrack)
 				.frequency(10)
-				.range(8, 128)
+				.range(8, 64)
 				.dimension(OreGenerator.NETHER)
 				.size(5));
 		group.add(OreGenerator.create("Praseodymium")
@@ -252,11 +283,11 @@ public class Lanthanoid {
 				.size(5));
 		group.add(OreGenerator.create("Neodymium")
 				.block(LBlocks.ore_metal, 4)
-				.target(Blocks.nether_brick)
+				.target(Blocks.netherrack)
 				.dimension(OreGenerator.NETHER)
-				.frequency(24)
-				.range(8, 128)
-				.size(4));
+				.frequency(10)
+				.range(64, 128)
+				.size(5));
 		group.add(OreGenerator.create("Holmium")
 				.block(LBlocks.ore_metal, 5)
 				.frequency(8)
@@ -306,7 +337,7 @@ public class Lanthanoid {
 		GameRegistry.registerWorldGenerator(group, 5000);
 	}
 
-	private <T> List<T> union(List<T>... lis) {
+	protected <T> List<T> union(List<T>... lis) {
 		int len = 0;
 		for (List<T> li : lis) {
 			len += li.size();
@@ -376,6 +407,7 @@ public class Lanthanoid {
 	}
 	
 	private void addAll(String name, int color, BlockType blockType, BlockBackdrop backdrop, ItemType itemType) {
+		colors.put(name, color);
 		compositor.addBlock("ore"+name, color, blockType, backdrop);
 		if (itemType == ItemType.INGOT) {
 			compositor.addItem("ingot"+name, color, itemType);

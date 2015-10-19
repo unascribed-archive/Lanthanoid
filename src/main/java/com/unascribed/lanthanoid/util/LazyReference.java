@@ -1,4 +1,4 @@
-package com.unascribed.lanthanoid;
+package com.unascribed.lanthanoid.util;
 
 import com.google.common.base.Supplier;
 

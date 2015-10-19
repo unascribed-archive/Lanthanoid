@@ -1,4 +1,6 @@
-package com.unascribed.lanthanoid;
+package com.unascribed.lanthanoid.item;
+
+import com.unascribed.lanthanoid.util.NameDelegate;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemBlockWithMetadata;
@@ -12,7 +14,7 @@ public class ItemBlockWithCustomName extends ItemBlockWithMetadata {
 	}
 	
 	@Override
-	public String getUnlocalizedName(ItemStack p_77667_1_) {
-		return block.getUnlocalizedName(p_77667_1_.getItemDamage());
+	public String getItemStackDisplayName(ItemStack p_77653_1_) {
+		return block.getItemStackDisplayName(p_77653_1_);
 	}
 }

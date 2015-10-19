@@ -1,4 +1,4 @@
-package com.unascribed.lanthanoid;
+package com.unascribed.lanthanoid.util;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -18,6 +18,8 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.unascribed.lanthanoid.Lanthanoid;
+
 import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.client.resources.SimpleReloadableResourceManager;
 import net.minecraft.client.resources.data.IMetadataSection;
@@ -60,6 +62,7 @@ public class TextureCompositor implements IResourcePack {
 		TRIANGLE_GEM,
 		ORB,
 		NUGGET,
+		TELEPORTER,
 		;
 		public String prefix() { return "items/"; }
 	}
@@ -302,8 +305,18 @@ public class TextureCompositor implements IResourcePack {
 		loadTwoStepBevel(ItemType.SQUARE_GEM);
 		loadTwoStepGlint(ItemType.ORB);
 		loadTwoStepGlint(ItemType.NUGGET);
+		loadThreeStep(ItemType.TELEPORTER);
 	}
 
+	private void loadThreeStep(CompositeType type) throws IOException {
+		List<CompositeStep> li = Lists.newArrayList();
+		String name = type.name().toLowerCase();
+		String prefix = type.prefix();
+		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+prefix+name+"_basis.png")), BlendMode.COLORIZE));
+		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+prefix+name+"_glint.png")), BlendMode.OVERLAY));
+		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+prefix+name+"_decor.png")), BlendMode.NORMAL));
+		types.put(type, li);
+	}
 
 	private void loadTwoStepGlint(CompositeType type) throws IOException {
 		List<CompositeStep> li = Lists.newArrayList();
