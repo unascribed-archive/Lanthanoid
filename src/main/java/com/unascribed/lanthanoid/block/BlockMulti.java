@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableList;
 import com.unascribed.lanthanoid.MultiHelper;
 import com.unascribed.lanthanoid.util.NameDelegate;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -117,6 +119,7 @@ public class BlockMulti extends BlockBase implements NameDelegate {
 	
 	
 	@Override
+	@SideOnly(Side.CLIENT)
 	public void registerBlockIcons(IIconRegister reg) {
 		errorIcon = reg.registerIcon("lanthanoid:error");
 		ImmutableList<String> names = helper.getNames();

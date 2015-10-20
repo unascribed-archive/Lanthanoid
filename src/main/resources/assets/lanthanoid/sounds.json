@@ -1,0 +1,20 @@
+{
+	"teleport_out": {
+		"category": "player",
+		"sounds": [
+			{
+				"name": "teleport-out",
+				"stream": false
+			}
+		]
+	},
+	"teleport_in": {
+		"category": "player",
+		"sounds": [
+			{
+				"name": "teleport-in",
+				"stream": false
+			}
+		]
+	}
+}

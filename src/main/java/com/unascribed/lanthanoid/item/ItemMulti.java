@@ -4,6 +4,8 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.unascribed.lanthanoid.MultiHelper;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -61,6 +63,7 @@ public class ItemMulti extends ItemBase {
 	}
 	
 	@Override
+	@SideOnly(Side.CLIENT)
 	public void registerIcons(IIconRegister reg) {
 		errorIcon = reg.registerIcon("lanthanoid:error");
 		ImmutableList<String> names = helper.getNames();

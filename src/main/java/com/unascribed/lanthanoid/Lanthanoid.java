@@ -13,16 +13,18 @@ import com.unascribed.lanthanoid.block.BlockMulti;
 import com.unascribed.lanthanoid.item.ItemBlockWithCustomName;
 import com.unascribed.lanthanoid.item.ItemMulti;
 import com.unascribed.lanthanoid.item.ItemTeleporter;
+import com.unascribed.lanthanoid.proxy.Proxy;
 import com.unascribed.lanthanoid.util.Generate;
 import com.unascribed.lanthanoid.util.GeneratorGroup;
 import com.unascribed.lanthanoid.util.OreGenerator;
 import com.unascribed.lanthanoid.util.TextureCompositor;
-import com.unascribed.lanthanoid.util.TextureCompositor.BlockBackdrop;
-import com.unascribed.lanthanoid.util.TextureCompositor.BlockType;
-import com.unascribed.lanthanoid.util.TextureCompositor.ItemType;
+import com.unascribed.lanthanoid.util.TextureCompositorImpl.BlockBackdrop;
+import com.unascribed.lanthanoid.util.TextureCompositorImpl.BlockType;
+import com.unascribed.lanthanoid.util.TextureCompositorImpl.ItemType;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -30,8 +32,6 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.SimpleReloadableResourceManager;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.creativetab.CreativeTabs;
@@ -60,7 +60,8 @@ public class Lanthanoid {
 	public static final Logger log = LogManager.getLogger("Lanthanoid");
 	@Instance
 	public static Lanthanoid inst;
-	
+	@SidedProxy(clientSide="com.unascribed.lanthanoid.proxy.ClientProxy", serverSide="com.unascribed.lanthanoid.proxy.ServerProxy")
+	public static Proxy proxy;
 	
 	public TextureCompositor compositor;
 	public CreativeTabs creativeTab = new CreativeTabs("lanthanoid") {
@@ -118,8 +119,7 @@ public class Lanthanoid {
 		if (Loader.isModLoaded("farrago")) {
 			log.warn("Farrago is deprecated, and duplicates some of the functionality in Lanthanoid. It is recommended you remove it.");
 		}
-		SimpleReloadableResourceManager srrm = ((SimpleReloadableResourceManager)Minecraft.getMinecraft().getResourceManager());
-		compositor = new TextureCompositor(srrm);
+		compositor = proxy.createCompositor();
 		
 		addAll("Copper", 0x944A09, BlockType.METAL_ORE, BlockBackdrop.STONE, ItemType.INGOT);
 		addAll("Yttrium", 0x496B6E, BlockType.METAL_ORE, BlockBackdrop.STONE, ItemType.INGOT);
@@ -144,18 +144,18 @@ public class Lanthanoid {
 		
 		addAll("Raspite", 0xC67226, BlockType.GEM_SQUARE_ORE, BlockBackdrop.STONE, ItemType.WAFER);
 		
-		compositor.addBlock("oreGypsum", 0xCBCBCB, BlockType.CRYSTAL);
+		if (compositor != null) {
+			compositor.addBlock("oreGypsum", 0xCBCBCB, BlockType.CRYSTAL);
+		}
 		others.add("Gypsum");
 		
-		for (String s : ItemTeleporter.flavors) {
-			compositor.addItem("teleporter"+s, colors.get(s), ItemType.TELEPORTER);
+		if (compositor != null) {
+			for (String s : ItemTeleporter.flavors) {
+				compositor.addItem("teleporter"+s, colors.get(s), ItemType.TELEPORTER);
+			}
 		}
 		
-		srrm.registerReloadListener(it -> {
-			compositor.load();
-			compositor.generate();
-		});
-		
+		proxy.setupCompositor();
 		
 		GameRegistry.registerItem(LItems.resource = new ItemMulti(union(
 				all(metals, "ingot", "dust", "nugget"),
@@ -207,6 +207,13 @@ public class Lanthanoid {
 				union(all(metals, "block"), all(gems, "block"))
 				), ItemBlockWithCustomName.class, "storage");
 		
+		GameRegistry.registerBlock(LBlocks.plating = new BlockMulti(
+				Material.iron,
+				Blocks.iron_block,
+				
+				union(all(metals, "plating"))
+				), ItemBlockWithCustomName.class, "plating");
+		
 		GameRegistry.registerItem(LItems.teleporter = new ItemTeleporter(), "teleporter");
 		
 		LBlocks.ore_metal.registerOres();
@@ -246,6 +253,13 @@ public class Lanthanoid {
 					"ingot"+s, "ingot"+s, "ingot"+s));
 			GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(LItems.resource, 9, LItems.resource.getMetaForName("ingot"+s)),
 					"block"+s));
+			
+			GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LBlocks.plating, 8, LBlocks.plating.getMetaForName("plating"+s)),
+					"iii",
+					"iIi",
+					"iii",
+					'i', "nugget"+s,
+					'I', "stone"));
 		}
 		for (String s : gems) {	
 			GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(LBlocks.storage, 1, LBlocks.storage.getMetaForName("block"+s)),
@@ -259,54 +273,54 @@ public class Lanthanoid {
 		GeneratorGroup group = new GeneratorGroup();
 		
 		group.add(OreGenerator.create("Copper")
-				.block(LBlocks.ore_metal, 0)
+				.block(LBlocks.ore_metal, LBlocks.ore_metal.getMetaForName("oreCopper"))
 				.frequency(12)
 				.range(48, 64)
 				.size(5));
 		group.add(OreGenerator.create("Yttrium")
-				.block(LBlocks.ore_metal, 1)
+				.block(LBlocks.ore_metal, LBlocks.ore_metal.getMetaForName("oreYttrium"))
 				.frequency(10)
 				.range(8, 48)
 				.size(5));
 		group.add(OreGenerator.create("Ytterbium")
-				.block(LBlocks.ore_metal, 2)
+				.block(LBlocks.ore_metal, LBlocks.ore_metal.getMetaForName("oreYtterbium"))
 				.target(Blocks.netherrack)
 				.frequency(10)
 				.range(8, 64)
 				.dimension(OreGenerator.NETHER)
 				.size(5));
 		group.add(OreGenerator.create("Praseodymium")
-				.block(LBlocks.ore_metal, 3)
+				.block(LBlocks.ore_metal, LBlocks.ore_metal.getMetaForName("orePraseodymium"))
 				.target(Blocks.gravel)
 				.frequency(8)
 				.range(16, 24)
 				.size(5));
 		group.add(OreGenerator.create("Neodymium")
-				.block(LBlocks.ore_metal, 4)
+				.block(LBlocks.ore_metal, LBlocks.ore_metal.getMetaForName("oreNeodymium"))
 				.target(Blocks.netherrack)
 				.dimension(OreGenerator.NETHER)
 				.frequency(10)
 				.range(64, 128)
 				.size(5));
 		group.add(OreGenerator.create("Holmium")
-				.block(LBlocks.ore_metal, 5)
+				.block(LBlocks.ore_metal, LBlocks.ore_metal.getMetaForName("oreHolmium"))
 				.frequency(8)
 				.range(80, 120)
 				.size(6));
 		group.add(OreGenerator.create("Barium")
-				.block(LBlocks.ore_metal, 6)
+				.block(LBlocks.ore_metal, LBlocks.ore_metal.getMetaForName("oreBarium"))
 				.frequency(12)
 				.range(24, 52)
 				.size(4));
 		group.add(OreGenerator.create("Erbium")
-				.block(LBlocks.ore_metal, 7)
+				.block(LBlocks.ore_metal, LBlocks.ore_metal.getMetaForName("oreErbium"))
 				.target(Blocks.end_stone)
 				.dimension(OreGenerator.THE_END)
 				.frequency(12)
 				.range(8, 128)
 				.size(6));
 		group.add(OreGenerator.create("Gadolinium")
-				.block(LBlocks.ore_metal, 8)
+				.block(LBlocks.ore_metal, LBlocks.ore_metal.getMetaForName("oreGadolinium"))
 				.target(Blocks.end_stone)
 				.dimension(OreGenerator.THE_END)
 				.frequency(12)
@@ -314,22 +328,22 @@ public class Lanthanoid {
 				.size(6));
 		
 		group.add(OreGenerator.create("Actinolite")
-				.block(LBlocks.ore_gem, 0)
+				.block(LBlocks.ore_gem, LBlocks.ore_gem.getMetaForName("oreActinolite"))
 				.frequency(12)
 				.range(8, 64)
 				.size(4));
 		group.add(OreGenerator.create("Diaspore")
-				.block(LBlocks.ore_gem, 1)
+				.block(LBlocks.ore_gem, LBlocks.ore_gem.getMetaForName("oreDiaspore"))
 				.frequency(4)
 				.range(8, 24)
 				.size(6));
 		group.add(OreGenerator.create("Thulite")
-				.block(LBlocks.ore_gem, 2)
+				.block(LBlocks.ore_gem, LBlocks.ore_gem.getMetaForName("oreThulite"))
 				.frequency(8)
 				.range(24, 48)
 				.size(5));
 		group.add(OreGenerator.create("Raspite")
-				.block(LBlocks.ore_gem, 3)
+				.block(LBlocks.ore_gem, LBlocks.ore_gem.getMetaForName("oreRaspite"))
 				.frequency(2)
 				.range(18, 32)
 				.size(8));
@@ -408,24 +422,35 @@ public class Lanthanoid {
 	
 	private void addAll(String name, int color, BlockType blockType, BlockBackdrop backdrop, ItemType itemType) {
 		colors.put(name, color);
-		compositor.addBlock("ore"+name, color, blockType, backdrop);
-		if (itemType == ItemType.INGOT) {
-			compositor.addItem("ingot"+name, color, itemType);
-			compositor.addItem("nugget"+name, color, ItemType.NUGGET);
-		} else {
-			compositor.addItem("gem"+name, color, itemType);
+		if (compositor != null) {
+			compositor.addBlock("ore"+name, color, blockType, backdrop);
+			if (itemType == ItemType.INGOT) {
+				compositor.addItem("ingot"+name, color, itemType);
+				compositor.addItem("nugget"+name, color, ItemType.NUGGET);
+			} else {
+				compositor.addItem("gem"+name, color, itemType);
+			}
 		}
 		if (blockType == BlockType.METAL_ORE || blockType == BlockType.TRACE_ORE) {
-			compositor.addBlock("block"+name, color, BlockType.METAL_BLOCK);
+			if (compositor != null) {
+				compositor.addBlock("block"+name, color, BlockType.METAL_BLOCK);
+				compositor.addBlock("plating"+name, color, BlockType.PLATING);
+			}
 			metals.add(name);
 		} else if (blockType == BlockType.GEM_ORE || blockType == BlockType.GEM_SQUARE_ORE) {
-			compositor.addBlock("block"+name, color, BlockType.GEM_BLOCK);
+			if (compositor != null) {
+				compositor.addBlock("block"+name, color, BlockType.GEM_BLOCK);
+			}
 			gems.add(name);
 		} else {
-			compositor.addBlock("block"+name, color, blockType);
+			if (compositor != null) {
+				compositor.addBlock("block"+name, color, blockType);
+			}
 			others.add(name);
 		}
-		compositor.addItem("dust"+name, color, ItemType.DUST);
+		if (compositor != null) {
+			compositor.addItem("dust"+name, color, ItemType.DUST);
+		}
 	}
 	
 }
