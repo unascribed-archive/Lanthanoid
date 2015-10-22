@@ -43,7 +43,11 @@ public class BlockMulti extends BlockBase implements NameDelegate {
 	}
 	
 	public ItemStack getStackForName(String name) {
-		return new ItemStack(this, 1, getMetaForName(name));
+		return getStackForName(name, 1);
+	}
+	
+	public ItemStack getStackForName(String name, int amount) {
+		return new ItemStack(this, amount, getMetaForName(name));
 	}
 	
 	public String getNameForMeta(int meta) {
@@ -92,7 +96,7 @@ public class BlockMulti extends BlockBase implements NameDelegate {
 	@Override
 	public int getHarvestLevel(int meta) {
 		if (meta < 0 || meta >= templates.length) return 0;
-		return templates[meta].getHarvestLevel(meta)+2;
+		return templates[meta].getHarvestLevel(meta);
 	}
 	
 	@Override

@@ -35,6 +35,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -46,6 +47,8 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
+import net.minecraftforge.common.AchievementPage;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
@@ -71,6 +74,7 @@ public class Lanthanoid {
 		}
 	};
 	
+	private List<String> metalsPlusVanilla = Lists.newArrayList("Gold", "Iron");
 	private List<String> metals = Lists.newArrayList();
 	private List<String> gems = Lists.newArrayList();
 	private List<String> others = Lists.newArrayList();
@@ -121,20 +125,28 @@ public class Lanthanoid {
 		}
 		compositor = proxy.createCompositor();
 		
+		// Basic metals
 		addAll("Copper", 0x944A09, BlockType.METAL_ORE, BlockBackdrop.STONE, ItemType.INGOT);
 		addAll("Yttrium", 0x496B6E, BlockType.METAL_ORE, BlockBackdrop.STONE, ItemType.INGOT);
 		addAll("Barium", 0x39190A, BlockType.METAL_ORE, BlockBackdrop.STONE, ItemType.INGOT);
 		
+		// Hell lanthanides
 		addAll("Ytterbium", 0x423D00, BlockType.METAL_ORE, BlockBackdrop.NETHERRACK, ItemType.INGOT);
-		addAll("Praseodymium", 0x2B4929, BlockType.METAL_ORE, BlockBackdrop.GRAVEL, ItemType.INGOT);
 		addAll("Neodymium", 0x363662, BlockType.METAL_ORE, BlockBackdrop.NETHERRACK, ItemType.INGOT);
+		
+		// Rarer lanthanides
+		addAll("Praseodymium", 0x2B4929, BlockType.METAL_ORE, BlockBackdrop.GRAVEL, ItemType.INGOT);
 		addAll("Holmium", 0xA8A18D, BlockType.METAL_ORE, BlockBackdrop.STONE, ItemType.INGOT);
 		
+		// End lanthanides
 		addAll("Erbium", 0x1A3996, BlockType.TRACE_ORE, BlockBackdrop.END_STONE, ItemType.INGOT);
 		addAll("Gadolinium", 0x157952, BlockType.TRACE_ORE, BlockBackdrop.END_STONE, ItemType.INGOT);
-		addAll("Dysprosium", 0x4F0059, BlockType.TRACE_ORE, BlockBackdrop.STONE, ItemType.INGOT);
 		
+		// Shipwreck lanthanides
+		addAll("Dysprosium", 0x860096, BlockType.TRACE_ORE, BlockBackdrop.STONE, ItemType.INGOT);
+		addAll("Cerium", 0xD0003E, BlockType.TRACE_ORE, BlockBackdrop.STONE, ItemType.INGOT);
 		
+		// Gems
 		addAll("Actinolite", 0x40AD83, BlockType.GEM_ORE, BlockBackdrop.STONE, ItemType.SQUARE_GEM);
 		addAll("Diaspore", 0x674BC3, BlockType.GEM_ORE, BlockBackdrop.STONE, ItemType.ROUND_GEM);
 		
@@ -144,10 +156,30 @@ public class Lanthanoid {
 		
 		addAll("Raspite", 0xC67226, BlockType.GEM_SQUARE_ORE, BlockBackdrop.STONE, ItemType.WAFER);
 		
+		colors.put("Gold", 0xFDD753);
+		colors.put("Iron", 0xEEEEEE);
+		
 		if (compositor != null) {
 			compositor.addBlock("oreGypsum", 0xCBCBCB, BlockType.CRYSTAL);
+			
+			compositor.addItem("nuggetIron", 0xEEEEEE, ItemType.NUGGET);
+			
+			compositor.addItem("dustIron", 0xEEEEEE, ItemType.DUST);
+			compositor.addItem("dustGold", 0xFDD753, ItemType.DUST);
+			
+			compositor.addBlock("platingIron", 0xEEEEEE, BlockType.PLATING);
+			compositor.addBlock("platingGold", 0xFDD753, BlockType.PLATING);
+			
+			compositor.addBlock("machineCobbleSide", 0xFFFFFF, BlockType.MACHINE_BLOCK, BlockBackdrop.COBBLESTONE);
+			compositor.addBlock("machineCobbleTop", 0xFFFFFF, BlockType.MACHINE_BLOCK_TOP, BlockBackdrop.COBBLESTONE);
+			compositor.addBlock("machineCobbleBottom", 0xFFFFFF, BlockType.MACHINE_BLOCK_BOTTOM, BlockBackdrop.COBBLESTONE);
+			
+			compositor.addBlock("machineCombustorFrontWorking", 0xFFFFFF, BlockType.MACHINE_COMBUSTOR_WORKING, BlockBackdrop.COBBLESTONE);
+			compositor.addBlock("machineCombustorFrontIdle", 0xFFFFFF, BlockType.MACHINE_COMBUSTOR_IDLE, BlockBackdrop.COBBLESTONE);
 		}
 		others.add("Gypsum");
+		
+		metalsPlusVanilla.addAll(metals);
 		
 		if (compositor != null) {
 			for (String s : ItemTeleporter.flavors) {
@@ -158,7 +190,8 @@ public class Lanthanoid {
 		proxy.setupCompositor();
 		
 		GameRegistry.registerItem(LItems.resource = new ItemMulti(union(
-				all(metals, "ingot", "dust", "nugget"),
+				all(metals, "ingot"),
+				exclude(all(metalsPlusVanilla, "dust", "nugget"), "nuggetGold"),
 				all(gems, "gem", "dust"),
 				new String[] { "gemRosasite", "dustRosasite" })), "resource");
 		
@@ -211,8 +244,17 @@ public class Lanthanoid {
 				Material.iron,
 				Blocks.iron_block,
 				
-				union(all(metals, "plating"))
-				), ItemBlockWithCustomName.class, "plating");
+				union(all(metalsPlusVanilla, "plating"))
+				) {
+			@Override
+			public float getExplosionResistance(Entity p_149638_1_) {
+				return 50000;
+			}
+			@Override
+			public float getExplosionResistance(Entity par1Entity, World world, int x, int y, int z, double explosionX, double explosionY, double explosionZ) {
+				return 50000;
+			}
+		}, ItemBlockWithCustomName.class, "plating");
 		
 		GameRegistry.registerItem(LItems.teleporter = new ItemTeleporter(), "teleporter");
 		
@@ -221,6 +263,9 @@ public class Lanthanoid {
 		LBlocks.ore_other.registerOres();
 		LBlocks.storage.registerOres();
 		LItems.resource.registerOres();
+		
+		LAchievements.init();
+		AchievementPage.registerAchievementPage(LAchievements.page);
 		
 		OreDictionary.registerOre("lanthanoidPrivate-blockEndMetal", LBlocks.storage.getStackForName("blockErbium"));
 		OreDictionary.registerOre("lanthanoidPrivate-blockEndMetal", LBlocks.storage.getStackForName("blockGadolinium"));
@@ -253,13 +298,6 @@ public class Lanthanoid {
 					"ingot"+s, "ingot"+s, "ingot"+s));
 			GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(LItems.resource, 9, LItems.resource.getMetaForName("ingot"+s)),
 					"block"+s));
-			
-			GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LBlocks.plating, 8, LBlocks.plating.getMetaForName("plating"+s)),
-					"iii",
-					"iIi",
-					"iii",
-					'i', "nugget"+s,
-					'I', "stone"));
 		}
 		for (String s : gems) {	
 			GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(LBlocks.storage, 1, LBlocks.storage.getMetaForName("block"+s)),
@@ -268,6 +306,20 @@ public class Lanthanoid {
 					"gem"+s, "gem"+s, "gem"+s));
 			GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(LItems.resource, 9, LItems.resource.getMetaForName("gem"+s)),
 					"block"+s));
+		}
+		
+		for (String s : metalsPlusVanilla) {
+			GameRegistry.addRecipe(new ShapedOreRecipe(LBlocks.plating.getStackForName("plating"+s, 8),
+					"iii",
+					"iIi",
+					"iii",
+					'i', "nugget"+s,
+					'I', "stone"));
+			if (s.equals("Gold")) {
+				GameRegistry.addSmelting(LBlocks.plating.getStackForName("plating"+s, 1), new ItemStack(Items.gold_nugget), 0);
+			} else {
+				GameRegistry.addSmelting(LBlocks.plating.getStackForName("plating"+s, 1), LItems.resource.getStackForName("nugget"+s), 0);
+			}
 		}
 		
 		GeneratorGroup group = new GeneratorGroup();
@@ -349,6 +401,19 @@ public class Lanthanoid {
 				.size(8));
 		
 		GameRegistry.registerWorldGenerator(group, 5000);
+	}
+
+	private String[] exclude(String[] arr, String... exclude) {
+		List<String> li = Lists.newArrayList();
+		outer: for (int i = 0; i < arr.length; i++) {
+			for (String s : exclude) {
+				if (s.equals(arr[i])) {
+					continue outer;
+				}
+			}
+			li.add(arr[i]);
+		}
+		return li.toArray(new String[li.size()]);
 	}
 
 	protected <T> List<T> union(List<T>... lis) {

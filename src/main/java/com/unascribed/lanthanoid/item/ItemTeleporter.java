@@ -2,6 +2,8 @@ package com.unascribed.lanthanoid.item;
 
 import java.util.List;
 
+import com.unascribed.lanthanoid.LAchievements;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -56,6 +58,13 @@ public class ItemTeleporter extends ItemMulti {
 		if (cooldown > 0) {
 			cooldown--;
 			getCompound(p_77663_1_).setInteger("teleportCooldown", cooldown);
+		} else if (cooldown == 0) {
+			p_77663_3_.playSound("lanthanoid:teleport_ready", 1.0f, 1.0f);
+			getCompound(p_77663_1_).setInteger("teleportCooldown", -1);
+		}
+		if (!p_77663_2_.isRemote && p_77663_3_ instanceof EntityPlayer) {
+			EntityPlayer p = ((EntityPlayer)p_77663_3_);
+			p.triggerAchievement(LAchievements.craftTeleporter);
 		}
 	}
 	@Override
@@ -74,11 +83,33 @@ public class ItemTeleporter extends ItemMulti {
 		if (!world.isRemote) {
 			player.playSound("lanthanoid:teleport_in", 1.0f, 1.0f);
 		}
-		Vec3 pos = Vec3.createVectorHelper(player.posX, player.posY + (player.getEyeHeight() - player.getDefaultEyeHeight()), player.posZ);
-		Vec3 look = player.getLook(1);
+		if (player.ridingEntity != null) {
+			Entity riding = player.ridingEntity;
+			riding.riddenByEntity = null;
+			player.ridingEntity = null;
+			if (riding instanceof EntityLivingBase) {
+				player.triggerAchievement(LAchievements.telefragMount);
+				player.worldObj.playSoundAtEntity(player, "lanthanoid:telefrag", 1.0f, 2.0f);
+				riding.attackEntityFrom(new EntityDamageSource("telefrag", player), 500000);
+			}
+		}
+		Vec3 pos = Vec3.createVectorHelper(player.posX, player.posY+player.getEyeHeight(), player.posZ);
+		Vec3 look = player.getLookVec();
 		int mod = stack.getItemDamage()*2;
 		double dist = 6+mod;
 		Vec3 target = pos.addVector(look.xCoord*dist, look.yCoord*dist, look.zCoord*dist);
+		if (world instanceof WorldServer) {
+			double x = pos.xCoord;
+			double y = pos.yCoord;
+			double z = pos.zCoord;
+			double iter = 4;
+			for (int i = 0; i < dist*iter; i++) {
+				x += look.xCoord/iter;
+				y += look.yCoord/iter;
+				z += look.zCoord/iter;
+				((WorldServer)world).func_147487_a("happyVillager", x, y, z, 1, 0, 0, 0, 0);
+			}
+		}
 		int x = (int)target.xCoord;
 		int y = (int)target.yCoord;
 		int z = (int)target.zCoord;
@@ -91,12 +122,24 @@ public class ItemTeleporter extends ItemMulti {
 			}
 		}
 		player.setPosition(x+(0.5*Math.signum(x)), y, z+(0.5*Math.signum(z)));
-		for (EntityLivingBase elb : (List<EntityLivingBase>)world.getEntitiesWithinAABB(EntityLivingBase.class, player.boundingBox)) {
-			if (elb == player) continue;
-			elb.attackEntityFrom(new EntityDamageSource("telefrag", player), 500000);
-		}
-		if (player.isEntityInsideOpaqueBlock()) {
-			player.attackEntityFrom(new DamageSource("self_telefrag"), 500000);
+		if (!world.isRemote) {
+			boolean first = true;
+			for (EntityLivingBase elb : (List<EntityLivingBase>)world.getEntitiesWithinAABB(EntityLivingBase.class, player.boundingBox)) {
+				if (elb == player) continue;
+				elb.attackEntityFrom(new EntityDamageSource("telefrag", player), 500000);
+				if (first) {
+					player.worldObj.playSoundAtEntity(player, "lanthanoid:telefrag", 1.0f, 2.0f);
+					player.triggerAchievement(LAchievements.telefrag);
+					if (stack.getItemDamage() == 7) {
+						player.triggerAchievement(LAchievements.telesnipe);
+					}
+					first = false;
+				}
+			}
+			if (player.isEntityInsideOpaqueBlock()) {
+				player.attackEntityFrom(new DamageSource("self_telefrag"), 500000);
+				player.triggerAchievement(LAchievements.selfTelefrag);
+			}
 		}
 		if (world.isRemote) {
 			player.playSound("lanthanoid:teleport_in", 1.0f, 1.0f);

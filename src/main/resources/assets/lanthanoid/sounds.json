@@ -16,5 +16,23 @@
 				"stream": false
 			}
 		]
+	},
+	"teleport_ready": {
+		"category": "player",
+		"sounds": [
+			{
+				"name": "teleport-ready",
+				"stream": false
+			}
+		]
+	},
+	"telefrag": {
+		"category": "player",
+		"sounds": [
+			{
+				"name": "telefrag",
+				"stream": false
+			}
+		]
 	}
 }

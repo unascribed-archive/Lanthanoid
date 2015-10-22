@@ -14,10 +14,12 @@ import java.util.Set;
 
 import javax.imageio.ImageIO;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.unascribed.lanthanoid.Lanthanoid;
 
 import net.minecraft.client.resources.IResourcePack;
@@ -49,6 +51,11 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		METAL_BLOCK,
 		GEM_BLOCK,
 		PLATING,
+		MACHINE_BLOCK,
+		MACHINE_BLOCK_TOP,
+		MACHINE_BLOCK_BOTTOM,
+		MACHINE_COMBUSTOR_IDLE,
+		MACHINE_COMBUSTOR_WORKING,
 		;
 		public String prefix() { return "blocks/"; }
 	}
@@ -76,6 +83,7 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		NETHER_BRICK("minecraft", "textures/blocks/nether_brick.png"),
 		GRAVEL("minecraft", "textures/blocks/gravel.png"),
 		OBSIDIAN("minecraft", "textures/blocks/obsidian.png"),
+		COBBLESTONE("minecraft", "textures/blocks/cobblestone.png"),
 		;
 		public final ResourceLocation loc;
 		BlockBackdrop() {
@@ -111,6 +119,7 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 	private Map<CompositeType, List<CompositeStep>> types = Maps.newHashMap();
 	
 	private Map<String, byte[]> results = Maps.newHashMap();
+	private Set<String> animated = Sets.newHashSet();
 	
 	public TextureCompositorImpl(SimpleReloadableResourceManager rm) {
 		this.rm = rm;
@@ -121,9 +130,6 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see com.unascribed.lanthanoid.util.TextureCompositor#load()
-	 */
 	@Override
 	public void load() {
 		try {
@@ -134,9 +140,6 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.unascribed.lanthanoid.util.TextureCompositor#generate()
-	 */
 	@Override
 	public void generate() {
 		try {
@@ -148,10 +151,13 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 					baos.reset();
 					ImageIO.write(img, "PNG", baos);
 					results.put(o.name, baos.toByteArray());
+					if (img.getWidth() != img.getHeight()) {
+						animated.add(o.name);
+					}
 					if ("true".equals(System.getProperty("com.unascribed.lanthanoid.DebugCompositor"))) {
 						ImageIO.write(buffer(img.getScaledInstance(
-								Integer.parseInt(System.getProperty("com.unascribed.lanthanoid.DebugCompositorWidth")),
-								Integer.parseInt(System.getProperty("com.unascribed.lanthanoid.DebugCompositorHeight")), Image.SCALE_FAST)), "PNG",
+								img.getWidth()*2,
+								img.getHeight()*2, Image.SCALE_FAST)), "PNG",
 								new File("lanthanoid-compositor-"+o.name.replace("s/", "-")+".png"));
 					}
 				} catch (Exception e) {
@@ -234,7 +240,9 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 				default:
 					throw new RuntimeException("Unknown blend mode "+step.mode);
 			}
-			g2d.drawImage(draw, 0, 0, w, h, null);
+			for (int j = 0; j < h/draw.getHeight(); j++) {
+				g2d.drawImage(draw, 0, j*draw.getHeight(), null);
+			}
 		}
 		g2d.dispose();
 		return img;
@@ -287,6 +295,7 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 			try {
 				InputStream in = rm.getResource(loc).getInputStream();
 				BufferedImage img = ImageIO.read(in);
+				in.close();
 				return img;
 			} catch (Exception e) {
 				throw Throwables.propagate(e);
@@ -305,6 +314,11 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		loadTwoStepGlint(BlockType.METAL_BLOCK);
 		loadTwoStepBevel(BlockType.GEM_BLOCK);
 		loadSingleStep(BlockType.PLATING);
+		loadSingleStepBevel(BlockType.MACHINE_BLOCK);
+		loadSingleStepBevel(BlockType.MACHINE_BLOCK_BOTTOM);
+		loadSingleStepBevel(BlockType.MACHINE_BLOCK_TOP);
+		loadMachineFront(BlockType.MACHINE_COMBUSTOR_IDLE);
+		loadMachineFront(BlockType.MACHINE_COMBUSTOR_WORKING);
 		
 		loadTwoStepGlint(ItemType.WAFER);
 		loadTwoStepGlint(ItemType.INGOT);
@@ -316,6 +330,15 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		loadTwoStepGlint(ItemType.ORB);
 		loadTwoStepGlint(ItemType.NUGGET);
 		loadThreeStep(ItemType.TELEPORTER);
+	}
+
+	private void loadMachineFront(CompositeType type) throws IOException {
+		List<CompositeStep> li = Lists.newArrayList();
+		String name = type.name().toLowerCase();
+		String prefix = type.prefix();
+		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+prefix+"machine_block_top_bevel.png")), BlendMode.NORMAL));
+		li.add(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+prefix+name+".png")), BlendMode.NORMAL));
+		types.put(type, li);
 	}
 
 	private void loadThreeStep(CompositeType type) throws IOException {
@@ -346,6 +369,12 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		types.put(type, li);
 	}
 
+	private void loadSingleStepBevel(CompositeType type) throws IOException {
+		String name = type.name().toLowerCase();
+		String prefix = type.prefix();
+		types.put(type, Lists.newArrayList(new CompositeStep(readImage(new ResourceLocation("lanthanoid", PATH+prefix+name+"_bevel.png")), BlendMode.NORMAL)));
+	}
+	
 	private void loadSingleStep(CompositeType type) throws IOException {
 		String name = type.name().toLowerCase();
 		String prefix = type.prefix();
@@ -363,17 +392,11 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		types.put(type, li);
 	}
 
-	/* (non-Javadoc)
-	 * @see com.unascribed.lanthanoid.util.TextureCompositor#addBlock(java.lang.String, int, com.unascribed.lanthanoid.util.TextureCompositorImpl.BlockType)
-	 */
 	@Override
 	public void addBlock(String name, int color, BlockType type) {
 		addBlock(name, color, type, BlockBackdrop.NONE);
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.unascribed.lanthanoid.util.TextureCompositor#addBlock(java.lang.String, int, com.unascribed.lanthanoid.util.TextureCompositorImpl.BlockType, com.unascribed.lanthanoid.util.TextureCompositorImpl.BlockBackdrop)
-	 */
 	@Override
 	public void addBlock(String name, int color, BlockType type, BlockBackdrop backdrop) {
 		Task o = new Task();
@@ -387,9 +410,6 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		tasks.add(o);
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.unascribed.lanthanoid.util.TextureCompositor#addItem(java.lang.String, int, com.unascribed.lanthanoid.util.TextureCompositorImpl.ItemType)
-	 */
 	@Override
 	public void addItem(String name, int color, ItemType type) {
 		Task o = new Task();
@@ -402,12 +422,13 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 
 	private boolean isResultName(String name) {
 		String str = "assets/lanthanoid_compositor/textures/";
-		return name != null && name.startsWith(str) && name.endsWith(".png");
+		return name != null && name.startsWith(str) && (name.endsWith(".png") || name.endsWith(".png.mcmeta"));
 	}
 	
 	private String nameToResultName(String name) {
 		String str = "assets/lanthanoid_compositor/textures/";
-		return name.substring(str.length(), name.length()-4);
+		int len = (name.endsWith(".png") ? 4 : 11);
+		return name.substring(str.length(), name.length()-len);
 	}
 	
 	@Override
@@ -415,12 +436,14 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		return ImmutableSet.of("lanthanoid_compositor");
 	}
 
+	private byte[] animationBytes = "{\"animation\":{\"frametime\":2}}".getBytes(Charsets.UTF_8);
+	
 	protected InputStream getInputStreamByName(String name) throws IOException {
-		return hasResourceName(name) ? new ByteArrayInputStream(results.get(nameToResultName(name))) : null;
+		return hasResourceName(name) ? new ByteArrayInputStream(name.endsWith(".png.mcmeta") ? animationBytes : results.get(nameToResultName(name))) : null;
 	}
 
 	protected boolean hasResourceName(String name) {
-		return isResultName(name) && results.containsKey(nameToResultName(name));
+		return isResultName(name) && (name.endsWith(".png.mcmeta") ? animated.contains(nameToResultName(name)) : results.containsKey(nameToResultName(name)));
 	}
 
 	@Override
@@ -447,7 +470,7 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 
 	@Override
 	public BufferedImage getPackImage() throws IOException {
-		return ImageIO.read(this.getInputStreamByName("pack.png"));
+		return null;
 	}
 	
 	

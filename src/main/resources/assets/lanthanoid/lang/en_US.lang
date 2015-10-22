@@ -13,6 +13,9 @@ material.holmium=Holmium
 material.erbium=Erbium
 material.gadolinium=Gadolinum
 material.dysprosium=Dysprosium
+material.cerium=Cerium
+material.iron=Iron
+material.gold=Gold
 
 material.actinolite=Actinolite
 material.diaspore=Diaspore
@@ -21,6 +24,9 @@ material.raspite=Raspite
 material.rosasite=Rosasite
 
 material.gypsum=Gypsum
+
+
+machine.combustor=Combustor
 
 
 tile.ore.template=%s Ore
@@ -36,3 +42,18 @@ item.teleporter.template=%s Spelunker's Teleporter
 death.attack.self_telefrag=%1$s teleported into a wall
 death.attack.telefrag=%1$s was telefragged by %2$s
 death.attack.telefrag.item=%1$s was telefragged by %2$s using %3$s
+
+achievement.craftTeleporter=Futuristic...
+achievement.craftTeleporter.desc=Obtain a Spelunker's Teleporter.
+
+achievement.selfTelefrag=...But Not Perfect
+achievement.selfTelefrag.desc=Displacing solid stone doesn't exactly work.
+
+achievement.telefrag=Displacement
+achievement.telefrag.desc=What happens when something's already there when you teleport?
+
+achievement.telesnipe=Telesnipe
+achievement.telesnipe.desc=Score a telefrag using the Dysprosium Spelunker's Teleporter.
+
+achievement.telefragMount=Collateral Damage
+achievement.telefragMount.desc=What teleporters decide to teleport isn't entirely precise...

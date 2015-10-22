@@ -30,7 +30,11 @@ public class ItemMulti extends ItemBase {
 	}
 	
 	public ItemStack getStackForName(String name) {
-		return new ItemStack(this, 1, getMetaForName(name));
+		return getStackForName(name, 1);
+	}
+	
+	public ItemStack getStackForName(String name, int amount) {
+		return new ItemStack(this, amount, getMetaForName(name));
 	}
 	
 	public String getNameForMeta(int meta) {
@@ -60,6 +64,11 @@ public class ItemMulti extends ItemBase {
 	@Override
 	public String getItemStackDisplayName(ItemStack p_77653_1_) {
 		return helper.getDisplayNameForMeta(p_77653_1_.getItemDamage());
+	}
+	
+	@Override
+	public boolean getHasSubtypes() {
+		return true;
 	}
 	
 	@Override
