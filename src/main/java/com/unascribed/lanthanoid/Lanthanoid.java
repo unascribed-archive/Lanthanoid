@@ -404,14 +404,9 @@ public class Lanthanoid {
 	}
 
 	private String[] exclude(String[] arr, String... exclude) {
-		List<String> li = Lists.newArrayList();
-		outer: for (int i = 0; i < arr.length; i++) {
-			for (String s : exclude) {
-				if (s.equals(arr[i])) {
-					continue outer;
-				}
-			}
-			li.add(arr[i]);
+		List<String> li = Lists.newArrayList(arr);
+		for (String s : exclude) {
+			li.remove(s);
 		}
 		return li.toArray(new String[li.size()]);
 	}
