@@ -25,7 +25,7 @@ public class LAchievements {
 		
 		li.add(selfTelefrag = new Achievement("selfTelefrag", "selfTelefrag", 2, 0, Blocks.stone, craftTeleporter).registerStat());
 		
-		li.add(telefrag = new Achievement("telefrag", "telefrag", 1, 1, LItems.resource.getStackForName("dustYttrium"), craftTeleporter).registerStat());
+		li.add(telefrag = new Achievement("telefrag", "telefrag", 1, 1, LItems.dust.getStackForName("dustYttrium"), craftTeleporter).registerStat());
 		li.add(telefragMount = new Achievement("telefragMount", "telefragMount", 1, 2, Items.saddle, craftTeleporter).registerStat());
 		
 		li.add(telesnipe = new Achievement("telesnipe", "telesnipe", 3, 1, new ItemStack(LItems.teleporter, 1, 7), telefrag).setSpecial().registerStat());

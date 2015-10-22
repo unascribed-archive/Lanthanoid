@@ -78,6 +78,7 @@ public class Lanthanoid {
 	private List<String> metals = Lists.newArrayList();
 	private List<String> gems = Lists.newArrayList();
 	private List<String> others = Lists.newArrayList();
+	private List<String> gemsAndMetal = Lists.newArrayList();
 	private Map<String, Integer> colors = Maps.newHashMap();
 	
 	@EventHandler
@@ -156,6 +157,13 @@ public class Lanthanoid {
 		
 		addAll("Raspite", 0xC67226, BlockType.GEM_SQUARE_ORE, BlockBackdrop.STONE, ItemType.WAFER);
 		
+		others.add("Gypsum");
+		
+		// ************************************************************************************************** //
+		// ** NEW ORES, GEM OR METAL, MUST GO HERE, BELOW ALL EXISTING DEFINITIONS, OR METADATA WILL BREAK ** //
+		// ************************************************************************************************** //
+		
+		
 		colors.put("Gold", 0xFDD753);
 		colors.put("Iron", 0xEEEEEE);
 		
@@ -177,7 +185,6 @@ public class Lanthanoid {
 			compositor.addBlock("machineCombustorFrontWorking", 0xFFFFFF, BlockType.MACHINE_COMBUSTOR_WORKING, BlockBackdrop.COBBLESTONE);
 			compositor.addBlock("machineCombustorFrontIdle", 0xFFFFFF, BlockType.MACHINE_COMBUSTOR_IDLE, BlockBackdrop.COBBLESTONE);
 		}
-		others.add("Gypsum");
 		
 		metalsPlusVanilla.addAll(metals);
 		
@@ -189,11 +196,10 @@ public class Lanthanoid {
 		
 		proxy.setupCompositor();
 		
-		GameRegistry.registerItem(LItems.resource = new ItemMulti(union(
-				all(metals, "ingot"),
-				exclude(all(metalsPlusVanilla, "dust", "nugget"), "nuggetGold"),
-				all(gems, "gem", "dust"),
-				new String[] { "gemRosasite", "dustRosasite" })), "resource");
+		GameRegistry.registerItem(LItems.ingot = new ItemMulti(all(metals, "ingot")), "ingot");
+		GameRegistry.registerItem(LItems.nugget = new ItemMulti(exclude(all(metalsPlusVanilla, "nugget"), "nuggetGold")), "nugget");
+		GameRegistry.registerItem(LItems.dust = new ItemMulti(all(gemsAndMetal, "dust")), "dust");
+		GameRegistry.registerItem(LItems.gem = new ItemMulti(all(gems, "gem")), "gem");
 		
 		GameRegistry.registerBlock(LBlocks.ore_metal = new BlockMulti(
 				Material.rock,
@@ -208,13 +214,13 @@ public class Lanthanoid {
 		GameRegistry.registerBlock(LBlocks.ore_gem = new BlockMulti(Material.rock, Blocks.stone, all(gems, "ore")) {
 			@Override
 			public Item getItemDropped(int p_149650_1_, Random p_149650_2_, int p_149650_3_) {
-				return LItems.resource;
+				return LItems.gem;
 			}
 			@Override
 			public int damageDropped(int meta) {
 				String name = helper.getNameForMeta(meta);
 				if (name == null) return 3000+meta;
-				return LItems.resource.getMetaForName(name.replaceFirst("ore", "gem"));
+				return LItems.gem.getMetaForName(name.replaceFirst("ore", "gem"));
 			}
 			@Override
 			public int quantityDroppedWithBonus(int bonus, Random random) {
@@ -237,14 +243,14 @@ public class Lanthanoid {
 				Material.iron,
 				Blocks.iron_block,
 				
-				union(all(metals, "block"), all(gems, "block"))
+				all(gemsAndMetal, "block")
 				), ItemBlockWithCustomName.class, "storage");
 		
 		GameRegistry.registerBlock(LBlocks.plating = new BlockMulti(
 				Material.iron,
 				Blocks.iron_block,
 				
-				union(all(metalsPlusVanilla, "plating"))
+				all(metalsPlusVanilla, "plating")
 				) {
 			@Override
 			public float getExplosionResistance(Entity p_149638_1_) {
@@ -262,7 +268,10 @@ public class Lanthanoid {
 		LBlocks.ore_gem.registerOres();
 		LBlocks.ore_other.registerOres();
 		LBlocks.storage.registerOres();
-		LItems.resource.registerOres();
+		LItems.ingot.registerOres();
+		LItems.nugget.registerOres();
+		LItems.dust.registerOres();
+		LItems.gem.registerOres();
 		
 		LAchievements.init();
 		AchievementPage.registerAchievementPage(LAchievements.page);
@@ -284,10 +293,10 @@ public class Lanthanoid {
 		
 		for (String s : metals) {
 			GameRegistry.addSmelting(new ItemStack(LBlocks.ore_metal, 1, LBlocks.ore_metal.getMetaForName("ore"+s)),
-					new ItemStack(LItems.resource, 1, LItems.resource.getMetaForName("ingot"+s)), 1.0f);
-			GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(LItems.resource, 9, LItems.resource.getMetaForName("nugget"+s)),
+					LItems.ingot.getStackForName("ingot"+s), 1.0f);
+			GameRegistry.addRecipe(new ShapelessOreRecipe(LItems.nugget.getStackForName("nugget"+s, 9),
 					"ingot"+s));
-			GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(LItems.resource, 1, LItems.resource.getMetaForName("ingot"+s)),
+			GameRegistry.addRecipe(new ShapelessOreRecipe(LItems.ingot.getStackForName("ingot"+s),
 					"nugget"+s, "nugget"+s, "nugget"+s,
 					"nugget"+s, "nugget"+s, "nugget"+s,
 					"nugget"+s, "nugget"+s, "nugget"+s));
@@ -296,7 +305,7 @@ public class Lanthanoid {
 					"ingot"+s, "ingot"+s, "ingot"+s,
 					"ingot"+s, "ingot"+s, "ingot"+s,
 					"ingot"+s, "ingot"+s, "ingot"+s));
-			GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(LItems.resource, 9, LItems.resource.getMetaForName("ingot"+s)),
+			GameRegistry.addRecipe(new ShapelessOreRecipe(LItems.ingot.getStackForName("ingot"+s, 9),
 					"block"+s));
 		}
 		for (String s : gems) {	
@@ -304,7 +313,7 @@ public class Lanthanoid {
 					"gem"+s, "gem"+s, "gem"+s,
 					"gem"+s, "gem"+s, "gem"+s,
 					"gem"+s, "gem"+s, "gem"+s));
-			GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(LItems.resource, 9, LItems.resource.getMetaForName("gem"+s)),
+			GameRegistry.addRecipe(new ShapelessOreRecipe(LItems.gem.getStackForName("gem"+s, 9),
 					"block"+s));
 		}
 		
@@ -318,9 +327,15 @@ public class Lanthanoid {
 			if (s.equals("Gold")) {
 				GameRegistry.addSmelting(LBlocks.plating.getStackForName("plating"+s, 1), new ItemStack(Items.gold_nugget), 0);
 			} else {
-				GameRegistry.addSmelting(LBlocks.plating.getStackForName("plating"+s, 1), LItems.resource.getStackForName("nugget"+s), 0);
+				GameRegistry.addSmelting(LBlocks.plating.getStackForName("plating"+s, 1), LItems.nugget.getStackForName("nugget"+s), 0);
 			}
 		}
+		
+		GameRegistry.addRecipe(new ShapelessOreRecipe(LItems.nugget.getStackForName("nuggetIron", 9), "ingotIron"));
+		GameRegistry.addRecipe(new ShapelessOreRecipe(Items.iron_ingot, 
+				"nuggetIron", "nuggetIron", "nuggetIron",
+				"nuggetIron", "nuggetIron", "nuggetIron",
+				"nuggetIron", "nuggetIron", "nuggetIron"));
 		
 		GeneratorGroup group = new GeneratorGroup();
 		
@@ -411,18 +426,6 @@ public class Lanthanoid {
 		return li.toArray(new String[li.size()]);
 	}
 
-	protected <T> List<T> union(List<T>... lis) {
-		int len = 0;
-		for (List<T> li : lis) {
-			len += li.size();
-		}
-		List<T> res = Lists.newArrayListWithCapacity(len);
-		for (List<T> li : lis) {
-			res.addAll(li);
-		}
-		return res;
-	}
-
 	@EventHandler
 	public void onServerStart(FMLServerStartingEvent e) {
 		e.registerServerCommand(new CommandBase() {
@@ -451,20 +454,6 @@ public class Lanthanoid {
 				return "lanspike";
 			}
 		});
-	}
-	
-	private String[] union(String[]... arr) {
-		int len = 0;
-		for (String[] s : arr) {
-			len += s.length;
-		}
-		String[] res = new String[len];
-		int ofs = 0;
-		for (String[] s : arr) {
-			System.arraycopy(s, 0, res, ofs, s.length);
-			ofs += s.length;
-		}
-		return res;
 	}
 	
 	private String[] all(List<String> types, String... prefixes) {
@@ -497,11 +486,13 @@ public class Lanthanoid {
 				compositor.addBlock("plating"+name, color, BlockType.PLATING);
 			}
 			metals.add(name);
-		} else if (blockType == BlockType.GEM_ORE || blockType == BlockType.GEM_SQUARE_ORE) {
+			gemsAndMetal.add(name);
+		} else if (blockType == BlockType.GEM_ORE || blockType == BlockType.GEM_SQUARE_ORE || blockType == BlockType.LUMPY_ORE) {
 			if (compositor != null) {
-				compositor.addBlock("block"+name, color, BlockType.GEM_BLOCK);
+				compositor.addBlock("block"+name, color, blockType == BlockType.LUMPY_ORE ? BlockType.CRYSTAL : BlockType.GEM_BLOCK);
 			}
 			gems.add(name);
+			gemsAndMetal.add(name);
 		} else {
 			if (compositor != null) {
 				compositor.addBlock("block"+name, color, blockType);
