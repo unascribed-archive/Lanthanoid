@@ -59,6 +59,11 @@ public class BlockMulti extends BlockBase implements NameDelegate {
 		return this;
 	}
 	
+	@Override
+	public String getUnlocalizedName(ItemStack stack) {
+		return helper.getUnlocalizedNameForMeta(stack.getItemDamage());
+	}
+	
 	public BlockMulti setTemplate(String name, Block template) {
 		int idx = -1;
 		ImmutableList<String> names = helper.getNames();

@@ -3,6 +3,9 @@ item.error=Invalid Item
 
 itemGroup.lanthanoid=Lanthanoid
 
+ui.lore_hint=Hold %s for lore
+ui.help_hint=Hold %s for help
+
 material.copper=Copper
 material.yttrium=Yttrium
 material.barium=Barium
@@ -26,18 +29,35 @@ material.rosasite=Rosasite
 material.gypsum=Gypsum
 
 
-machine.combustor=Combustor
+command.lanspike.start=Generating %s block long spike
+command.lanspike.end=%s blocks changed
 
+
+machine.combustor=Combustor
 
 tile.ore.template=%s Ore
 tile.block.template=Block of %s
 tile.plating.template=%s Armor Plating
 
+
+item.rifle.name=Lanthanide Rifle
+item.rifle.lore=A small chunk of Dysprosium, used correctly, is capable of exciting dust particles in a way similar to plasma. These particles can then be used to fire beams, with differing effects.
+item.rifle.help.1=Sneak and scroll or press number keys to switch selected ammo.
+item.rifle.help.2=Hold right-click to charge, release to fire.
+item.rifle.help.3=Switching ammo while shots are remaining in the cartridge wastes the remaining shots.
+item.rifle.help.4=Charging for too long will cause an overheat, hurting you and wasting ammo.
+
+item.teleporter.template=%s Spelunker's Teleporter
+item.teleporter.lore=Produces instantaneous, discontinous transmission of particularized matter via instrumentality of the spatial continuum. This technology hasn't quite been perfected yet, so you need to be very careful.
+item.teleporter.help.1=Right-click to teleport where you're looking. Teleport distance depends on material.
+item.teleporter.help.2=Be careful.
+
 item.ingot.template=%s Ingot
 item.nugget.template=%s Nugget
 item.gem.template=%s
 item.dust.template=%s Dust
-item.teleporter.template=%s Spelunker's Teleporter
+item.stick.template=%s Rod
+item.rail.template=%s Rail
 
 death.attack.self_telefrag=%1$s teleported into a wall
 death.attack.telefrag=%1$s was telefragged by %2$s

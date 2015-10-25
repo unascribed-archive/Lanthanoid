@@ -71,6 +71,9 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		ORB,
 		NUGGET,
 		TELEPORTER,
+		STICK,
+		RIFLE,
+		RAIL,
 		;
 		public String prefix() { return "items/"; }
 	}
@@ -173,6 +176,14 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 	private BufferedImage doComposite(Task task) {
 		int w = 0;
 		int h = 0;
+		for (CompositeStep step : task.steps) {
+			step.img.clear();
+			w = Math.max(step.img.get().getWidth(), w);
+			h = Math.max(step.img.get().getHeight(), h);
+		}
+		for (CompositeStep step : task.steps) {
+			step.img.set(buffer(step.img.get().getScaledInstance(w, -1, Image.SCALE_FAST)));
+		}
 		for (CompositeStep step : task.steps) {
 			w = Math.max(step.img.get().getWidth(), w);
 			h = Math.max(step.img.get().getHeight(), h);
@@ -330,6 +341,9 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		loadTwoStepGlint(ItemType.ORB);
 		loadTwoStepGlint(ItemType.NUGGET);
 		loadThreeStep(ItemType.TELEPORTER);
+		loadSingleStep(ItemType.STICK);
+		loadSingleStep(ItemType.RIFLE);
+		loadSingleStep(ItemType.RAIL);
 	}
 
 	private void loadMachineFront(CompositeType type) throws IOException {

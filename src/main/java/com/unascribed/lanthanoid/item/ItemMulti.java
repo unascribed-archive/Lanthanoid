@@ -47,6 +47,11 @@ public class ItemMulti extends ItemBase {
 	}
 	
 	@Override
+	public String getUnlocalizedName(ItemStack stack) {
+		return helper.getUnlocalizedNameForMeta(stack.getItemDamage());
+	}
+	
+	@Override
 	public IIcon getIconFromDamage(int meta) {
 		if (meta < 0 || meta >= icons.length) {
 			return errorIcon;

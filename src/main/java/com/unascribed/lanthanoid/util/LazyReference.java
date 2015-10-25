@@ -3,7 +3,7 @@ package com.unascribed.lanthanoid.util;
 import com.google.common.base.Supplier;
 
 public class LazyReference<T> {
-	private final Supplier<T> supplier;
+	protected final Supplier<T> supplier;
 	
 	// Use a boolean instead of checking for null so that the supplier
 	// can return null without thrashing, in the event it's an expensive
@@ -21,6 +21,11 @@ public class LazyReference<T> {
 			populated = true;
 		}
 		return value;
+	}
+	
+	public void set(T value) {
+		this.value = value;
+		populated = true;
 	}
 	
 	public void clear() {

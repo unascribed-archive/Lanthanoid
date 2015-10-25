@@ -72,7 +72,8 @@ public class ItemTeleporter extends ItemMulti {
 		int mod = stack.getItemDamage()*2;
 		int coolMod = stack.getItemDamage()*10;
 		li.add("\u00A77Teleport Distance: "+(6+mod)+" blocks");
-		li.add("\u00A77Cooldown: "+((40+coolMod)/20)+(coolMod%20 == 0 ? "" : ".5")+" seconds");
+		li.add("\u00A77Cooldown: "+((40+coolMod)/20)+(coolMod%20 == 0 ? "" : " ½")+" seconds");
+		super.addInformation(stack, player, li, advanced);
 	}
 	@Override
 	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player) {

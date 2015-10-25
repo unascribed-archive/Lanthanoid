@@ -69,7 +69,13 @@ public class MultiHelper {
 	public String getDisplayNameForMeta(int meta) {
 		String name = getNameForMeta(meta);
 		if (name == null) return StatCollector.translateToLocal(mode+".error");
-		return StatCollector.translateToLocalFormatted(mode+"."+firstWords.get(name)+".template", StatCollector.translateToLocal("material."+materials.get(name)));
+		return StatCollector.translateToLocalFormatted(getUnlocalizedNameForMeta(meta)+".template", StatCollector.translateToLocal("material."+materials.get(name)));
+	}
+	
+	public String getUnlocalizedNameForMeta(int meta) {
+		String name = getNameForMeta(meta);
+		if (name == null) return StatCollector.translateToLocal(mode+".error");
+		return mode+"."+firstWords.get(name);
 	}
 	
 }

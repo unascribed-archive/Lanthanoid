@@ -12,6 +12,7 @@ import com.google.common.collect.Maps;
 import com.unascribed.lanthanoid.block.BlockMulti;
 import com.unascribed.lanthanoid.item.ItemBlockWithCustomName;
 import com.unascribed.lanthanoid.item.ItemMulti;
+import com.unascribed.lanthanoid.item.ItemRifle;
 import com.unascribed.lanthanoid.item.ItemTeleporter;
 import com.unascribed.lanthanoid.proxy.Proxy;
 import com.unascribed.lanthanoid.util.Generate;
@@ -34,6 +35,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.command.server.CommandSaveAll;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -164,19 +166,31 @@ public class Lanthanoid {
 		// ************************************************************************************************** //
 		
 		
-		colors.put("Gold", 0xFDD753);
-		colors.put("Iron", 0xEEEEEE);
+		int goldColor = 0xFDD753;
+		int ironColor = 0xEEEEEE;
+		
+		colors.put("Gold", goldColor);
+		colors.put("Iron", ironColor);
 		
 		if (compositor != null) {
+			compositor.addItem("rifle", colors.get("Holmium"), ItemType.RIFLE);
+			
+			compositor.addItem("nuggetIron", ironColor, ItemType.NUGGET);
+
+			compositor.addItem("stickIron", ironColor, ItemType.STICK);
+			compositor.addItem("stickGold", goldColor, ItemType.STICK);
+			
+			compositor.addItem("railIron", ironColor, ItemType.RAIL);
+			compositor.addItem("railGold", goldColor, ItemType.RAIL);
+			
+			compositor.addItem("dustIron", ironColor, ItemType.DUST);
+			compositor.addItem("dustGold", goldColor, ItemType.DUST);
+			
+			
 			compositor.addBlock("oreGypsum", 0xCBCBCB, BlockType.CRYSTAL);
 			
-			compositor.addItem("nuggetIron", 0xEEEEEE, ItemType.NUGGET);
-			
-			compositor.addItem("dustIron", 0xEEEEEE, ItemType.DUST);
-			compositor.addItem("dustGold", 0xFDD753, ItemType.DUST);
-			
-			compositor.addBlock("platingIron", 0xEEEEEE, BlockType.PLATING);
-			compositor.addBlock("platingGold", 0xFDD753, BlockType.PLATING);
+			compositor.addBlock("platingIron", ironColor, BlockType.PLATING);
+			compositor.addBlock("platingGold", goldColor, BlockType.PLATING);
 			
 			compositor.addBlock("machineCobbleSide", 0xFFFFFF, BlockType.MACHINE_BLOCK, BlockBackdrop.COBBLESTONE);
 			compositor.addBlock("machineCobbleTop", 0xFFFFFF, BlockType.MACHINE_BLOCK_TOP, BlockBackdrop.COBBLESTONE);
@@ -197,6 +211,7 @@ public class Lanthanoid {
 		proxy.setupCompositor();
 		
 		GameRegistry.registerItem(LItems.ingot = new ItemMulti(all(metals, "ingot")), "ingot");
+		GameRegistry.registerItem(LItems.stick = new ItemMulti(all(metalsPlusVanilla, "stick")), "stick");
 		GameRegistry.registerItem(LItems.nugget = new ItemMulti(exclude(all(metalsPlusVanilla, "nugget"), "nuggetGold")), "nugget");
 		GameRegistry.registerItem(LItems.dust = new ItemMulti(all(gemsAndMetal, "dust")), "dust");
 		GameRegistry.registerItem(LItems.gem = new ItemMulti(all(gems, "gem")), "gem");
@@ -263,12 +278,14 @@ public class Lanthanoid {
 		}, ItemBlockWithCustomName.class, "plating");
 		
 		GameRegistry.registerItem(LItems.teleporter = new ItemTeleporter(), "teleporter");
+		GameRegistry.registerItem(LItems.rifle = new ItemRifle(), "rifle");
 		
 		LBlocks.ore_metal.registerOres();
 		LBlocks.ore_gem.registerOres();
 		LBlocks.ore_other.registerOres();
 		LBlocks.storage.registerOres();
 		LItems.ingot.registerOres();
+		LItems.stick.registerOres();
 		LItems.nugget.registerOres();
 		LItems.dust.registerOres();
 		LItems.gem.registerOres();
@@ -329,6 +346,10 @@ public class Lanthanoid {
 			} else {
 				GameRegistry.addSmelting(LBlocks.plating.getStackForName("plating"+s, 1), LItems.nugget.getStackForName("nugget"+s), 0);
 			}
+			GameRegistry.addRecipe(new ShapedOreRecipe(LItems.stick.getStackForName("stick"+s, 4),
+					"i",
+					"i",
+					'i', "ingot"+s));
 		}
 		
 		GameRegistry.addRecipe(new ShapelessOreRecipe(LItems.nugget.getStackForName("nuggetIron", 9), "ingotIron"));
@@ -336,6 +357,16 @@ public class Lanthanoid {
 				"nuggetIron", "nuggetIron", "nuggetIron",
 				"nuggetIron", "nuggetIron", "nuggetIron",
 				"nuggetIron", "nuggetIron", "nuggetIron"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.rifle,
+				"fz ",
+				"zdo",
+				" sb",
+				'f', "gemActinolite",
+				'b', "blockHolmium",
+				'o', "gemDiaspore",
+				's', "stickHolmium",
+				'z', "ingotHolmium",
+				'd', "nuggetDysprosium"));
 		
 		GeneratorGroup group = new GeneratorGroup();
 		
@@ -437,11 +468,17 @@ public class Lanthanoid {
 				Block block = getBlockByText(sender, args[0]);
 				int meta = parseIntBounded(sender, args[1], 0, 15);
 				int length = parseIntBounded(sender, args[2], 1, 150);
+				func_152373_a(sender, this, "command.lanspike.start", length);
 				int changed = Generate.spike(p.worldObj, block, meta,
 						(int)p.posX, (int)p.posY, (int)p.posZ,
 						(float)look.xCoord, (float)look.yCoord, (float)look.zCoord,
 						length);
-				sender.addChatMessage(new ChatComponentText(changed+" blocks changed").setChatStyle(new ChatStyle().setColor(EnumChatFormatting.LIGHT_PURPLE)));
+				func_152373_a(sender, this, "command.lanspike.end", changed);
+			}
+			
+			@Override
+			public int getRequiredPermissionLevel() {
+				return 4;
 			}
 			
 			@Override
@@ -475,6 +512,7 @@ public class Lanthanoid {
 			compositor.addBlock("ore"+name, color, blockType, backdrop);
 			if (itemType == ItemType.INGOT) {
 				compositor.addItem("ingot"+name, color, itemType);
+				compositor.addItem("stick"+name, color, ItemType.STICK);
 				compositor.addItem("nugget"+name, color, ItemType.NUGGET);
 			} else {
 				compositor.addItem("gem"+name, color, itemType);
