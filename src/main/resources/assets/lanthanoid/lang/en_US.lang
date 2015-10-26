@@ -5,6 +5,7 @@ itemGroup.lanthanoid=Lanthanoid
 
 ui.lore_hint=Hold %s for lore
 ui.help_hint=Hold %s for help
+ui.no_ammo_hint=No ammunition
 
 material.copper=Copper
 material.yttrium=Yttrium
@@ -19,6 +20,8 @@ material.dysprosium=Dysprosium
 material.cerium=Cerium
 material.iron=Iron
 material.gold=Gold
+material.diamond=Diamond
+material.emerald=Emerald
 
 material.actinolite=Actinolite
 material.diaspore=Diaspore
@@ -31,6 +34,19 @@ material.gypsum=Gypsum
 
 command.lanspike.start=Generating %s block long spike
 command.lanspike.end=%s blocks changed
+
+
+mode.damage.name=Beam
+mode.mine.name=Destruction
+mode.grow.name=Grow
+mode.shrink.name=Shrink
+mode.chain_damage.name=Chain Beam
+mode.healing.name=Healing Beam
+mode.chain_healing.name=Chain Healing Beam
+mode.bounce_damage.name=Deflection Beam
+mode.knockback.name=Shockwave
+mode.replicate.name=Replicator
+mode.wormhole.name=Wormhole
 
 
 machine.combustor=Combustor

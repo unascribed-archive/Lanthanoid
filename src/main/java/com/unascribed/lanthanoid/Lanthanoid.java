@@ -14,6 +14,10 @@ import com.unascribed.lanthanoid.item.ItemBlockWithCustomName;
 import com.unascribed.lanthanoid.item.ItemMulti;
 import com.unascribed.lanthanoid.item.ItemRifle;
 import com.unascribed.lanthanoid.item.ItemTeleporter;
+import com.unascribed.lanthanoid.network.ModifyRifleModeHandler;
+import com.unascribed.lanthanoid.network.ModifyRifleModeMessage;
+import com.unascribed.lanthanoid.network.RifleChargingSoundHandler;
+import com.unascribed.lanthanoid.network.RifleChargingSoundRequest;
 import com.unascribed.lanthanoid.proxy.Proxy;
 import com.unascribed.lanthanoid.util.Generate;
 import com.unascribed.lanthanoid.util.GeneratorGroup;
@@ -23,6 +27,7 @@ import com.unascribed.lanthanoid.util.TextureCompositorImpl.BlockBackdrop;
 import com.unascribed.lanthanoid.util.TextureCompositorImpl.BlockType;
 import com.unascribed.lanthanoid.util.TextureCompositorImpl.ItemType;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
@@ -30,12 +35,13 @@ import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.relauncher.Side;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.command.server.CommandSaveAll;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -43,14 +49,12 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.ChatStyle;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.AchievementPage;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
@@ -81,7 +85,10 @@ public class Lanthanoid {
 	private List<String> gems = Lists.newArrayList();
 	private List<String> others = Lists.newArrayList();
 	private List<String> gemsAndMetal = Lists.newArrayList();
+	private List<String> gemsAndMetalPlusVanilla = Lists.newArrayList("Gold", "Iron", "Diamond", "Emerald");
 	private Map<String, Integer> colors = Maps.newHashMap();
+	
+	public SimpleNetworkWrapper network;
 	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent e) {
@@ -168,9 +175,13 @@ public class Lanthanoid {
 		
 		int goldColor = 0xFDD753;
 		int ironColor = 0xEEEEEE;
+		int diamondColor = 0x00FFFF;
+		int emeraldColor = 0x00FF00;
 		
 		colors.put("Gold", goldColor);
 		colors.put("Iron", ironColor);
+		colors.put("Diamond", diamondColor);
+		colors.put("Emerald", emeraldColor);
 		
 		if (compositor != null) {
 			compositor.addItem("rifle", colors.get("Holmium"), ItemType.RIFLE);
@@ -185,6 +196,9 @@ public class Lanthanoid {
 			
 			compositor.addItem("dustIron", ironColor, ItemType.DUST);
 			compositor.addItem("dustGold", goldColor, ItemType.DUST);
+			compositor.addItem("dustDiamond", diamondColor, ItemType.DUST);
+			compositor.addItem("dustEmerald", emeraldColor, ItemType.DUST);
+			
 			
 			
 			compositor.addBlock("oreGypsum", 0xCBCBCB, BlockType.CRYSTAL);
@@ -201,6 +215,7 @@ public class Lanthanoid {
 		}
 		
 		metalsPlusVanilla.addAll(metals);
+		gemsAndMetalPlusVanilla.addAll(gemsAndMetal);
 		
 		if (compositor != null) {
 			for (String s : ItemTeleporter.flavors) {
@@ -210,10 +225,14 @@ public class Lanthanoid {
 		
 		proxy.setupCompositor();
 		
+		network = new SimpleNetworkWrapper("Lanthanoid");
+		network.registerMessage(RifleChargingSoundHandler.class, RifleChargingSoundRequest.class, 0, Side.CLIENT);
+		network.registerMessage(ModifyRifleModeHandler.class, ModifyRifleModeMessage.class, 1, Side.SERVER);
+		
 		GameRegistry.registerItem(LItems.ingot = new ItemMulti(all(metals, "ingot")), "ingot");
 		GameRegistry.registerItem(LItems.stick = new ItemMulti(all(metalsPlusVanilla, "stick")), "stick");
 		GameRegistry.registerItem(LItems.nugget = new ItemMulti(exclude(all(metalsPlusVanilla, "nugget"), "nuggetGold")), "nugget");
-		GameRegistry.registerItem(LItems.dust = new ItemMulti(all(gemsAndMetal, "dust")), "dust");
+		GameRegistry.registerItem(LItems.dust = new ItemMulti(all(gemsAndMetalPlusVanilla, "dust")), "dust");
 		GameRegistry.registerItem(LItems.gem = new ItemMulti(all(gems, "gem")), "gem");
 		
 		GameRegistry.registerBlock(LBlocks.ore_metal = new BlockMulti(
@@ -447,6 +466,11 @@ public class Lanthanoid {
 				.size(8));
 		
 		GameRegistry.registerWorldGenerator(group, 5000);
+		
+		LEventHandler handler = new LEventHandler();
+		
+		FMLCommonHandler.instance().bus().register(handler);
+		MinecraftForge.EVENT_BUS.register(handler);
 	}
 
 	private String[] exclude(String[] arr, String... exclude) {

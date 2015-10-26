@@ -14,6 +14,7 @@ import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.StatCollector;
 
 public class ItemBase extends Item {
@@ -52,5 +53,11 @@ public class ItemBase extends Item {
 	@Override
 	public String getUnlocalizedNameInefficiently(ItemStack stack) {
 		return Strings.nullToEmpty(getUnlocalizedName(stack));
+	}
+	protected NBTTagCompound getCompound(ItemStack stack) {
+		if (!stack.hasTagCompound()) {
+			stack.setTagCompound(new NBTTagCompound());
+		}
+		return stack.getTagCompound();
 	}
 }

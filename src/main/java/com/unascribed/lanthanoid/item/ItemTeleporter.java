@@ -8,7 +8,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.Vec3;
@@ -151,11 +150,5 @@ public class ItemTeleporter extends ItemMulti {
 		}
 		getCompound(stack).setInteger("teleportCooldown", (40+(stack.getItemDamage()*10)));
 		return stack;
-	}
-	private NBTTagCompound getCompound(ItemStack stack) {
-		if (!stack.hasTagCompound()) {
-			stack.setTagCompound(new NBTTagCompound());
-		}
-		return stack.getTagCompound();
 	}
 }

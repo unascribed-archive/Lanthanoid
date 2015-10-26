@@ -34,5 +34,41 @@
 				"stream": false
 			}
 		]
+	},
+	"rifle_charge": {
+		"category": "player",
+		"sounds": [
+			{
+				"name": "rifle-charge",
+				"stream": false
+			}
+		]
+	},
+	"rifle_overheat": {
+		"category": "player",
+		"sounds": [
+			{
+				"name": "rifle-overheat",
+				"stream": false
+			}
+		]
+	},
+	"rifle_fire": {
+		"category": "player",
+		"sounds": [
+			{
+				"name": "rifle-fire",
+				"stream": false
+			}
+		]
+	},
+	"rifle_mode": {
+		"category": "player",
+		"sounds": [
+			{
+				"name": "rifle-mode",
+				"stream": false
+			}
+		]
 	}
 }
