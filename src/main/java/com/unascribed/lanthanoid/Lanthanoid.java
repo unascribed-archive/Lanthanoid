@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.unascribed.lanthanoid.block.BlockMulti;
+import com.unascribed.lanthanoid.entity.EntityRifleShot;
 import com.unascribed.lanthanoid.item.ItemBlockWithCustomName;
 import com.unascribed.lanthanoid.item.ItemMulti;
 import com.unascribed.lanthanoid.item.ItemRifle;
@@ -36,6 +37,7 @@ import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.block.Block;
@@ -298,6 +300,8 @@ public class Lanthanoid {
 		
 		GameRegistry.registerItem(LItems.teleporter = new ItemTeleporter(), "teleporter");
 		GameRegistry.registerItem(LItems.rifle = new ItemRifle(), "rifle");
+		
+		//EntityRegistry.registerModEntity(EntityRifleShot.class, "lanthanoid:rifle_shot", 0, this, 64, 12, true);
 		
 		LBlocks.ore_metal.registerOres();
 		LBlocks.ore_gem.registerOres();

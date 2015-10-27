@@ -18,12 +18,19 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
+import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderHandEvent;
+import net.minecraftforge.client.event.RenderWorldEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 
 public class LEventHandler {
@@ -43,7 +50,8 @@ public class LEventHandler {
 		"8",
 		"9",
 		"0",
-		"-"
+		"-",
+		"="
 	};
 	
 	public static final int ANIMATION_TIME = 4;
@@ -78,9 +86,6 @@ public class LEventHandler {
 					int distA = selected.ordinal() - lastSelected;
 					int distB = selected.ordinal() - (lastSelected+vals.length);
 					int distC = (lastSelected - (selected.ordinal()+vals.length))*-1;
-					System.out.println("A: "+distA);
-					System.out.println("B: "+distB);
-					System.out.println("C: "+distC);
 					int dist;
 					if (Math.abs(distC) < Math.abs(distA) && Math.abs(distC) < Math.abs(distB)) {
 						dist = distC;
@@ -147,6 +152,25 @@ public class LEventHandler {
 	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
+	public void onPostRender(RenderWorldLastEvent e) {
+		if (RenderManager.debugBoundingBox && ItemRifle.latestAABB != null) {
+			GL11.glDepthMask(false);
+			GL11.glDisable(GL11.GL_TEXTURE_2D);
+			GL11.glDisable(GL11.GL_LIGHTING);
+			GL11.glDisable(GL11.GL_CULL_FACE);
+			GL11.glDisable(GL11.GL_BLEND);
+			AxisAlignedBB axisalignedbb = ItemRifle.latestAABB;
+			RenderGlobal.drawOutlinedBoundingBox(axisalignedbb, 16777215);
+			GL11.glEnable(GL11.GL_TEXTURE_2D);
+			GL11.glEnable(GL11.GL_LIGHTING);
+			GL11.glEnable(GL11.GL_CULL_FACE);
+			GL11.glDisable(GL11.GL_BLEND);
+			GL11.glDepthMask(true);
+		}
+	}
+	
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
 	public void onKeyboardInput(KeyInputEvent e) {
 		Minecraft mc = Minecraft.getMinecraft();
 		if (mc.thePlayer != null) {
@@ -180,6 +204,10 @@ public class LEventHandler {
 						}
 						if (Keyboard.getEventKey() == Keyboard.KEY_UNDERLINE) {
 							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, 10));
+							return;
+						}
+						if (Keyboard.getEventKey() == Keyboard.KEY_EQUALS) {
+							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, 11));
 							return;
 						}
 						for (int i = 0; i < 9; i++) {

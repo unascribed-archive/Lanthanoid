@@ -47,6 +47,7 @@ mode.bounce_damage.name=Deflection Beam
 mode.knockback.name=Shockwave
 mode.replicate.name=Replicator
 mode.wormhole.name=Wormhole
+mode.light.name=Illumination
 
 
 machine.combustor=Combustor
