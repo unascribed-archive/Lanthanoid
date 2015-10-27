@@ -75,22 +75,28 @@ public class LEventHandler {
 				}
 				float i = 0;
 				if (lastSelected != selected.ordinal()) {
+					int distA = selected.ordinal() - lastSelected;
+					int distB = selected.ordinal() - (lastSelected+vals.length);
+					int distC = (lastSelected - (selected.ordinal()+vals.length))*-1;
+					System.out.println("A: "+distA);
+					System.out.println("B: "+distB);
+					System.out.println("C: "+distC);
+					int dist;
+					if (Math.abs(distC) < Math.abs(distA) && Math.abs(distC) < Math.abs(distB)) {
+						dist = distC;
+					} else if (Math.abs(distB) < Math.abs(distA) && Math.abs(distB) < Math.abs(distC)) {
+						dist = distB;
+					} else if (Math.abs(distA) < Math.abs(distB) && Math.abs(distA) < Math.abs(distC)) {
+						dist = distA;
+					} else {
+						dist = distA;
+					}
 					if (animTicks >= ANIMATION_TIME) {
 						animTicks = 0;
-						diff = selected.ordinal() - lastSelected;
+						diff = dist;
 					} else {
-						diff += selected.ordinal() - lastSelected;
+						diff += dist;
 					}
-					int far = vals.length-2;
-					System.out.println(diff);
-					if (diff > far) {
-						diff -= far;
-						diff *= -1;
-					} else if (diff < -far) {
-						diff += far;
-						diff *= -1;
-					}
-					System.out.println(diff);
 					prevSelected = lastSelected;
 					lastSelected = selected.ordinal();
 				}
