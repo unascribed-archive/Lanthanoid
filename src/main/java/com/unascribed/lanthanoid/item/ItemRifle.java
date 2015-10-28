@@ -1,29 +1,26 @@
 package com.unascribed.lanthanoid.item;
 
 import java.util.List;
+import java.util.Set;
 
+import com.google.common.collect.Sets;
 import com.unascribed.lanthanoid.LItems;
 import com.unascribed.lanthanoid.Lanthanoid;
-import com.unascribed.lanthanoid.effect.EntityRifleFX;
+import com.unascribed.lanthanoid.network.BeamParticleMessage;
 import com.unascribed.lanthanoid.network.RifleChargingSoundRequest;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.IIcon;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
@@ -36,14 +33,15 @@ public class ItemRifle extends ItemBase {
 	public static AxisAlignedBB latestAABB;
 	
 	public enum Mode {
+		TRACTOR("dustRosasite", 0x00D9FF),
 		DAMAGE("dustYtterbium", 0xFFEC00),
-		MINE("dustNeodymium", 0x8D8DFF),
-		GROW("dustCerium", 0xFF004C),
-		SHRINK("dustDysprosium", 0xE400FF),
-		CHAIN_DAMAGE("dustHolmium", 0xFFF4D6),
+		CHAIN_DAMAGE("dustNeodymium", 0x8D8DFF),
+		BOUNCE_DAMAGE("dustPraseodymium", 0x96FF8F),
 		HEALING("dustErbium", 0x2C61FF),
 		CHAIN_HEALING("dustGadolinium", 0x2CFFAD),
-		BOUNCE_DAMAGE("dustPraseodymium", 0x96FF8F),
+		MINE("dustHolmium", 0xFFF4D6),
+		GROW("dustCerium", 0xFF004C),
+		SHRINK("dustDysprosium", 0xE400FF),
 		KNOCKBACK("dustYttrium", 0xA9F8FF),
 		REPLICATE("dustActinolite", 0x83FFCF),
 		WORMHOLE("dustDiaspore", 0x8762FF),
@@ -64,6 +62,12 @@ public class ItemRifle extends ItemBase {
 		}
 		public boolean doesHeal() {
 			return this == HEALING || this == CHAIN_HEALING;
+		}
+		public boolean doesChain() {
+			return this == CHAIN_DAMAGE || this == CHAIN_HEALING;
+		}
+		public boolean doesDeflect() {
+			return this == BOUNCE_DAMAGE;
 		}
 	}
 	
@@ -104,6 +108,7 @@ public class ItemRifle extends ItemBase {
 	}
 	
 	public Mode getMode(ItemStack stack) {
+		if (!getCompound(stack).hasKey("mode", 99)) return Mode.DAMAGE;
 		Mode[] val = Mode.values();
 		return val[getCompound(stack).getInteger("mode")%val.length];
 	}
@@ -209,91 +214,150 @@ public class ItemRifle extends ItemBase {
 		}
 		if (useRemaining <= 50) {
 			player.playSound("lanthanoid:rifle_fire", 1.0f, (itemRand.nextFloat()*0.2f)+1.0f);
-			Mode mode = getMode(stack);
-			Vec3 start = Vec3.createVectorHelper(player.posX, player.boundingBox.maxY-0.12f, player.posZ);
-			Vec3 look = player.getLookVec();
-			float range = 50;
-			Vec3 end = start.addVector(look.xCoord*range, look.yCoord*range, look.zCoord*range);
-			Vec3 right = player.getLookVec();
-			right.rotateAroundY(-90f);
-			float rightAdj = 0.25f;
-			start = start.addVector(right.xCoord*rightAdj, right.yCoord*rightAdj, right.zCoord*rightAdj);
-			System.out.println(start);
-			shootLaser(world, mode, start, end, player, 0);
+			if (!world.isRemote) {
+				Mode mode = getMode(stack);
+				Vec3 start = Vec3.createVectorHelper(player.posX, player.boundingBox.maxY-0.2f, player.posZ);
+				Vec3 look = player.getLookVec();
+				float range = 150;
+				Vec3 direction = Vec3.createVectorHelper(look.xCoord*range, look.yCoord*range, look.zCoord*range);
+				Vec3 right = player.getLookVec();
+				right.rotateAroundY(-90f);
+				float rightAdj = 0.25f;
+				start = start.addVector(right.xCoord*rightAdj, right.yCoord*rightAdj, right.zCoord*rightAdj);
+				shootLaser(world, mode, start, direction, player);
+			}
 		}
 	}
 	
-	private void shootLaser(World world, Mode mode, Vec3 start, Vec3 end, EntityLivingBase shooter, int depth) {
-		MovingObjectPosition mop = rayTrace(world, shooter, start, end);
-		if (FMLCommonHandler.instance().getSide().isClient() && FMLCommonHandler.instance().getEffectiveSide().isClient()) {
-			Vec3 vec = (mop == null ? end : mop.hitVec);
-			spawnParticles(world, mode, start.xCoord, start.yCoord, start.zCoord, vec.xCoord, vec.yCoord, vec.zCoord);
-		}
-		System.out.println(mop);
-		if (mop != null) {
-			if (mop.entityHit instanceof EntityLivingBase && !world.isRemote) {
-				if (mode.doesDamage()) {
-					((EntityLivingBase)mop.entityHit).attackEntityFrom(new EntityDamageSource("laser", shooter), 7);
-				}
-				if (mode.doesHeal()) {
-					((EntityLivingBase)mop.entityHit).heal(10);
-				}
+	private void shootLaser(World world, Mode mode, Vec3 start, Vec3 direction, EntityPlayer shooter) {
+		if (mode == Mode.KNOCKBACK) {
+			
+		} else if (mode == Mode.WORMHOLE) {
+			
+		} else {
+			Vec3 end = start.addVector(direction.xCoord, direction.yCoord, direction.zCoord);
+			MovingObjectPosition mop = rayTrace(world, shooter, start, direction);
+			if (mop != null) {
+				end = mop.hitVec;
 			}
-			switch (mode) {
-				case BOUNCE_DAMAGE:
-					// TODO
-					break;
-				case CHAIN_HEALING:
-				case CHAIN_DAMAGE:
-					if (mop.entityHit instanceof EntityLivingBase && depth < 4) {
-						EntityLivingBase nearest = findNearestEntityWithinAABB(world, EntityLivingBase.class,
-								AxisAlignedBB.getBoundingBox(end.xCoord-5, end.yCoord-5, end.zCoord-5,
-										end.xCoord+5, end.yCoord+5, end.zCoord+5), end);
-						if (nearest != null) {
-							shootLaser(world, mode, end, Vec3.createVectorHelper(nearest.posX, nearest.posY, nearest.posZ), shooter, depth + 1);
+			spawnParticles(world, mode, start.xCoord, start.yCoord, start.zCoord, end.xCoord, end.yCoord, end.zCoord);
+			if (mop != null) {
+				if (mop.entityHit instanceof EntityLivingBase) {
+					if (mode.doesDamage()) {
+						((EntityLivingBase)mop.entityHit).attackEntityFrom(new EntityDamageSource("laser", shooter), 7);
+					}
+					if (mode.doesHeal()) {
+						((EntityLivingBase)mop.entityHit).heal(10);
+					}
+				}
+				if (mode.doesChain()) {
+					if (mop.entityHit instanceof EntityLivingBase) {
+						EntityLivingBase hit = (EntityLivingBase) mop.entityHit;
+						world.playSoundEffect(end.xCoord, end.yCoord, end.zCoord, "lanthanoid:rifle_fire", 0.5f, 1.5f);
+						Set<Entity> shot = Sets.newHashSet(shooter, hit);
+						Vec3 vec3 = end;
+						for (int i = 0; i < 4; i++) {
+							double minDist = Double.MAX_VALUE;
+							Entity nxt = null;
+							for (Entity e : (List<Entity>)world.getEntitiesWithinAABB(EntityLivingBase.class, hit.boundingBox.expand(5, 5, 5))) {
+								if (shot.contains(e)) continue;
+								double dist = e.getDistanceSq(end.xCoord, end.yCoord, end.zCoord);
+								if (dist <= minDist) {
+									minDist = dist;
+									nxt = e;
+								}
+							}
+							shot.add(nxt);
+							if (nxt == null) break;
+							if (!(nxt instanceof EntityLivingBase)) continue;
+							Vec3 nxtVec = Vec3.createVectorHelper(nxt.posX, nxt.posY+(nxt.height/2), nxt.posZ);
+							MovingObjectPosition check = world.rayTraceBlocks(Vec3.createVectorHelper(hit.posX, hit.posY+hit.height/2, hit.posZ), nxtVec);
+							Vec3 particleVec = check == null ? nxtVec : check.hitVec;
+							spawnParticles(world, mode, vec3.xCoord, vec3.yCoord, vec3.zCoord, particleVec.xCoord, particleVec.yCoord, particleVec.zCoord);
+							if (check == null) {
+								hit = (EntityLivingBase)nxt;
+								vec3 = Vec3.createVectorHelper(hit.posX, hit.posY+hit.height/2, hit.posZ);
+								if (mode.doesDamage()) {
+									hit.attackEntityFrom(new EntityDamageSource("laser", shooter), 6-i);
+								}
+								if (mode.doesHeal()) {
+									hit.heal(9-i);
+								}
+							}
 						}
 					}
-					break;
-				case GROW:
-					// TODO
-					break;
-				case KNOCKBACK:
-					// TODO
-					break;
-				case LIGHT:
-					// TODO
-					break;
-				case MINE:
-					// TODO
-					break;
-				case REPLICATE:
-					// TODO
-					break;
-				case SHRINK:
-					// TODO
-					break;
-				case WORMHOLE:
-					// TODO
-					break;
-				default:
-					break;
+				}
+				if (mode.doesDeflect() && mop.entityHit == null) {
+					AxisAlignedBB aabb = AxisAlignedBB.getBoundingBox(end.xCoord-5, end.yCoord-5, end.zCoord-5,
+							end.xCoord+5, end.yCoord+5, end.zCoord+5);
+					latestAABB = aabb;
+					EntityLivingBase nxt = (EntityLivingBase)world.findNearestEntityWithinAABB(EntityLivingBase.class, aabb, shooter);
+					if (nxt != null) {
+						Vec3 nxtVec = Vec3.createVectorHelper(nxt.posX, nxt.posY+(nxt.height/2), nxt.posZ);
+						//MovingObjectPosition check = world.rayTraceBlocks(end, nxtVec);
+						Vec3 vec = /*check == null ? */nxtVec/* : check.hitVec*/;
+						spawnParticles(world, mode, end.xCoord, end.yCoord, end.zCoord, vec.xCoord, vec.yCoord, vec.zCoord);
+						//if (check == null) {
+							if (mode.doesDamage()) {
+								nxt.attackEntityFrom(new EntityDamageSource("laser", shooter), 5);
+							}
+							if (mode.doesHeal()) {
+								nxt.heal(7);
+							}
+						//}
+					}
+				}
+				switch (mode) {
+					case GROW:
+						// TODO
+						break;
+					case SHRINK:
+						// TODO
+						break;
+					case LIGHT:
+						// TODO
+						break;
+					case MINE:
+						// TODO
+						break;
+					case REPLICATE:
+						// TODO
+						break;
+					default:
+						break;
+				}
 			}
 		}
 	}
 	
-	private MovingObjectPosition rayTrace(World world, EntityLivingBase shooter, Vec3 start, Vec3 end) {
+	private void spawnParticles(World world, Mode mode, double startX, double startY, double startZ, double endX, double endY, double endZ) {
+		Lanthanoid.inst.network.sendToAllAround(new BeamParticleMessage(startX, startY, startZ, endX, endY, endZ, mode.color), new TargetPoint(
+				world.provider.dimensionId,
+				startX,
+				startY,
+				startZ,
+				150
+				));
+	}
+
+	private MovingObjectPosition rayTrace(World world, Entity shooter, Vec3 start, Vec3 direction) {
 		Vec3 vec31 = Vec3.createVectorHelper(start.xCoord, start.yCoord, start.zCoord);
-		Vec3 vec3 = Vec3.createVectorHelper(end.xCoord, end.yCoord, end.zCoord);
+		Vec3 vec3 = Vec3.createVectorHelper(start.xCoord+direction.xCoord, start.yCoord+direction.yCoord, start.zCoord+direction.zCoord);
 		MovingObjectPosition movingobjectposition = world.func_147447_a(vec31, vec3, false, false, false);
 		vec31 = Vec3.createVectorHelper(start.xCoord, start.yCoord, start.zCoord);
-		vec3 = Vec3.createVectorHelper(end.xCoord, end.yCoord, end.zCoord);
+		vec3 = Vec3.createVectorHelper(start.xCoord+direction.xCoord, start.yCoord+direction.yCoord, start.zCoord+direction.zCoord);
 
 		if (movingobjectposition != null) {
 			vec3 = Vec3.createVectorHelper(movingobjectposition.hitVec.xCoord, movingobjectposition.hitVec.yCoord, movingobjectposition.hitVec.zCoord);
 		}
 
 		Entity entity = null;
-		AxisAlignedBB aabb = AxisAlignedBB.getBoundingBox(start.xCoord, start.yCoord, start.zCoord, end.xCoord, end.yCoord, end.zCoord).expand(4, 4, 4);
+		AxisAlignedBB aabb = AxisAlignedBB.getBoundingBox(
+					start.xCoord-0.125, start.yCoord-0.125, start.zCoord-0.125,
+					start.xCoord+0.125, start.yCoord+0.125, start.zCoord+0.125)
+				.addCoord(direction.xCoord, direction.yCoord, direction.zCoord)
+				.expand(1, 1, 1);
+		
 		latestAABB = aabb;
 		List list = world.getEntitiesWithinAABBExcludingEntity(null, aabb);
 		double d0 = 0.0D;
@@ -304,7 +368,6 @@ public class ItemRifle extends ItemBase {
 		
 		for (i = 0; i < list.size(); ++i) {
 			Entity entity1 = (Entity) list.get(i);
-			System.out.println(entity1);
 			if (entity1.canBeCollidedWith() && entity1 != shooter) {
 				f1 = 0.3F;
 				AxisAlignedBB axisalignedbb1 = entity1.boundingBox.expand((double) f1, (double) f1, (double) f1);
@@ -327,63 +390,6 @@ public class ItemRifle extends ItemBase {
 			movingobjectposition.hitVec = hit;
 		}
 		return movingobjectposition;
-	}
-
-	public <T extends Entity> T findNearestEntityWithinAABB(World world, Class<T> clazz, AxisAlignedBB aabb, Vec3 position) {
-		List<Entity> list = world.getEntitiesWithinAABB(clazz, aabb);
-		Entity entity1 = null;
-		double d0 = Double.MAX_VALUE;
-
-		for (int i = 0; i < list.size(); ++i) {
-			Entity entity2 = list.get(i);
-
-			double d1 = position.squareDistanceTo(entity2.posX, entity2.posY, entity2.posZ);
-
-			if (d1 <= d0) {
-				entity1 = entity2;
-				d0 = d1;
-			}
-		}
-
-		return (T)entity1;
-	}
-
-	@SideOnly(Side.CLIENT)
-	private void spawnParticles(World world, Mode mode, double startX, double startY, double startZ, double endX, double endY, double endZ) {
-		double stepSize = 0.1;
-		if (Minecraft.getMinecraft().gameSettings.particleSetting == 1) {
-			// Decreased
-			stepSize = 1;
-		} else if (Minecraft.getMinecraft().gameSettings.particleSetting == 2) {
-			// Minimal
-			stepSize = 2.5;
-		}
-		double steps = (int)(distance(startX, startY, startZ, endX, endY, endZ)/stepSize);
-		for (int i = 0; i < steps; i++) {
-			double[] end = interpolate(startX, startY, startZ, endX, endY, endZ, i/steps);
-			EntityRifleFX fx = new EntityRifleFX(world, end[0], end[1], end[2], 1.0f, 0, 0, 0);
-			fx.motionX = fx.motionY = fx.motionZ = 0;
-			float r = ((mode.color >> 16)&0xFF)/255f;
-			float g = ((mode.color >> 8)&0xFF)/255f;
-			float b = (mode.color&0xFF)/255f;
-			fx.setRBGColorF(r, g, b);
-			Minecraft.getMinecraft().effectRenderer.addEffect(fx);
-		}
-	}
-	
-	private double distance(double x1, double y1, double z1, double x2, double y2, double z2) {
-		double dX = x2 - x1;
-		double dY = y2 - y1;
-		double dZ = z2 - z1;
-		return (double) MathHelper.sqrt_double(dX * dX + dY * dY + dZ * dZ);
-	}
-	
-	private double[] interpolate(double x1, double y1, double z1, double x2, double y2, double z2, double factor) {
-		return new double[] { 
-				((1.0D - factor) * x1 + factor * x2),
-				((1.0D - factor) * y1 + factor * y2),
-				((1.0D - factor) * z1 + factor * z2)
-		};
 	}
 
 	

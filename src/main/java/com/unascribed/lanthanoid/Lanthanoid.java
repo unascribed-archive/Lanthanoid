@@ -10,11 +10,12 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.unascribed.lanthanoid.block.BlockMulti;
-import com.unascribed.lanthanoid.entity.EntityRifleShot;
 import com.unascribed.lanthanoid.item.ItemBlockWithCustomName;
 import com.unascribed.lanthanoid.item.ItemMulti;
 import com.unascribed.lanthanoid.item.ItemRifle;
 import com.unascribed.lanthanoid.item.ItemTeleporter;
+import com.unascribed.lanthanoid.network.BeamParticleHandler;
+import com.unascribed.lanthanoid.network.BeamParticleMessage;
 import com.unascribed.lanthanoid.network.ModifyRifleModeHandler;
 import com.unascribed.lanthanoid.network.ModifyRifleModeMessage;
 import com.unascribed.lanthanoid.network.RifleChargingSoundHandler;
@@ -37,7 +38,6 @@ import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.block.Block;
@@ -145,9 +145,9 @@ public class Lanthanoid {
 		// Hell lanthanides
 		addAll("Ytterbium", 0x423D00, BlockType.METAL_ORE, BlockBackdrop.NETHERRACK, ItemType.INGOT);
 		addAll("Neodymium", 0x363662, BlockType.METAL_ORE, BlockBackdrop.NETHERRACK, ItemType.INGOT);
+		addAll("Praseodymium", 0x2B4929, BlockType.METAL_ORE, BlockBackdrop.NETHERRACK, ItemType.INGOT);
 		
 		// Rarer lanthanides
-		addAll("Praseodymium", 0x2B4929, BlockType.METAL_ORE, BlockBackdrop.GRAVEL, ItemType.INGOT);
 		addAll("Holmium", 0xA8A18D, BlockType.METAL_ORE, BlockBackdrop.STONE, ItemType.INGOT);
 		
 		// End lanthanides
@@ -230,6 +230,7 @@ public class Lanthanoid {
 		network = new SimpleNetworkWrapper("Lanthanoid");
 		network.registerMessage(RifleChargingSoundHandler.class, RifleChargingSoundRequest.class, 0, Side.CLIENT);
 		network.registerMessage(ModifyRifleModeHandler.class, ModifyRifleModeMessage.class, 1, Side.SERVER);
+		network.registerMessage(BeamParticleHandler.class, BeamParticleMessage.class, 2, Side.CLIENT);
 		
 		GameRegistry.registerItem(LItems.ingot = new ItemMulti(all(metals, "ingot")), "ingot");
 		GameRegistry.registerItem(LItems.stick = new ItemMulti(all(metalsPlusVanilla, "stick")), "stick");
@@ -407,21 +408,22 @@ public class Lanthanoid {
 				.block(LBlocks.ore_metal, LBlocks.ore_metal.getMetaForName("oreYtterbium"))
 				.target(Blocks.netherrack)
 				.frequency(10)
-				.range(8, 64)
+				.range(42, 84)
 				.dimension(OreGenerator.NETHER)
 				.size(5));
 		group.add(OreGenerator.create("Praseodymium")
 				.block(LBlocks.ore_metal, LBlocks.ore_metal.getMetaForName("orePraseodymium"))
-				.target(Blocks.gravel)
+				.target(Blocks.netherrack)
 				.frequency(8)
-				.range(16, 24)
+				.range(8, 41)
+				.dimension(OreGenerator.NETHER)
 				.size(5));
 		group.add(OreGenerator.create("Neodymium")
 				.block(LBlocks.ore_metal, LBlocks.ore_metal.getMetaForName("oreNeodymium"))
 				.target(Blocks.netherrack)
 				.dimension(OreGenerator.NETHER)
 				.frequency(10)
-				.range(64, 128)
+				.range(85, 128)
 				.size(5));
 		group.add(OreGenerator.create("Holmium")
 				.block(LBlocks.ore_metal, LBlocks.ore_metal.getMetaForName("oreHolmium"))

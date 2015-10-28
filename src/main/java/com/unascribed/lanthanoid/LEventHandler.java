@@ -18,7 +18,6 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
-import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderItem;
@@ -28,8 +27,6 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderHandEvent;
-import net.minecraftforge.client.event.RenderWorldEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 
@@ -40,6 +37,7 @@ public class LEventHandler {
 	public static final float TAUf = (float)(Math.PI*2f);
 	
 	private String[] keys = {
+		"~",
 		"1",
 		"2",
 		"3",
@@ -116,8 +114,8 @@ public class LEventHandler {
 							anim = 1-((animTicks+e.partialTicks)/(float)ANIMATION_TIME);
 						}
 						s += anim*diff;
-						int x = Math.round(MathHelper.sin((s / vals.length)*TAUf)*34f);
-						int y = Math.round(MathHelper.cos((s / vals.length)*TAUf)*34f);
+						int x = Math.round(MathHelper.sin((s / vals.length)*TAUf)*38f);
+						int y = Math.round(MathHelper.cos((s / vals.length)*TAUf)*38f);
 						x += 8;
 						y += 10;
 						GL11.glPushMatrix();
@@ -189,31 +187,35 @@ public class LEventHandler {
 							}
 							if (Keyboard.getEventCharacter() == '@') {
 								while (mc.gameSettings.keyBindsHotbar[1].isPressed()) {}
-								Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, 1));
+								Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, 2));
 								return;
 							}
 							if (Keyboard.getEventCharacter() == '^') {
 								while (mc.gameSettings.keyBindsHotbar[5].isPressed()) {}
-								Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, 5));
+								Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, 6));
 								return;
 							}
 						}
 						if (Keyboard.getEventKey() == Keyboard.KEY_0) {
-							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, 9));
-							return;
-						}
-						if (Keyboard.getEventKey() == Keyboard.KEY_UNDERLINE) {
 							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, 10));
 							return;
 						}
-						if (Keyboard.getEventKey() == Keyboard.KEY_EQUALS) {
+						if (Keyboard.getEventKey() == Keyboard.KEY_UNDERLINE) {
 							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, 11));
+							return;
+						}
+						if (Keyboard.getEventKey() == Keyboard.KEY_EQUALS) {
+							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, 12));
+							return;
+						}
+						if (Keyboard.getEventKey() == Keyboard.KEY_GRAVE) {
+							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, 0));
 							return;
 						}
 						for (int i = 0; i < 9; i++) {
 							if (mc.gameSettings.keyBindsHotbar[i].isPressed()) {
 								while (mc.gameSettings.keyBindsHotbar[i].isPressed()) {} // drain pressTicks to zero to suppress vanilla behavior
-								Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, i));
+								Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, i+1));
 							}
 						}
 						return;

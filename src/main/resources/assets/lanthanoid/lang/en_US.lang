@@ -36,6 +36,7 @@ command.lanspike.start=Generating %s block long spike
 command.lanspike.end=%s blocks changed
 
 
+mode.tractor.name=Tractor Beam
 mode.damage.name=Beam
 mode.mine.name=Destruction
 mode.grow.name=Grow

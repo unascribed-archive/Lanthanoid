@@ -1,18 +1,13 @@
 package com.unascribed.lanthanoid.entity;
 
-import com.unascribed.lanthanoid.effect.EntityRifleFX;
 import com.unascribed.lanthanoid.item.ItemRifle;
 
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
@@ -89,6 +84,7 @@ public class EntityRifleShot extends Entity {
 		dataWatcher.updateObject(MODE_INDEX, (byte)mode.ordinal());
 	}
 
+	@SuppressWarnings("unused")
 	private boolean harvest(EntityPlayerMP player, int x, int y, int z) {
 		BlockEvent.BreakEvent event = ForgeHooks.onBlockBreakEvent(worldObj, player.theItemInWorldManager.getGameType(), player, x, y, z);
 		if (event.isCanceled()) {
