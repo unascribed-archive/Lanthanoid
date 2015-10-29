@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.unascribed.lanthanoid.block.BlockMulti;
+import com.unascribed.lanthanoid.block.BlockTechnical;
 import com.unascribed.lanthanoid.item.ItemBlockWithCustomName;
 import com.unascribed.lanthanoid.item.ItemMulti;
 import com.unascribed.lanthanoid.item.ItemRifle;
@@ -20,6 +21,8 @@ import com.unascribed.lanthanoid.network.ModifyRifleModeHandler;
 import com.unascribed.lanthanoid.network.ModifyRifleModeMessage;
 import com.unascribed.lanthanoid.network.RifleChargingSoundHandler;
 import com.unascribed.lanthanoid.network.RifleChargingSoundRequest;
+import com.unascribed.lanthanoid.network.SetScopeFactorHandler;
+import com.unascribed.lanthanoid.network.SetScopeFactorMessage;
 import com.unascribed.lanthanoid.proxy.Proxy;
 import com.unascribed.lanthanoid.util.Generate;
 import com.unascribed.lanthanoid.util.GeneratorGroup;
@@ -88,7 +91,7 @@ public class Lanthanoid {
 	private List<String> others = Lists.newArrayList();
 	private List<String> gemsAndMetal = Lists.newArrayList();
 	private List<String> gemsAndMetalPlusVanilla = Lists.newArrayList("Gold", "Iron", "Diamond", "Emerald");
-	private Map<String, Integer> colors = Maps.newHashMap();
+	public Map<String, Integer> colors = Maps.newHashMap();
 	
 	public SimpleNetworkWrapper network;
 	
@@ -186,8 +189,6 @@ public class Lanthanoid {
 		colors.put("Emerald", emeraldColor);
 		
 		if (compositor != null) {
-			compositor.addItem("rifle", colors.get("Holmium"), ItemType.RIFLE);
-			
 			compositor.addItem("nuggetIron", ironColor, ItemType.NUGGET);
 
 			compositor.addItem("stickIron", ironColor, ItemType.STICK);
@@ -225,12 +226,13 @@ public class Lanthanoid {
 			}
 		}
 		
-		proxy.setupCompositor();
+		proxy.setup();
 		
 		network = new SimpleNetworkWrapper("Lanthanoid");
 		network.registerMessage(RifleChargingSoundHandler.class, RifleChargingSoundRequest.class, 0, Side.CLIENT);
 		network.registerMessage(ModifyRifleModeHandler.class, ModifyRifleModeMessage.class, 1, Side.SERVER);
 		network.registerMessage(BeamParticleHandler.class, BeamParticleMessage.class, 2, Side.CLIENT);
+		network.registerMessage(SetScopeFactorHandler.class, SetScopeFactorMessage.class, 3, Side.CLIENT);
 		
 		GameRegistry.registerItem(LItems.ingot = new ItemMulti(all(metals, "ingot")), "ingot");
 		GameRegistry.registerItem(LItems.stick = new ItemMulti(all(metalsPlusVanilla, "stick")), "stick");
@@ -298,6 +300,8 @@ public class Lanthanoid {
 				return 50000;
 			}
 		}, ItemBlockWithCustomName.class, "plating");
+		
+		GameRegistry.registerBlock(LBlocks.technical = new BlockTechnical(), null, "technical");
 		
 		GameRegistry.registerItem(LItems.teleporter = new ItemTeleporter(), "teleporter");
 		GameRegistry.registerItem(LItems.rifle = new ItemRifle(), "rifle");
@@ -381,7 +385,7 @@ public class Lanthanoid {
 				"nuggetIron", "nuggetIron", "nuggetIron",
 				"nuggetIron", "nuggetIron", "nuggetIron",
 				"nuggetIron", "nuggetIron", "nuggetIron"));
-		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.rifle,
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.rifle, 1, ItemRifle.Attachment.NONE.ordinal()),
 				"fz ",
 				"zdo",
 				" sb",
@@ -391,6 +395,44 @@ public class Lanthanoid {
 				's', "stickHolmium",
 				'z', "ingotHolmium",
 				'd', "nuggetDysprosium"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.rifle, 1, ItemRifle.Attachment.ZOOM.ordinal()),
+				"r ",
+				"gq",
+				
+				'g', LItems.rifle,
+				'r', "gemRaspite",
+				'q', "gemQuartz"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.rifle, 1, ItemRifle.Attachment.OVERCLOCK.ordinal()),
+				"d ",
+				"gb",
+				
+				'g', LItems.rifle,
+				'd', "ingotDysprosium",
+				'b', "ingotGold"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.rifle, 1, ItemRifle.Attachment.SUPERCLOCKED.ordinal()),
+				"d ",
+				"gb",
+				
+				'g', new ItemStack(LItems.rifle, 1, ItemRifle.Attachment.OVERCLOCK.ordinal()),
+				'd', "blockDysprosium",
+				'b', "blockGold"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.rifle, 1, ItemRifle.Attachment.EFFICIENCY.ordinal()),
+				"c ",
+				"gd",
+				
+				'g', LItems.rifle,
+				'c', "ingotCerium",
+				'd', "gemDiamond"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.rifle, 1, ItemRifle.Attachment.SUPEREFFICIENCY.ordinal()),
+				"c ",
+				"gd",
+				
+				'g', new ItemStack(LItems.rifle, 1, ItemRifle.Attachment.EFFICIENCY.ordinal()),
+				'c', "blockCerium",
+				'd', "blockDiamond"));
+		
+		GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(LItems.rifle, 1, ItemRifle.Attachment.NONE.ordinal()),
+				new ItemStack(LItems.rifle, 1, OreDictionary.WILDCARD_VALUE)));
 		
 		GeneratorGroup group = new GeneratorGroup();
 		
@@ -477,6 +519,7 @@ public class Lanthanoid {
 		
 		FMLCommonHandler.instance().bus().register(handler);
 		MinecraftForge.EVENT_BUS.register(handler);
+		proxy.init();
 	}
 
 	private String[] exclude(String[] arr, String... exclude) {

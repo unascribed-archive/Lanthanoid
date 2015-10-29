@@ -58,17 +58,36 @@ tile.block.template=Block of %s
 tile.plating.template=%s Armor Plating
 
 
-item.rifle.name=Lanthanide Rifle
+item.rifle_none.name=Lanthanide Rifle
+item.rifle_zoom.name=Scoped Lanthanide Rifle
+item.rifle_overclock.name=Overclocked Lanthanide Rifle
+item.rifle_efficiency.name=Fine-Tuned Lanthanide Rifle
+item.rifle_fire.name=Blazing Lanthanide Rifle
+item.rifle_superclocked.name=Superclocked Lanthanide Rifle
+item.rifle_superefficiency.name=Meticulous Lanthanide Rifle
+
 item.rifle.lore=A small chunk of Dysprosium, used correctly, is capable of exciting dust particles in a way similar to plasma. These particles can then be used to fire beams, with differing effects.
 item.rifle.help.1=Sneak and scroll or press number keys to switch selected ammo.
 item.rifle.help.2=Hold right-click to charge, release to fire.
 item.rifle.help.3=Switching ammo while shots are remaining in the cartridge wastes the remaining shots.
 item.rifle.help.4=Charging for too long will cause an overheat, hurting you and wasting ammo.
 
+item.rifle_zoom.help.1=Sneak and left-click to change scope level.
+
+item.rifle_fire.help.1=Uses Blaze Powder when available for an added flame effect.
+
+item.rifle.ammo_usage_tooltip=Ammo Usage: %s%%
+item.rifle.charge_speed_tooltip=Charge Speed: %s%%
+item.rifle.cooldown_speed_tooltip=Cooldown Speed: %s%%
+
 item.teleporter.template=%s Spelunker's Teleporter
 item.teleporter.lore=Produces instantaneous, discontinous transmission of particularized matter via instrumentality of the spatial continuum. This technology hasn't quite been perfected yet, so you need to be very careful.
 item.teleporter.help.1=Right-click to teleport where you're looking. Teleport distance depends on material.
 item.teleporter.help.2=Be careful.
+
+item.teleporter.distance_tooltip=Teleport Distance: %s blocks
+item.teleporter.cooldown_tooltip=Cooldown: %s seconds
+
 
 item.ingot.template=%s Ingot
 item.nugget.template=%s Nugget

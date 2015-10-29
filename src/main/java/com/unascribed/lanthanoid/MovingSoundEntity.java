@@ -12,9 +12,10 @@ public class MovingSoundEntity extends MovingSound {
 	private static final Map<Entity, MovingSoundEntity> sounds = Maps.newHashMap();
 	
 	private Entity entity;
-	public MovingSoundEntity(ResourceLocation loc, Entity entity) {
+	public MovingSoundEntity(ResourceLocation loc, Entity entity, float pitch) {
 		super(loc);
 		this.entity = entity;
+		this.field_147663_c = pitch;
 		if (sounds.containsKey(entity)) {
 			sounds.get(entity).stop();
 		}
@@ -26,7 +27,10 @@ public class MovingSoundEntity extends MovingSound {
 		if (donePlaying) {
 			sounds.remove(this);
 		}
-		if (entity.isDead) stop();
+		if (entity == null || entity.isDead) {
+			stop();
+			return;
+		}
 		this.xPosF = (float)entity.posX;
 		this.yPosF = (float)entity.posY;
 		this.zPosF = (float)entity.posZ;

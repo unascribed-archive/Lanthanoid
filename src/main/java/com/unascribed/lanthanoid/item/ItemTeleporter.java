@@ -10,6 +10,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
+import net.minecraft.util.StatCollector;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -70,8 +71,8 @@ public class ItemTeleporter extends ItemMulti {
 	public void addInformation(ItemStack stack, EntityPlayer player, List li, boolean advanced) {
 		int mod = stack.getItemDamage()*2;
 		int coolMod = stack.getItemDamage()*10;
-		li.add("\u00A77Teleport Distance: "+(6+mod)+" blocks");
-		li.add("\u00A77Cooldown: "+((40+coolMod)/20)+(coolMod%20 == 0 ? "" : " ½")+" seconds");
+		li.add(StatCollector.translateToLocalFormatted("item.teleporter.distance_tooltip", (6+mod)));
+		li.add(StatCollector.translateToLocalFormatted("item.teleporter.cooldown_tooltip", ((40+coolMod)/20)+(coolMod%20 == 0 ? "" : " ½")));
 		super.addInformation(stack, player, li, advanced);
 	}
 	@Override

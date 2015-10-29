@@ -70,5 +70,14 @@
 				"stream": false
 			}
 		]
+	},
+	"rifle_scope": {
+		"category": "player",
+		"sounds": [
+			{
+				"name": "rifle-scope",
+				"stream": false
+			}
+		]
 	}
 }

@@ -6,6 +6,7 @@ import net.minecraft.world.World;
 public class EntityRifleFX extends EntityReddustFX {
 	public EntityRifleFX(World world, double x, double y, double z, float scale, float r, float g, float b) {
 		super(world, x, y, z, scale, r, g, b);
+		reddustParticleScale /= 2;
 		particleMaxAge *= 8;
 	}
 

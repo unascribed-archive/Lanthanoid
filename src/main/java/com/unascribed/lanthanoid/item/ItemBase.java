@@ -25,7 +25,7 @@ public class ItemBase extends Item {
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced) {
 		super.addInformation(stack, player, list, advanced);
-		String loreKey = getUnlocalizedName(stack)+".lore";
+		String loreKey = getHoverBaseKey(stack)+".lore";
 		if (StatCollector.canTranslate(loreKey)) {
 			int code = Minecraft.getMinecraft().gameSettings.keyBindSneak.getKeyCode();
 			if (Keyboard.isKeyDown(code)) {
@@ -35,16 +35,22 @@ public class ItemBase extends Item {
 				list.add(StatCollector.translateToLocalFormatted("ui.lore_hint", "\u00A7e"+GameSettings.getKeyDisplayString(code)+"\u00A77"));
 			}
 		}
-		if (StatCollector.canTranslate(getUnlocalizedName(stack)+".help.1")) {
+		addHelp(list, getHoverBaseKey(stack));
+		if (getHoverBaseKey(stack) != getUnlocalizedName(stack)) {
+			addHelp(list, getUnlocalizedName(stack));
+		}
+	}
+	private void addHelp(List list, String base) {
+		if (StatCollector.canTranslate(base+".help.1")) {
 			int code = Minecraft.getMinecraft().gameSettings.keyBindSprint.getKeyCode();
 			if (Keyboard.isKeyDown(code)) {
 				int i = 1;
 				do {
-					String key = getUnlocalizedName(stack)+".help."+i;
+					String key = base+".help."+i;
 					list.add("");
 					list.addAll(Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(StatCollector.translateToLocal(key), 256));
 					i++;
-				} while (StatCollector.canTranslate(getUnlocalizedName(stack)+".help."+i));
+				} while (StatCollector.canTranslate(base+".help."+i));
 			} else {
 				list.add(StatCollector.translateToLocalFormatted("ui.help_hint", "\u00A7b"+GameSettings.getKeyDisplayString(code)+"\u00A77"));
 			}
@@ -53,6 +59,9 @@ public class ItemBase extends Item {
 	@Override
 	public String getUnlocalizedNameInefficiently(ItemStack stack) {
 		return Strings.nullToEmpty(getUnlocalizedName(stack));
+	}
+	public String getHoverBaseKey(ItemStack stack) {
+		return getUnlocalizedName(stack);
 	}
 	protected NBTTagCompound getCompound(ItemStack stack) {
 		if (!stack.hasTagCompound()) {

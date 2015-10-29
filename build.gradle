@@ -49,6 +49,14 @@ dependencies {
 	compile 'codechicken:NotEnoughItems:1.7.10-1.0.3.74:dev'
 }
 
+jar {
+	manifest {
+		attributes (
+			'FMLAT': 'lanthanoid_at.cfg'
+		)
+	}
+}
+
 minecraft {
 	version = "1.7.10-10.13.2.1307-1.7.10"
 	runDir = "eclipse"

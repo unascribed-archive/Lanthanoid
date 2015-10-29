@@ -5,7 +5,7 @@ import com.unascribed.lanthanoid.util.TextureCompositor;
 public interface Proxy {
 
 	TextureCompositor createCompositor();
-
-	void setupCompositor();
+	void setup();
+	void init();
 
 }
