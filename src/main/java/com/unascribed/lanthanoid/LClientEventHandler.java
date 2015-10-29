@@ -249,7 +249,7 @@ public class LClientEventHandler {
 						mc.fontRenderer.drawStringWithShadow(keys[(int)i], 4, 4, -1);
 						int count = LItems.rifle.getBufferedShots(stack)+(counts.get(m)*LItems.rifle.getAttachment(stack).getAmmoPerDust());
 						String str = Integer.toString(count);
-						mc.fontRenderer.drawStringWithShadow(str, 30-(mc.fontRenderer.getStringWidth(str)), 20, -1);
+						mc.fontRenderer.drawStringWithShadow(mc.thePlayer.capabilities.isCreativeMode ? "∞" : str, 30-(mc.fontRenderer.getStringWidth(str)), 20, -1);
 						GL11.glPopMatrix();
 						renderedAnything = true;
 					}

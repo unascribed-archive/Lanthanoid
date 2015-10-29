@@ -43,8 +43,9 @@ public class MovingSoundEntity extends MovingSound {
 	
 	public static MovingSoundEntity get(Entity ent) {
 		MovingSoundEntity s = sounds.get(ent);
-		if (s.donePlaying) {
+		if (s != null && s.donePlaying) {
 			sounds.remove(s);
+			s = null;
 		}
 		return s;
 	}

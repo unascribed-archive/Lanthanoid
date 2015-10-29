@@ -35,12 +35,12 @@ public class ItemBase extends Item {
 				list.add(StatCollector.translateToLocalFormatted("ui.lore_hint", "\u00A7e"+GameSettings.getKeyDisplayString(code)+"\u00A77"));
 			}
 		}
-		addHelp(list, getHoverBaseKey(stack));
+		addHelp(list, getHoverBaseKey(stack), true);
 		if (getHoverBaseKey(stack) != getUnlocalizedName(stack)) {
-			addHelp(list, getUnlocalizedName(stack));
+			addHelp(list, getUnlocalizedName(stack), false);
 		}
 	}
-	private void addHelp(List list, String base) {
+	private void addHelp(List list, String base, boolean addHint) {
 		if (StatCollector.canTranslate(base+".help.1")) {
 			int code = Minecraft.getMinecraft().gameSettings.keyBindSprint.getKeyCode();
 			if (Keyboard.isKeyDown(code)) {
@@ -52,7 +52,9 @@ public class ItemBase extends Item {
 					i++;
 				} while (StatCollector.canTranslate(base+".help."+i));
 			} else {
-				list.add(StatCollector.translateToLocalFormatted("ui.help_hint", "\u00A7b"+GameSettings.getKeyDisplayString(code)+"\u00A77"));
+				if (addHint) {
+					list.add(StatCollector.translateToLocalFormatted("ui.help_hint", "\u00A7b"+GameSettings.getKeyDisplayString(code)+"\u00A77"));
+				}
 			}
 		}
 	}

@@ -398,7 +398,7 @@ public class ItemRifle extends ItemBase {
 	
 	@Override
 	public void onPlayerStoppedUsing(ItemStack stack, World world, EntityPlayer player, int useRemaining) {
-		if (world.isRemote) {
+		if (!world.isRemote) {
 			Lanthanoid.inst.network.sendToAllAround(new RifleChargingSoundRequest(player.getEntityId(), getAttachment(stack).getSpeedMultiplier(), false),
 					new TargetPoint(player.worldObj.provider.dimensionId, player.posX, player.posY, player.posZ, 64));
 		}
@@ -417,7 +417,15 @@ public class ItemRifle extends ItemBase {
 				}
 				Vec3 start = Vec3.createVectorHelper(player.posX, player.boundingBox.maxY-0.2f, player.posZ);
 				Vec3 look = player.getLookVec();
-				float range = 150;
+				float range;
+				switch (mode) {
+					case LIGHT:
+						range = 25;
+						break;
+					default:
+						range = 150;
+						break;
+				}
 				Vec3 direction = Vec3.createVectorHelper(look.xCoord*range, look.yCoord*range, look.zCoord*range);
 				int scopeFactor = ((LanthanoidProperties)player.getExtendedProperties("lanthanoid")).scopeFactor;
 				if (scopeFactor == 1) {
@@ -427,6 +435,36 @@ public class ItemRifle extends ItemBase {
 					start = start.addVector(right.xCoord*rightAdj, right.yCoord*rightAdj, right.zCoord*rightAdj);
 				} else if (scopeFactor > 1) {
 					start.yCoord -= 0.25;
+				}
+				double spread;
+				switch (scopeFactor) {
+					case 1:
+						spread = 400;
+						break;
+					case 0:
+						spread = 200;
+						break;
+					default:
+						spread = 0;
+						break;
+				}
+				switch (attachment) {
+					case SUPERCLOCKED:
+						spread *= 2;
+						break;
+					case EFFICIENCY:
+						spread *= 0.75;
+						break;
+					case SUPEREFFICIENCY:
+						spread *= 0.35;
+						break;
+					default:
+						break;
+				}
+				if (spread > 0) {
+					direction.xCoord += itemRand.nextGaussian() * 0.0075 * spread;
+					direction.yCoord += itemRand.nextGaussian() * 0.0075 * spread;
+					direction.zCoord += itemRand.nextGaussian() * 0.0075 * spread;
 				}
 				boolean fire = false;//(attachment == Attachment.FIRE && player.inventory.consumeInventoryItem(Items.blaze_powder));
 				shootLaser(world, mode, fire, start, direction, player);
