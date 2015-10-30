@@ -431,9 +431,6 @@ public class Lanthanoid {
 				'c', "blockCerium",
 				'd', "blockDiamond"));
 		
-		GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(LItems.rifle, 1, ItemRifle.Attachment.NONE.ordinal()),
-				new ItemStack(LItems.rifle, 1, OreDictionary.WILDCARD_VALUE)));
-		
 		GeneratorGroup group = new GeneratorGroup();
 		
 		group.add(OreGenerator.create("Copper")

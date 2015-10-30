@@ -1,5 +1,6 @@
 package com.unascribed.lanthanoid;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.SystemUtils;
@@ -27,6 +28,7 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
@@ -37,6 +39,7 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
+import net.minecraftforge.oredict.OreDictionary;
 
 @SideOnly(Side.CLIENT)
 public class LClientEventHandler {
@@ -66,13 +69,15 @@ public class LClientEventHandler {
 	private static final ResourceLocation SCOPE_TEX = new ResourceLocation("lanthanoid", "textures/misc/scope.png");
 	private static final ResourceLocation WIDGITS = new ResourceLocation("textures/gui/widgets.png");
 	
+	private int ticks = 0;
 	private int animTicks = 0;
 	private int lastSelected = -1;
 	private int prevSelected = -1;
 	private int diff;
 	
 	public static int scopeFactor = 1;
-	private Map<ItemRifle.Mode, Integer> counts = Maps.newEnumMap(ItemRifle.Mode.class);
+	private Map<ItemRifle.PrimaryMode, Integer> counts = Maps.newEnumMap(ItemRifle.PrimaryMode.class);
+	private Map<Integer, ItemStack> oreStacks = Maps.newHashMap();
 	
 	@SubscribeEvent
 	public void onRenderHand(RenderHandEvent e) {
@@ -93,27 +98,33 @@ public class LClientEventHandler {
 	@SubscribeEvent
 	public void onClientTick(ClientTickEvent e) {
 		if (e.phase == Phase.START) {
-			//Minecraft mc = Minecraft.getMinecraft();
-			/*if (ticks % 20 == 0 || counts.isEmpty()) {
-				if (mc.thePlayer != null) {
-					counts.clear();
-					for (ItemRifle.Mode mode : ItemRifle.Mode.values()) {
-						counts.put(mode, 0);
-					}
-					blazeCount = 0;
+			Minecraft mc = Minecraft.getMinecraft();
+			if (mc.thePlayer != null) {
+				if (ticks % 20 == 0 || counts.isEmpty()) {
+					oreStacks.clear();
 					for (ItemStack is : mc.thePlayer.inventory.mainInventory) {
 						if (is == null) continue;
-						for (ItemRifle.Mode mode : ItemRifle.Mode.values()) {
-							if (mode.stack.isItemEqual(is)) {
-								counts.put(mode, counts.get(mode)+is.stackSize);
+						int[] ids = OreDictionary.getOreIDs(is);
+						for (int id : ids) {
+							if (ItemRifle.PrimaryMode.usedOreIDs.contains(id) && !oreStacks.containsKey(id)) {
+								ItemStack stack = is.copy();
+								stack.stackSize = 1;
+								oreStacks.put(id, stack);
 							}
 						}
-						if (is.getItem() == Items.blaze_powder) {
-							blazeCount += is.stackSize;
+					}
+					for (int id : ItemRifle.PrimaryMode.usedOreIDs) {
+						if (!oreStacks.containsKey(id)) {
+							@SuppressWarnings("deprecation")
+							List<ItemStack> is = OreDictionary.getOres(id);
+							oreStacks.put(id, is.get(0));
 						}
 					}
 				}
-			}*/
+				ticks++;
+			} else {
+				ticks = 0;
+			}
 		}
 		if (e.phase == Phase.END) {
 			animTicks++;
@@ -172,14 +183,14 @@ public class LClientEventHandler {
 			EntityClientPlayerMP p = mc.thePlayer;
 			if (p.getHeldItem() != null && p.getHeldItem().getItem() == LItems.rifle) {
 				counts.clear();
-				for (ItemRifle.Mode mode : ItemRifle.Mode.values()) {
+				for (ItemRifle.PrimaryMode mode : ItemRifle.PrimaryMode.values()) {
 					counts.put(mode, 0);
 				}
 				//int blazeCount = 0;
 				for (ItemStack is : mc.thePlayer.inventory.mainInventory) {
 					if (is == null) continue;
-					for (ItemRifle.Mode mode : ItemRifle.Mode.values()) {
-						if (mode.stack.isItemEqual(is)) {
+					for (ItemRifle.PrimaryMode mode : ItemRifle.PrimaryMode.values()) {
+						if (mode.stackMatches(is)) {
 							counts.put(mode, counts.get(mode)+is.stackSize);
 						}
 					}
@@ -188,8 +199,8 @@ public class LClientEventHandler {
 					}*/
 				}
 				ItemStack stack = p.getHeldItem();
-				ItemRifle.Mode selected = LItems.rifle.getMode(stack);
-				ItemRifle.Mode[] vals = ItemRifle.Mode.values();
+				ItemRifle.PrimaryMode selected = LItems.rifle.getMode(stack);
+				ItemRifle.PrimaryMode[] vals = ItemRifle.PrimaryMode.values();
 				if (lastSelected == -1) {
 					lastSelected = selected.ordinal();
 				}
@@ -220,7 +231,7 @@ public class LClientEventHandler {
 				GL11.glEnable(GL12.GL_RESCALE_NORMAL);
 				RenderHelper.enableGUIStandardItemLighting();
 				boolean renderedAnything = false;
-				for (ItemRifle.Mode m : vals) {
+				for (ItemRifle.PrimaryMode m : vals) {
 					if (LItems.rifle.hasAmmoFor(p, stack, m)) {
 						float s = (i-selected.ordinal())+2;
 						float anim = 0;
@@ -243,13 +254,24 @@ public class LClientEventHandler {
 						}
 						GL11.glTranslatef(d*-8, d*-8, 0);
 						GL11.glScalef(d+1, d+1, 1.0f);
-						itemRenderer.renderItemAndEffectIntoGUI(mc.fontRenderer, mc.getTextureManager(), m.stack, 0, 0);
+						ItemStack modeStack = null;
+						if (m.type instanceof ItemStack) {
+							modeStack = (ItemStack)m.type;
+						} else if (m.type instanceof Integer) {
+							modeStack = oreStacks.get((Integer)m.type);
+						}
+						if (modeStack != null) {
+							itemRenderer.renderItemAndEffectIntoGUI(mc.fontRenderer, mc.getTextureManager(), modeStack, 0, 0);
+						}
 						GL11.glScalef(0.5f, 0.5f, 1f);
 						GL11.glTranslatef(0, 0, 100);
 						mc.fontRenderer.drawStringWithShadow(keys[(int)i], 4, 4, -1);
-						int count = LItems.rifle.getBufferedShots(stack)+(counts.get(m)*LItems.rifle.getAttachment(stack).getAmmoPerDust());
-						String str = Integer.toString(count);
-						mc.fontRenderer.drawStringWithShadow(mc.thePlayer.capabilities.isCreativeMode ? "∞" : str, 30-(mc.fontRenderer.getStringWidth(str)), 20, -1);
+						int count = counts.get(m)*LItems.rifle.getAttachment(stack).getAmmoPerDust();
+						if (m == selected) {
+							count += LItems.rifle.getBufferedShots(stack);
+						}
+						String str = mc.thePlayer.capabilities.isCreativeMode ? "∞" : Integer.toString(count);
+						mc.fontRenderer.drawStringWithShadow(str, 30-(mc.fontRenderer.getStringWidth(str)), 20, -1);
 						GL11.glPopMatrix();
 						renderedAnything = true;
 					}

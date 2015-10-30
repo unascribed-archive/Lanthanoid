@@ -74,13 +74,13 @@ public class EntityRifleShot extends Entity {
 		setDead(); // TODO
 	}
 	
-	public ItemRifle.Mode getMode() {
-		ItemRifle.Mode[] vals = ItemRifle.Mode.values();
+	public ItemRifle.PrimaryMode getMode() {
+		ItemRifle.PrimaryMode[] vals = ItemRifle.PrimaryMode.values();
 		int idx = dataWatcher.getWatchableObjectByte(MODE_INDEX)%vals.length;
 		return vals[idx];
 	}
 	
-	public void setMode(ItemRifle.Mode mode) {
+	public void setMode(ItemRifle.PrimaryMode mode) {
 		dataWatcher.updateObject(MODE_INDEX, (byte)mode.ordinal());
 	}
 

@@ -37,6 +37,7 @@ command.lanspike.end=%s blocks changed
 
 
 mode.tractor.name=Tractor Beam
+mode.explode.name=Explosion
 mode.damage.name=Beam
 mode.mine.name=Destruction
 mode.grow.name=Grow

@@ -12,7 +12,7 @@ public class EntityRifleFX extends EntityReddustFX {
 
 	@Override
 	public int getBrightnessForRender(float p_70070_1_) {
-		return 15728640;
+		return 0xF00000;
 	}
 
 	@Override

@@ -3,10 +3,13 @@ package com.unascribed.lanthanoid.item;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.ArrayUtils;
+
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.unascribed.lanthanoid.LBlocks;
-import com.unascribed.lanthanoid.LItems;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.LanthanoidProperties;
 import com.unascribed.lanthanoid.network.BeamParticleMessage;
@@ -23,17 +26,15 @@ import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.item.EntityFallingBlock;
 import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
@@ -44,6 +45,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.oredict.OreDictionary;
 
 public class ItemRifle extends ItemBase {
 	private IIcon base;
@@ -96,8 +98,8 @@ public class ItemRifle extends ItemBase {
 		}
 	}
 	
-	public enum Mode {
-		TRACTOR("dustRosasite", 0x00D9FF),
+	public enum PrimaryMode {
+		EXPLODE(Items.gunpowder, 0x747474),
 		DAMAGE("dustYtterbium", 0xFFEC00),
 		CHAIN_DAMAGE("dustNeodymium", 0x8D8DFF),
 		BOUNCE_DAMAGE("dustPraseodymium", 0x96FF8F),
@@ -111,15 +113,43 @@ public class ItemRifle extends ItemBase {
 		WORMHOLE("dustDiaspore", 0x8762FF),
 		LIGHT("dustThulite", 0xFF7768),
 		;
-		public final String type;
+		public final Object type;
 		public final String translationKey;
 		public final int color;
-		public final ItemStack stack;
-		Mode(String type, int color) {
+		public static final ImmutableSet<Integer> usedOreIDs;
+		static {
+			ImmutableSet.Builder<Integer> builder = ImmutableSet.builder();
+			for (PrimaryMode pm : values()) {
+				if (pm.type instanceof Integer) {
+					builder.add((Integer)pm.type);
+				}
+			}
+			usedOreIDs = builder.build();
+		}
+		PrimaryMode(String type, int color) {
+			this.translationKey = name().toLowerCase();
+			this.type = OreDictionary.getOreID(type);
+			this.color = color;
+		}
+		PrimaryMode(ItemStack type, int color) {
 			this.translationKey = name().toLowerCase();
 			this.type = type;
 			this.color = color;
-			this.stack = LItems.dust.getStackForName(type);
+		}
+		PrimaryMode(Item type, int color) {
+			this(new ItemStack(type, 1, 0), color);
+		}
+		PrimaryMode(Block type, int color) {
+			this(new ItemStack(type, 1, 0), color);
+		}
+		public boolean stackMatches(ItemStack stack) {
+			if (type instanceof Integer) {
+				return ArrayUtils.contains(OreDictionary.getOreIDs(stack), (Integer)type);
+			} else if (type instanceof ItemStack) {
+				return stack.isItemEqual((ItemStack)type);
+			} else {
+				throw new IllegalStateException();
+			}
 		}
 		public boolean doesDamage() {
 			switch (this) {
@@ -234,9 +264,9 @@ public class ItemRifle extends ItemBase {
 		return "item.rifle";
 	}
 	
-	public Mode getMode(ItemStack stack) {
-		if (!getCompound(stack).hasKey("mode", 99)) return Mode.DAMAGE;
-		Mode[] val = Mode.values();
+	public PrimaryMode getMode(ItemStack stack) {
+		if (!getCompound(stack).hasKey("mode", 99)) return PrimaryMode.DAMAGE;
+		PrimaryMode[] val = PrimaryMode.values();
 		return val[getCompound(stack).getInteger("mode")%val.length];
 	}
 	
@@ -305,9 +335,9 @@ public class ItemRifle extends ItemBase {
 	}
 	
 	public void modifyMode(EntityPlayer player, ItemStack stack, boolean absolute, int i) {
-		Mode oldMode = getMode(stack);
-		Mode mode;
-		Mode[] vals = Mode.values();
+		PrimaryMode oldMode = getMode(stack);
+		PrimaryMode mode;
+		PrimaryMode[] vals = PrimaryMode.values();
 		if (absolute) {
 			if (i == getMode(stack).ordinal()) return;
 			mode = vals[i];
@@ -338,12 +368,12 @@ public class ItemRifle extends ItemBase {
 		getCompound(stack).setInteger("mode", mode.ordinal());
 	}
 	
-	public boolean hasAmmoFor(EntityPlayer player, ItemStack stack, Mode mode) {
+	public boolean hasAmmoFor(EntityPlayer player, ItemStack stack, PrimaryMode mode) {
 		if (player.capabilities.isCreativeMode) return true;
 		if (mode == getMode(stack) && getBufferedShots(stack) > 0) return true;
 		for (ItemStack is : player.inventory.mainInventory) {
 			if (is == null) continue;
-			if (mode.stack.isItemEqual(is)) {
+			if (mode.stackMatches(is)) {
 				return true;
 			}
 		}
@@ -355,8 +385,8 @@ public class ItemRifle extends ItemBase {
 		if (!world.isRemote) {
 			setBufferedShots(stack, getBufferedShots(stack)-2);
 			if (getBufferedShots(stack) <= 0) {
-				Mode mode = getMode(stack);
-				if (consumeInventoryItem(player.inventory, mode.stack.getItem(), mode.stack.getItemDamage())) {
+				PrimaryMode mode = getMode(stack);
+				if (consumeInventoryItem(player.inventory, mode::stackMatches)) {
 					setBufferedShots(stack, getBufferedShots(stack)+getAttachment(stack).getAmmoPerDust());
 				}
 			}
@@ -408,10 +438,10 @@ public class ItemRifle extends ItemBase {
 			getCompound(stack).setInteger("cooldown", 10);
 			Attachment attachment = getAttachment(stack);
 			if (!world.isRemote) {
-				Mode mode = getMode(stack);
+				PrimaryMode mode = getMode(stack);
 				setBufferedShots(stack, getBufferedShots(stack)-1);
 				if (getBufferedShots(stack) <= 0) {
-					if (consumeInventoryItem(player.inventory, mode.stack.getItem(), mode.stack.getItemDamage())) {
+					if (consumeInventoryItem(player.inventory, mode::stackMatches)) {
 						setBufferedShots(stack, getBufferedShots(stack)+attachment.getAmmoPerDust());
 					}
 				}
@@ -421,6 +451,9 @@ public class ItemRifle extends ItemBase {
 				switch (mode) {
 					case LIGHT:
 						range = 25;
+						break;
+					case MINE:
+						range = 30;
 						break;
 					default:
 						range = 150;
@@ -439,10 +472,10 @@ public class ItemRifle extends ItemBase {
 				double spread;
 				switch (scopeFactor) {
 					case 1:
-						spread = 400;
+						spread = 2;
 						break;
 					case 0:
-						spread = 200;
+						spread = 1;
 						break;
 					default:
 						spread = 0;
@@ -461,6 +494,7 @@ public class ItemRifle extends ItemBase {
 					default:
 						break;
 				}
+				spread *= range;
 				if (spread > 0) {
 					direction.xCoord += itemRand.nextGaussian() * 0.0075 * spread;
 					direction.yCoord += itemRand.nextGaussian() * 0.0075 * spread;
@@ -476,11 +510,14 @@ public class ItemRifle extends ItemBase {
 		}
 	}
 	
-	private void shootLaser(World world, Mode mode, boolean fire, Vec3 start, Vec3 direction, EntityPlayer shooter) {
-		if (mode == Mode.KNOCKBACK) {
+	private void shootLaser(World world, PrimaryMode mode, boolean fire, Vec3 start, Vec3 direction, EntityPlayer shooter) {
+		if (mode == PrimaryMode.KNOCKBACK) {
 			
-		} else if (mode == Mode.WORMHOLE) {
+		} else if (mode == PrimaryMode.WORMHOLE) {
 			
+		} else if (mode == PrimaryMode.MINE) {
+			Vec3 end = start.addVector(direction.xCoord, direction.yCoord, direction.zCoord);
+			spawnParticles(world, mode, fire, start.xCoord, start.yCoord, start.zCoord, end.xCoord, end.yCoord, end.zCoord);
 		} else {
 			Vec3 end = start.addVector(direction.xCoord, direction.yCoord, direction.zCoord);
 			MovingObjectPosition mop = rayTrace(world, shooter, clone(start), clone(direction));
@@ -571,8 +608,10 @@ public class ItemRifle extends ItemBase {
 						}
 					}
 				}
-				switch (mode) {
-					case GROW:
+			}
+			switch (mode) {
+				case GROW:
+					if (mop != null) {
 						if (mop.entityHit instanceof EntitySlime) {
 							EntitySlime slime = ((EntitySlime)mop.entityHit);
 							if (slime.getSlimeSize() < 10) {
@@ -582,8 +621,10 @@ public class ItemRifle extends ItemBase {
 							EntityAgeable ageable = ((EntityAgeable)mop.entityHit);
 							ageable.setGrowingAge(0);
 						}
-						break;
-					case SHRINK:
+					}
+					break;
+				case SHRINK:
+					if (mop != null) {
 						if (mop.entityHit instanceof EntitySlime) {
 							EntitySlime slime = ((EntitySlime)mop.entityHit);
 							if (slime.getSlimeSize() > 1) {
@@ -593,23 +634,22 @@ public class ItemRifle extends ItemBase {
 							EntityAgeable ageable = ((EntityAgeable)mop.entityHit);
 							ageable.setGrowingAge(-10000);
 						}
-						break;
-					case LIGHT:
-						double steps = start.distanceTo(end);
-						for (int i = 0; i < steps; i++) {
-							double[] pos = LVectors.interpolate(start.xCoord, start.yCoord, start.zCoord, end.xCoord, end.yCoord, end.zCoord, i/steps);
-							int x = (int)pos[0];
-							int y = (int)pos[1];
-							int z = (int)pos[2];
-							if (world.isAirBlock(x, y, z)) {
-								world.setBlock(x, y, z, LBlocks.technical, 0, 2);
-							}
+					}
+					break;
+				case LIGHT:
+					double steps = start.distanceTo(end);
+					for (int i = 0; i < steps; i++) {
+						double[] pos = LVectors.interpolate(start.xCoord, start.yCoord, start.zCoord, end.xCoord, end.yCoord, end.zCoord, i/steps);
+						int x = (int)pos[0];
+						int y = (int)pos[1];
+						int z = (int)pos[2];
+						if (world.isAirBlock(x, y, z)) {
+							world.setBlock(x, y, z, LBlocks.technical, 0, 2);
 						}
-						break;
-					case MINE:
-						// TODO
-						break;
-					case REPLICATE:
+					}
+					break;
+				case REPLICATE:
+					if (mop != null) {
 						if (mop.typeOfHit == MovingObjectType.BLOCK) {
 							
 						} else if (mop.typeOfHit == MovingObjectType.ENTITY) {
@@ -617,37 +657,13 @@ public class ItemRifle extends ItemBase {
 								((EntityAnimal)mop.entityHit).func_146082_f(shooter);
 							}
 						}
-						break;
-					case TRACTOR:
-						Entity grab;
-						if (mop.typeOfHit == MovingObjectType.BLOCK) {
-							int x = mop.blockX;
-							int y = mop.blockY;
-							int z = mop.blockZ;
-							Block b = shooter.worldObj.getBlock(x, y, z);
-							int meta = shooter.worldObj.getBlockMetadata(x, y, z);
-							TileEntity te = shooter.worldObj.getTileEntity(x, y, z);
-							EntityFallingBlock efb = new EntityFallingBlock(shooter.worldObj, x+0.5, y+0.5, z+0.5, b, meta);
-							grab = efb;
-							if (te != null) {
-								NBTTagCompound tag = new NBTTagCompound();
-								te.writeToNBT(tag);
-								efb.field_145810_d = tag;
-							}
-							shooter.worldObj.removeTileEntity(x, y, z);
-							shooter.worldObj.setBlockToAir(x, y, z);
-							shooter.worldObj.spawnEntityInWorld(efb);
-						} else if (mop.typeOfHit == MovingObjectType.ENTITY) {
-							grab = mop.entityHit;
-						} else {
-							break;
-						}
-						LanthanoidProperties props = (LanthanoidProperties)shooter.getExtendedProperties("lanthanoid");
-						props.grabbedEntity = grab;
-						break;
-					default:
-						break;
-				}
+					}
+					break;
+				case EXPLODE:
+					shooter.worldObj.newExplosion(null, end.xCoord, end.yCoord, end.zCoord, 3f, fire, true);
+					break;
+				default:
+					break;
 			}
 		}
 	}
@@ -656,7 +672,7 @@ public class ItemRifle extends ItemBase {
 		return Vec3.createVectorHelper(vec.xCoord, vec.yCoord, vec.zCoord);
 	}
 
-	private void spawnParticles(World world, Mode mode, boolean fire, double startX, double startY, double startZ, double endX, double endY, double endZ) {
+	private void spawnParticles(World world, PrimaryMode mode, boolean fire, double startX, double startY, double startZ, double endX, double endY, double endZ) {
 		Lanthanoid.inst.network.sendToAllAround(new BeamParticleMessage(fire, mode.doesPoof(), startX, startY, startZ, endX, endY, endZ, mode.color), new TargetPoint(
 				world.provider.dimensionId,
 				startX,
@@ -732,8 +748,8 @@ public class ItemRifle extends ItemBase {
 		return stack;
 	}
 	
-	private boolean consumeInventoryItem(InventoryPlayer inv, Item item, int meta) {
-		int i = find(inv, item, meta);
+	private boolean consumeInventoryItem(InventoryPlayer inv, Predicate<ItemStack> predicate) {
+		int i = find(inv, predicate);
 
 		if (i < 0) {
 			return false;
@@ -745,9 +761,9 @@ public class ItemRifle extends ItemBase {
 		}
 	}
 	
-	private int find(InventoryPlayer inv, Item item, int meta) {
+	private int find(InventoryPlayer inv, Predicate<ItemStack> predicate) {
 		for (int i = 0; i < inv.mainInventory.length; i++) {
-			if (inv.mainInventory[i] != null && inv.mainInventory[i].getItem() == item && inv.mainInventory[i].getItemDamage() == meta) {
+			if (inv.mainInventory[i] != null && predicate.apply(inv.mainInventory[i])) {
 				return i;
 			}
 		}

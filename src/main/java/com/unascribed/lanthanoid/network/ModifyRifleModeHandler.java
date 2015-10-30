@@ -23,9 +23,9 @@ public class ModifyRifleModeHandler implements IMessageHandler<ModifyRifleModeMe
 						Lanthanoid.log.warn(player.getCommandSenderName()+" sent an illegal value for ModifyRifleMode (message is absolute and value is less than zero), trying to crash the server?");
 						value = 0;
 					}
-					if (value >= ItemRifle.Mode.values().length) {
+					if (value >= ItemRifle.PrimaryMode.values().length) {
 						Lanthanoid.log.warn(player.getCommandSenderName()+" sent an illegal value for ModifyRifleMode (message is absolute and value is greater than the limit), trying to crash the server?");
-						value = ItemRifle.Mode.values().length-1;
+						value = ItemRifle.PrimaryMode.values().length-1;
 					}
 				} else {
 					if ((Math.abs(value) != 1 || value == 0)) {

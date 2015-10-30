@@ -45,9 +45,9 @@ public class LEventHandler {
 			ItemStack held = e.player.getHeldItem();
 			if (props.grabbedEntity.isDead) {
 				props.grabbedEntity = null;
-			} else if (held == null || held.getItem() != LItems.rifle || LItems.rifle.getMode(held) != ItemRifle.Mode.TRACTOR) {
+			}/* else if (held == null || held.getItem() != LItems.rifle || LItems.rifle.getMode(held) != ItemRifle.PrimaryMode.TRACTOR) {
 				props.grabbedEntity = null;
-			} else {
+			}*/ else {
 				Entity ent = props.grabbedEntity;
 				if (ent instanceof EntityFallingBlock) {
 					((EntityFallingBlock)ent).field_145812_b = 2;
@@ -69,12 +69,14 @@ public class LEventHandler {
 						float rightAdj = 0.25f;
 						start = start.addVector(right.xCoord*rightAdj, right.yCoord*rightAdj, right.zCoord*rightAdj);
 					}
-					Lanthanoid.inst.network.sendToAllAround(new BeamParticleMessage(false, false, start.xCoord, start.yCoord, start.zCoord, ent.posX, ent.posY, ent.posZ, ItemRifle.Mode.TRACTOR.color), new TargetPoint(
-							player.worldObj.provider.dimensionId,
-							start.xCoord,
-							start.yCoord,
-							start.zCoord,
-							150
+					Lanthanoid.inst.network.sendToAllAround(new BeamParticleMessage(false, false, start.xCoord, start.yCoord, start.zCoord,
+							ent.posX, ent.posY, ent.posZ, -1/*ItemRifle.PrimaryMode.TRACTOR.color*/),
+							new TargetPoint(
+								player.worldObj.provider.dimensionId,
+								start.xCoord,
+								start.yCoord,
+								start.zCoord,
+								150
 							));
 				}
 			}
