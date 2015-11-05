@@ -3,8 +3,7 @@ package com.unascribed.lanthanoid.block;
 import java.util.Random;
 
 import com.unascribed.lanthanoid.effect.EntityRifleFX;
-import com.unascribed.lanthanoid.item.ItemRifle;
-import com.unascribed.lanthanoid.item.ItemRifle.PrimaryMode;
+import com.unascribed.lanthanoid.item.rifle.PrimaryMode;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -50,7 +49,7 @@ public class BlockTechnical extends Block {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void randomDisplayTick(World world, int x, int y, int z, Random rand) {
-		ItemRifle.PrimaryMode mode = PrimaryMode.LIGHT;
+		PrimaryMode mode = PrimaryMode.LIGHT;
 		float r = ((mode.color >> 16)&0xFF)/255f;
 		float g = ((mode.color >> 8)&0xFF)/255f;
 		float b = (mode.color&0xFF)/255f;

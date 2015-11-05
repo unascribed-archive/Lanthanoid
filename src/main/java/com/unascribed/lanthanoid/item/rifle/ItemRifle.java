@@ -1,24 +1,21 @@
-package com.unascribed.lanthanoid.item;
+package com.unascribed.lanthanoid.item.rifle;
 
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.unascribed.lanthanoid.LBlocks;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.LanthanoidProperties;
+import com.unascribed.lanthanoid.item.ItemBase;
 import com.unascribed.lanthanoid.network.BeamParticleMessage;
 import com.unascribed.lanthanoid.network.RifleChargingSoundRequest;
 import com.unascribed.lanthanoid.network.SetScopeFactorMessage;
 import com.unascribed.lanthanoid.util.LVectors;
 
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
-import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
@@ -31,7 +28,6 @@ import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -45,159 +41,13 @@ import net.minecraft.util.Vec3;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.oredict.OreDictionary;
 
 public class ItemRifle extends ItemBase {
 	private IIcon base;
 	private IIcon[] overlays = new IIcon[12];
-	private IIcon[] attachmentOverlays = new IIcon[Attachment.values().length];
+	private IIcon[] variantOverlays = new IIcon[Variant.values().length];
 	
 	public static AxisAlignedBB latestAABB;
-	
-	public enum Attachment {
-		NONE("ironsights", false),
-		ZOOM("scope", false),
-		OVERCLOCK("radiator", true),
-		SUPERCLOCKED("radiator2", true),
-		EFFICIENCY("cartridge", true),
-		SUPEREFFICIENCY("wot", true),
-		;
-		public final String icon;
-		public boolean colorize;
-		Attachment(String icon, boolean colorize) {
-			this.icon = icon;
-			this.colorize = colorize;
-		}
-		public float getSpeedMultiplier() {
-			switch (this) {
-				case OVERCLOCK:
-					return 1.5f;
-				case SUPERCLOCKED:
-					return 2.0f;
-				case EFFICIENCY:
-					return 0.75f;
-				case SUPEREFFICIENCY:
-					return 0.5f;
-				default:
-					return 1.0f;
-			}
-		}
-		public int getAmmoPerDust() {
-			switch (this) {
-				case OVERCLOCK:
-					return 3;
-				case SUPERCLOCKED:
-					return 1;
-				case EFFICIENCY:
-					return 9;
-				case SUPEREFFICIENCY:
-					return 12;
-				default:
-					return 6;
-			}
-		}
-	}
-	
-	public enum PrimaryMode {
-		EXPLODE(Items.gunpowder, 0x747474),
-		DAMAGE("dustYtterbium", 0xFFEC00),
-		CHAIN_DAMAGE("dustNeodymium", 0x8D8DFF),
-		BOUNCE_DAMAGE("dustPraseodymium", 0x96FF8F),
-		HEALING("dustErbium", 0x2C61FF),
-		CHAIN_HEALING("dustGadolinium", 0x2CFFAD),
-		MINE("dustHolmium", 0xFFF4D6),
-		GROW("dustCerium", 0xFF004C),
-		SHRINK("dustDysprosium", 0xE400FF),
-		KNOCKBACK("dustYttrium", 0xA9F8FF),
-		REPLICATE("dustActinolite", 0x83FFCF),
-		WORMHOLE("dustDiaspore", 0x8762FF),
-		LIGHT("dustThulite", 0xFF7768),
-		;
-		public final Object type;
-		public final String translationKey;
-		public final int color;
-		public static final ImmutableSet<Integer> usedOreIDs;
-		static {
-			ImmutableSet.Builder<Integer> builder = ImmutableSet.builder();
-			for (PrimaryMode pm : values()) {
-				if (pm.type instanceof Integer) {
-					builder.add((Integer)pm.type);
-				}
-			}
-			usedOreIDs = builder.build();
-		}
-		PrimaryMode(String type, int color) {
-			this.translationKey = name().toLowerCase();
-			this.type = OreDictionary.getOreID(type);
-			this.color = color;
-		}
-		PrimaryMode(ItemStack type, int color) {
-			this.translationKey = name().toLowerCase();
-			this.type = type;
-			this.color = color;
-		}
-		PrimaryMode(Item type, int color) {
-			this(new ItemStack(type, 1, 0), color);
-		}
-		PrimaryMode(Block type, int color) {
-			this(new ItemStack(type, 1, 0), color);
-		}
-		public boolean stackMatches(ItemStack stack) {
-			if (type instanceof Integer) {
-				return ArrayUtils.contains(OreDictionary.getOreIDs(stack), (Integer)type);
-			} else if (type instanceof ItemStack) {
-				return stack.isItemEqual((ItemStack)type);
-			} else {
-				throw new IllegalStateException();
-			}
-		}
-		public boolean doesDamage() {
-			switch (this) {
-				case DAMAGE:
-				case CHAIN_DAMAGE:
-				case BOUNCE_DAMAGE:
-					return true;
-				default:
-					return false;
-			}
-		}
-		public boolean doesHeal() {
-			switch (this) {
-				case HEALING:
-				case CHAIN_HEALING:
-					return true;
-				default:
-					return false;
-			}
-		}
-		public boolean doesChain() {
-			switch (this) {
-				case CHAIN_DAMAGE:
-				case CHAIN_HEALING:
-					return true;
-				default:
-					return false;
-			}
-		}
-		public boolean doesDeflect() {
-			switch (this) {
-				case BOUNCE_DAMAGE:
-					return true;
-				default:
-					return false;
-			}
-		}
-		public boolean doesPoof() {
-			switch (this) {
-				case GROW:
-				case SHRINK:
-				case REPLICATE:
-					return true;
-				default:
-					return false;
-			}
-		}
-	}
 	
 	public ItemRifle() {
 		setMaxStackSize(1);
@@ -207,12 +57,12 @@ public class ItemRifle extends ItemBase {
 	
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced) {
-		Attachment attachment = getAttachment(stack);
-		float rate = 6f/attachment.getAmmoPerDust();
+		Variant variant = getVariant(stack);
+		float rate = 6f/variant.getAmmoPerDust();
 		int percent = (int)(rate*100);
 		list.add(StatCollector.translateToLocalFormatted("item.rifle.ammo_usage_tooltip", percent));
-		list.add(StatCollector.translateToLocalFormatted("item.rifle.charge_speed_tooltip", (int)(attachment.getSpeedMultiplier()*100)));
-		list.add(StatCollector.translateToLocalFormatted("item.rifle.cooldown_speed_tooltip", attachment == Attachment.SUPERCLOCKED ? 50 : 100));
+		list.add(StatCollector.translateToLocalFormatted("item.rifle.charge_speed_tooltip", (int)(variant.getSpeedMultiplier()*100)));
+		list.add(StatCollector.translateToLocalFormatted("item.rifle.cooldown_speed_tooltip", variant == Variant.SUPERCLOCKED ? 50 : 100));
 		super.addInformation(stack, player, list, advanced);
 	}
 	
@@ -231,11 +81,11 @@ public class ItemRifle extends ItemBase {
 	@Override
 	public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining) {
 		if (renderPass == 0) return base;
-		if (renderPass == 1) return attachmentOverlays[getAttachment(stack).ordinal()%attachmentOverlays.length];
+		if (renderPass == 1) return variantOverlays[getVariant(stack).ordinal()%variantOverlays.length];
 		if (useRemaining == 0) {
 			return overlays[0];
 		}
-		int i = Math.round(((getMaxItemUseDuration(stack)-useRemaining)/(20f/getAttachment(stack).getSpeedMultiplier()))*overlays.length);
+		int i = Math.round(((getMaxItemUseDuration(stack)-useRemaining)/(20f/getVariant(stack).getSpeedMultiplier()))*overlays.length);
 		if (i < 0) {
 			return overlays[0];
 		} else if (i >= overlays.length) {
@@ -246,17 +96,17 @@ public class ItemRifle extends ItemBase {
 	
 	@Override
 	public IIcon getIcon(ItemStack stack, int pass) {
-		return pass == 0 ? base : pass == 1 ? attachmentOverlays[getAttachment(stack).ordinal()%attachmentOverlays.length] : overlays[0];
+		return pass == 0 ? base : pass == 1 ? variantOverlays[getVariant(stack).ordinal()%variantOverlays.length] : overlays[0];
 	}
 	
 	@Override
 	public int getColorFromItemStack(ItemStack stack, int pass) {
-		return pass == 2 ? getMode(stack).color : pass == 1 ? getAttachment(stack).colorize ? Lanthanoid.inst.colors.get("Holmium") : -1 : Lanthanoid.inst.colors.get("Holmium");
+		return pass == 2 ? getPrimaryMode(stack).color : pass == 1 ? getVariant(stack).colorize ? Lanthanoid.inst.colors.get("Holmium") : -1 : Lanthanoid.inst.colors.get("Holmium");
 	}
 	
 	@Override
 	public String getUnlocalizedName(ItemStack stack) {
-		return "item.rifle_"+getAttachment(stack).name().toLowerCase();
+		return "item.rifle_"+getVariant(stack).name().toLowerCase();
 	}
 	
 	@Override
@@ -264,10 +114,16 @@ public class ItemRifle extends ItemBase {
 		return "item.rifle";
 	}
 	
-	public PrimaryMode getMode(ItemStack stack) {
+	public PrimaryMode getPrimaryMode(ItemStack stack) {
 		if (!getCompound(stack).hasKey("mode", 99)) return PrimaryMode.DAMAGE;
 		PrimaryMode[] val = PrimaryMode.values();
 		return val[getCompound(stack).getInteger("mode")%val.length];
+	}
+	
+	public SecondaryMode getSecondaryMode(ItemStack stack) {
+		if (!getCompound(stack).hasKey("mode", 99)) return SecondaryMode.NONE;
+		SecondaryMode[] val = SecondaryMode.values();
+		return val[getCompound(stack).getInteger("mode2")%val.length];
 	}
 	
 	public int getBufferedShots(ItemStack stack) {
@@ -278,14 +134,14 @@ public class ItemRifle extends ItemBase {
 		getCompound(stack).setInteger("buffer", shots);
 	}
 	
-	public Attachment getAttachment(ItemStack stack) {
+	public Variant getVariant(ItemStack stack) {
 		int meta = stack.getItemDamage();
-		Attachment[] val = Attachment.values();
+		Variant[] val = Variant.values();
 		return val[meta%val.length];
 	}
 	
-	public void setAttachment(ItemStack stack, Attachment attachment) {
-		stack.setItemDamage(attachment.ordinal());
+	public void setVariant(ItemStack stack, Variant variant) {
+		stack.setItemDamage(variant.ordinal());
 	}
 
 	@Override
@@ -295,7 +151,7 @@ public class ItemRifle extends ItemBase {
 	
 	@Override
 	public int getMaxItemUseDuration(ItemStack stack) {
-		return (int)(70/getAttachment(stack).getSpeedMultiplier());
+		return (int)(70/getVariant(stack).getSpeedMultiplier());
 	}
 	
 	@Override
@@ -316,7 +172,7 @@ public class ItemRifle extends ItemBase {
 				cool = 0;
 			} else {
 				int speed = (selected ? (entity.isInWater() ? 9 : 5) : (slot < 9 ? 3 : 1));
-				if (getAttachment(stack) == Attachment.SUPERCLOCKED) {
+				if (getVariant(stack) == Variant.SUPERCLOCKED) {
 					speed /= 2;
 				}
 				cool -= speed;
@@ -334,16 +190,16 @@ public class ItemRifle extends ItemBase {
 		getCompound(stack).setInteger("cooldown", cool);
 	}
 	
-	public void modifyMode(EntityPlayer player, ItemStack stack, boolean absolute, int i) {
-		PrimaryMode oldMode = getMode(stack);
-		PrimaryMode mode;
-		PrimaryMode[] vals = PrimaryMode.values();
+	public void modifyMode(EntityPlayer player, ItemStack stack, boolean absolute, int i, boolean primary) {
+		Mode oldMode = primary ? getPrimaryMode(stack) : getSecondaryMode(stack);
+		Mode mode;
+		Mode[] vals = primary ? PrimaryMode.values() : SecondaryMode.values();
 		if (absolute) {
-			if (i == getMode(stack).ordinal()) return;
+			if (i == oldMode.ordinal()) return;
 			mode = vals[i];
 		} else {
 			if (i == 0) return;
-			int idx = getMode(stack).ordinal()+i;
+			int idx = oldMode.ordinal()+i;
 			if (idx < 0) {
 				idx += vals.length;
 			}
@@ -351,7 +207,7 @@ public class ItemRifle extends ItemBase {
 			int tries = 0;
 			while (!hasAmmoFor(player, stack, mode)) {
 				if (tries++ >= vals.length) {
-					idx = getMode(stack).ordinal()+i;
+					idx = oldMode.ordinal()+i;
 					break;
 				}
 				idx += i;
@@ -365,12 +221,17 @@ public class ItemRifle extends ItemBase {
 			setBufferedShots(stack, 0);
 		}
 		player.worldObj.playSoundAtEntity(player, "lanthanoid:rifle_mode", 1.0f, (mode.ordinal()*0.05f)+1.0f);
-		getCompound(stack).setInteger("mode", mode.ordinal());
+		if (primary) {
+			getCompound(stack).setInteger("mode", mode.ordinal());
+		} else {
+			getCompound(stack).setInteger("mode2", mode.ordinal());
+		}
 	}
 	
-	public boolean hasAmmoFor(EntityPlayer player, ItemStack stack, PrimaryMode mode) {
+	public boolean hasAmmoFor(EntityPlayer player, ItemStack stack, Mode mode) {
 		if (player.capabilities.isCreativeMode) return true;
-		if (mode == getMode(stack) && getBufferedShots(stack) > 0) return true;
+		if (mode == getPrimaryMode(stack) && getBufferedShots(stack) > 0) return true;
+		if (mode.type == null) return true;
 		for (ItemStack is : player.inventory.mainInventory) {
 			if (is == null) continue;
 			if (mode.stackMatches(is)) {
@@ -385,9 +246,9 @@ public class ItemRifle extends ItemBase {
 		if (!world.isRemote) {
 			setBufferedShots(stack, getBufferedShots(stack)-2);
 			if (getBufferedShots(stack) <= 0) {
-				PrimaryMode mode = getMode(stack);
+				PrimaryMode mode = getPrimaryMode(stack);
 				if (consumeInventoryItem(player.inventory, mode::stackMatches)) {
-					setBufferedShots(stack, getBufferedShots(stack)+getAttachment(stack).getAmmoPerDust());
+					setBufferedShots(stack, getBufferedShots(stack)+getVariant(stack).getAmmoPerDust());
 				}
 			}
 		}
@@ -405,10 +266,10 @@ public class ItemRifle extends ItemBase {
 			EntityPlayer player = ((EntityPlayer)entityLiving);
 			if (player.isSneaking()) {
 				LanthanoidProperties props = (LanthanoidProperties)entityLiving.getExtendedProperties("lanthanoid");
-				if (getAttachment(stack) == Attachment.ZOOM) {
+				if (getVariant(stack) == Variant.ZOOM) {
 					props.scopeFactor = ((props.scopeFactor)%10)+1;
 					player.playSound("lanthanoid:rifle_scope", 1.0f, 1.0f+(props.scopeFactor/10f));
-				} else if (getAttachment(stack) == Attachment.NONE) {
+				} else if (getVariant(stack) == Variant.NONE) {
 					if (props.scopeFactor == 0) {
 						props.scopeFactor = 1;
 					} else {
@@ -429,35 +290,32 @@ public class ItemRifle extends ItemBase {
 	@Override
 	public void onPlayerStoppedUsing(ItemStack stack, World world, EntityPlayer player, int useRemaining) {
 		if (!world.isRemote) {
-			Lanthanoid.inst.network.sendToAllAround(new RifleChargingSoundRequest(player.getEntityId(), getAttachment(stack).getSpeedMultiplier(), false),
+			Lanthanoid.inst.network.sendToAllAround(new RifleChargingSoundRequest(player.getEntityId(), getVariant(stack).getSpeedMultiplier(), false),
 					new TargetPoint(player.worldObj.provider.dimensionId, player.posX, player.posY, player.posZ, 64));
 		}
-		if (useRemaining <= (50/getAttachment(stack).getSpeedMultiplier())) {
+		if (useRemaining <= (50/getVariant(stack).getSpeedMultiplier())) {
 			player.playSound("lanthanoid:rifle_fire", 1.0f, (itemRand.nextFloat()*0.2f)+1.0f);
 			getCompound(stack).setInteger("cooldownStart", 10);
 			getCompound(stack).setInteger("cooldown", 10);
-			Attachment attachment = getAttachment(stack);
+			Variant variant = getVariant(stack);
 			if (!world.isRemote) {
-				PrimaryMode mode = getMode(stack);
+				PrimaryMode primaryMode = getPrimaryMode(stack);
+				SecondaryMode secondaryMode = getSecondaryMode(stack);
 				setBufferedShots(stack, getBufferedShots(stack)-1);
 				if (getBufferedShots(stack) <= 0) {
-					if (consumeInventoryItem(player.inventory, mode::stackMatches)) {
-						setBufferedShots(stack, getBufferedShots(stack)+attachment.getAmmoPerDust());
+					if (consumeInventoryItem(player.inventory, primaryMode::stackMatches)) {
+						setBufferedShots(stack, getBufferedShots(stack)+variant.getAmmoPerDust());
 					}
 				}
 				Vec3 start = Vec3.createVectorHelper(player.posX, player.boundingBox.maxY-0.2f, player.posZ);
 				Vec3 look = player.getLookVec();
 				float range;
-				switch (mode) {
-					case LIGHT:
-						range = 25;
-						break;
-					case MINE:
-						range = 30;
-						break;
-					default:
-						range = 150;
-						break;
+				if (primaryMode == PrimaryMode.LIGHT) {
+					range = 25;
+				} else if (primaryMode == PrimaryMode.MINE) {
+					range = 30;
+				} else {
+					range = 150;
 				}
 				Vec3 direction = Vec3.createVectorHelper(look.xCoord*range, look.yCoord*range, look.zCoord*range);
 				int scopeFactor = ((LanthanoidProperties)player.getExtendedProperties("lanthanoid")).scopeFactor;
@@ -481,7 +339,7 @@ public class ItemRifle extends ItemBase {
 						spread = 0;
 						break;
 				}
-				switch (attachment) {
+				switch (variant) {
 					case SUPERCLOCKED:
 						spread *= 2;
 						break;
@@ -500,41 +358,41 @@ public class ItemRifle extends ItemBase {
 					direction.yCoord += itemRand.nextGaussian() * 0.0075 * spread;
 					direction.zCoord += itemRand.nextGaussian() * 0.0075 * spread;
 				}
-				boolean fire = false;//(attachment == Attachment.FIRE && player.inventory.consumeInventoryItem(Items.blaze_powder));
-				shootLaser(world, mode, fire, start, direction, player);
+				boolean fire = false;//(variant == Variant.FIRE && player.inventory.consumeInventoryItem(Items.blaze_powder));
+				shootLaser(world, primaryMode, secondaryMode, fire, start, direction, player);
 			}
-			if (attachment == Attachment.SUPERCLOCKED) {
+			if (variant == Variant.SUPERCLOCKED) {
 				getCompound(stack).setInteger("cooldownStart", 50);
 				getCompound(stack).setInteger("cooldown", 50);
 			}
 		}
 	}
 	
-	private void shootLaser(World world, PrimaryMode mode, boolean fire, Vec3 start, Vec3 direction, EntityPlayer shooter) {
-		if (mode == PrimaryMode.KNOCKBACK) {
+	private void shootLaser(World world, PrimaryMode primaryMode, SecondaryMode secondaryMode, boolean fire, Vec3 start, Vec3 direction, EntityPlayer shooter) {
+		if (primaryMode == PrimaryMode.KNOCKBACK) {
 			
-		} else if (mode == PrimaryMode.WORMHOLE) {
+		} else if (primaryMode == PrimaryMode.WORMHOLE) {
 			
-		} else if (mode == PrimaryMode.MINE) {
+		} else if (primaryMode == PrimaryMode.MINE) {
 			Vec3 end = start.addVector(direction.xCoord, direction.yCoord, direction.zCoord);
-			spawnParticles(world, mode, fire, start.xCoord, start.yCoord, start.zCoord, end.xCoord, end.yCoord, end.zCoord);
+			spawnParticles(world, primaryMode, fire, start.xCoord, start.yCoord, start.zCoord, end.xCoord, end.yCoord, end.zCoord);
 		} else {
 			Vec3 end = start.addVector(direction.xCoord, direction.yCoord, direction.zCoord);
 			MovingObjectPosition mop = rayTrace(world, shooter, clone(start), clone(direction));
 			if (mop != null) {
 				end = mop.hitVec;
 			}
-			spawnParticles(world, mode, fire, start.xCoord, start.yCoord, start.zCoord, end.xCoord, end.yCoord, end.zCoord);
+			spawnParticles(world, primaryMode, fire, start.xCoord, start.yCoord, start.zCoord, end.xCoord, end.yCoord, end.zCoord);
 			if (mop != null) {
 				if (mop.entityHit instanceof EntityLivingBase) {
-					if (mode.doesDamage()) {
+					if (primaryMode.doesDamage()) {
 						((EntityLivingBase)mop.entityHit).attackEntityFrom(new EntityDamageSource("laser", shooter), 7);
 					}
-					if (mode.doesHeal()) {
+					if (primaryMode.doesHeal()) {
 						((EntityLivingBase)mop.entityHit).heal(10);
 					}
 				}
-				if (mode.doesChain()) {
+				if (secondaryMode == SecondaryMode.CHAIN && (primaryMode.doesDamage() || primaryMode.doesHeal())) {
 					if (mop.entityHit instanceof EntityLivingBase) {
 						EntityLivingBase hit = (EntityLivingBase) mop.entityHit;
 						world.playSoundEffect(end.xCoord, end.yCoord, end.zCoord, "lanthanoid:rifle_fire", 0.5f, 1.5f);
@@ -557,21 +415,21 @@ public class ItemRifle extends ItemBase {
 							Vec3 nxtVec = Vec3.createVectorHelper(nxt.posX, nxt.posY+(nxt.height/2), nxt.posZ);
 							MovingObjectPosition check = world.rayTraceBlocks(Vec3.createVectorHelper(hit.posX, hit.posY+hit.height/2, hit.posZ), nxtVec);
 							Vec3 particleVec = check == null ? nxtVec : check.hitVec;
-							spawnParticles(world, mode, fire, vec3.xCoord, vec3.yCoord, vec3.zCoord, particleVec.xCoord, particleVec.yCoord, particleVec.zCoord);
+							spawnParticles(world, primaryMode, fire, vec3.xCoord, vec3.yCoord, vec3.zCoord, particleVec.xCoord, particleVec.yCoord, particleVec.zCoord);
 							if (check == null) {
 								hit = (EntityLivingBase)nxt;
 								vec3 = Vec3.createVectorHelper(hit.posX, hit.posY+hit.height/2, hit.posZ);
-								if (mode.doesDamage()) {
+								if (primaryMode.doesDamage()) {
 									hit.attackEntityFrom(new EntityDamageSource("laser", shooter), 6-i);
 								}
-								if (mode.doesHeal()) {
+								if (primaryMode.doesHeal()) {
 									hit.heal(9-i);
 								}
 							}
 						}
 					}
 				}
-				if (mode.doesDeflect() && mop.entityHit == null) {
+				if (secondaryMode == SecondaryMode.BOUNCE && (primaryMode.doesDamage() || primaryMode.doesHeal()) && mop.entityHit == null) {
 					AxisAlignedBB aabb = AxisAlignedBB.getBoundingBox(end.xCoord-5, end.yCoord-5, end.zCoord-5,
 							end.xCoord+5, end.yCoord+5, end.zCoord+5);
 					latestAABB = aabb;
@@ -599,71 +457,63 @@ public class ItemRifle extends ItemBase {
 						shoot = closest;
 					}
 					if (shoot != null) {
-						spawnParticles(world, mode, fire, end.xCoord, end.yCoord, end.zCoord, shoot.posX, shoot.posY, shoot.posZ);
-						if (mode.doesDamage()) {
+						spawnParticles(world, primaryMode, fire, end.xCoord, end.yCoord, end.zCoord, shoot.posX, shoot.posY, shoot.posZ);
+						if (primaryMode.doesDamage()) {
 							shoot.attackEntityFrom(new EntityDamageSource("laser", shooter), 5);
 						}
-						if (mode.doesHeal()) {
+						if (primaryMode.doesHeal()) {
 							shoot.heal(7);
 						}
 					}
 				}
 			}
-			switch (mode) {
-				case GROW:
-					if (mop != null) {
-						if (mop.entityHit instanceof EntitySlime) {
-							EntitySlime slime = ((EntitySlime)mop.entityHit);
-							if (slime.getSlimeSize() < 10) {
-								slime.setSlimeSize(slime.getSlimeSize()+1);
-							}
-						} else if (mop.entityHit instanceof EntityAgeable) {
-							EntityAgeable ageable = ((EntityAgeable)mop.entityHit);
-							ageable.setGrowingAge(0);
+			if (primaryMode == PrimaryMode.GROW) {
+				if (mop != null) {
+					if (mop.entityHit instanceof EntitySlime) {
+						EntitySlime slime = ((EntitySlime)mop.entityHit);
+						if (slime.getSlimeSize() < 10) {
+							slime.setSlimeSize(slime.getSlimeSize()+1);
+						}
+					} else if (mop.entityHit instanceof EntityAgeable) {
+						EntityAgeable ageable = ((EntityAgeable)mop.entityHit);
+						ageable.setGrowingAge(0);
+					}
+				}
+			} else if (primaryMode == PrimaryMode.SHRINK) {
+				if (mop != null) {
+					if (mop.entityHit instanceof EntitySlime) {
+						EntitySlime slime = ((EntitySlime)mop.entityHit);
+						if (slime.getSlimeSize() > 1) {
+							slime.setSlimeSize(slime.getSlimeSize()-1);
+						}
+					} else if (mop.entityHit instanceof EntityAgeable) {
+						EntityAgeable ageable = ((EntityAgeable)mop.entityHit);
+						ageable.setGrowingAge(-10000);
+					}
+				}
+			} else if (primaryMode == PrimaryMode.LIGHT) {
+				double steps = start.distanceTo(end);
+				for (int i = 0; i < steps; i++) {
+					double[] pos = LVectors.interpolate(start.xCoord, start.yCoord, start.zCoord, end.xCoord, end.yCoord, end.zCoord, i/steps);
+					int x = (int)pos[0];
+					int y = (int)pos[1];
+					int z = (int)pos[2];
+					if (world.isAirBlock(x, y, z)) {
+						world.setBlock(x, y, z, LBlocks.technical, 0, 2);
+					}
+				}
+			} else if (primaryMode == PrimaryMode.REPLICATE) {
+				if (mop != null) {
+					if (mop.typeOfHit == MovingObjectType.BLOCK) {
+						
+					} else if (mop.typeOfHit == MovingObjectType.ENTITY) {
+						if (mop.entityHit instanceof EntityAnimal) {
+							((EntityAnimal)mop.entityHit).func_146082_f(shooter);
 						}
 					}
-					break;
-				case SHRINK:
-					if (mop != null) {
-						if (mop.entityHit instanceof EntitySlime) {
-							EntitySlime slime = ((EntitySlime)mop.entityHit);
-							if (slime.getSlimeSize() > 1) {
-								slime.setSlimeSize(slime.getSlimeSize()-1);
-							}
-						} else if (mop.entityHit instanceof EntityAgeable) {
-							EntityAgeable ageable = ((EntityAgeable)mop.entityHit);
-							ageable.setGrowingAge(-10000);
-						}
-					}
-					break;
-				case LIGHT:
-					double steps = start.distanceTo(end);
-					for (int i = 0; i < steps; i++) {
-						double[] pos = LVectors.interpolate(start.xCoord, start.yCoord, start.zCoord, end.xCoord, end.yCoord, end.zCoord, i/steps);
-						int x = (int)pos[0];
-						int y = (int)pos[1];
-						int z = (int)pos[2];
-						if (world.isAirBlock(x, y, z)) {
-							world.setBlock(x, y, z, LBlocks.technical, 0, 2);
-						}
-					}
-					break;
-				case REPLICATE:
-					if (mop != null) {
-						if (mop.typeOfHit == MovingObjectType.BLOCK) {
-							
-						} else if (mop.typeOfHit == MovingObjectType.ENTITY) {
-							if (mop.entityHit instanceof EntityAnimal) {
-								((EntityAnimal)mop.entityHit).func_146082_f(shooter);
-							}
-						}
-					}
-					break;
-				case EXPLODE:
-					shooter.worldObj.newExplosion(null, end.xCoord, end.yCoord, end.zCoord, 3f, fire, true);
-					break;
-				default:
-					break;
+				}
+			} else if (primaryMode == PrimaryMode.EXPLODE) {
+				shooter.worldObj.newExplosion(null, end.xCoord, end.yCoord, end.zCoord, 3f, fire, true);
 			}
 		}
 	}
@@ -738,10 +588,10 @@ public class ItemRifle extends ItemBase {
 	@Override
 	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player) {
 		if (getCompound(stack).getInteger("cooldown") > 0) return stack;
-		if (hasAmmoFor(player, stack, getMode(stack))) {
+		if (hasAmmoFor(player, stack, getPrimaryMode(stack))) {
 			player.setItemInUse(stack, getMaxItemUseDuration(stack));
 			if (!world.isRemote) {
-				Lanthanoid.inst.network.sendToAllAround(new RifleChargingSoundRequest(player.getEntityId(), getAttachment(stack).getSpeedMultiplier(), true),
+				Lanthanoid.inst.network.sendToAllAround(new RifleChargingSoundRequest(player.getEntityId(), getVariant(stack).getSpeedMultiplier(), true),
 						new TargetPoint(player.worldObj.provider.dimensionId, player.posX, player.posY, player.posZ, 64));
 			}
 		}
@@ -782,7 +632,7 @@ public class ItemRifle extends ItemBase {
 	
 	@Override
 	public void getSubItems(Item item, CreativeTabs tab, List list) {
-		for (Attachment a : Attachment.values()) {
+		for (Variant a : Variant.values()) {
 			list.add(new ItemStack(item, 1, a.ordinal()));
 		}
 	}
@@ -793,8 +643,8 @@ public class ItemRifle extends ItemBase {
 		for (int i = 0; i < overlays.length; i++) {
 			overlays[i] = register.registerIcon("lanthanoid:rifle_overlay_"+i);
 		}
-		for (Attachment a : Attachment.values()) {
-			attachmentOverlays[a.ordinal()] = register.registerIcon("lanthanoid:rifle_"+a.icon);
+		for (Variant a : Variant.values()) {
+			variantOverlays[a.ordinal()] = register.registerIcon("lanthanoid:rifle_"+a.icon);
 		}
 	}
 }

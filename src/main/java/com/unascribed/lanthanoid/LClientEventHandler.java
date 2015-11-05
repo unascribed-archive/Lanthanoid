@@ -1,5 +1,6 @@
 package com.unascribed.lanthanoid;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -10,7 +11,11 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import com.google.common.collect.Maps;
-import com.unascribed.lanthanoid.item.ItemRifle;
+import com.google.common.collect.Sets;
+import com.unascribed.lanthanoid.item.rifle.ItemRifle;
+import com.unascribed.lanthanoid.item.rifle.Mode;
+import com.unascribed.lanthanoid.item.rifle.PrimaryMode;
+import com.unascribed.lanthanoid.item.rifle.SecondaryMode;
 import com.unascribed.lanthanoid.network.ModifyRifleModeMessage;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -26,14 +31,10 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
 import net.minecraftforge.client.event.FOVUpdateEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
@@ -43,41 +44,22 @@ import net.minecraftforge.oredict.OreDictionary;
 
 @SideOnly(Side.CLIENT)
 public class LClientEventHandler {
-	@SideOnly(Side.CLIENT)
-	private RenderItem itemRenderer = new RenderItem();
-	
-	public static final float TAUf = (float)(Math.PI*2f);
-	
-	private String[] keys = {
-		"~",
-		"1",
-		"2",
-		"3",
-		"4",
-		"5",
-		"6",
-		"7",
-		"8",
-		"9",
-		"0",
-		"-",
-		"="
-	};
-	
-	public static final int ANIMATION_TIME = 4;
-	
 	private static final ResourceLocation SCOPE_TEX = new ResourceLocation("lanthanoid", "textures/misc/scope.png");
 	private static final ResourceLocation WIDGITS = new ResourceLocation("textures/gui/widgets.png");
 	
+	private RingRenderer primary;
+	private RingRenderer secondary;
+	
 	private int ticks = 0;
-	private int animTicks = 0;
-	private int lastSelected = -1;
-	private int prevSelected = -1;
-	private int diff;
 	
 	public static int scopeFactor = 1;
-	private Map<ItemRifle.PrimaryMode, Integer> counts = Maps.newEnumMap(ItemRifle.PrimaryMode.class);
+	private Map<Mode, Integer> counts = Maps.newHashMap();
 	private Map<Integer, ItemStack> oreStacks = Maps.newHashMap();
+	
+	public void init() {
+		primary = new RingRenderer(LItems.rifle::getPrimaryMode, PrimaryMode.values(), counts, oreStacks);
+		secondary = new RingRenderer(LItems.rifle::getSecondaryMode, SecondaryMode.values(), counts, oreStacks).flip();
+	}
 	
 	@SubscribeEvent
 	public void onRenderHand(RenderHandEvent e) {
@@ -100,20 +82,20 @@ public class LClientEventHandler {
 		if (e.phase == Phase.START) {
 			Minecraft mc = Minecraft.getMinecraft();
 			if (mc.thePlayer != null) {
-				if (ticks % 20 == 0 || counts.isEmpty()) {
+				if (ticks % 20 == 0 || oreStacks.isEmpty()) {
 					oreStacks.clear();
 					for (ItemStack is : mc.thePlayer.inventory.mainInventory) {
 						if (is == null) continue;
 						int[] ids = OreDictionary.getOreIDs(is);
 						for (int id : ids) {
-							if (ItemRifle.PrimaryMode.usedOreIDs.contains(id) && !oreStacks.containsKey(id)) {
+							if (PrimaryMode.usedOreIDs.contains(id) || SecondaryMode.usedOreIDs.contains(id) && !oreStacks.containsKey(id)) {
 								ItemStack stack = is.copy();
 								stack.stackSize = 1;
 								oreStacks.put(id, stack);
 							}
 						}
 					}
-					for (int id : ItemRifle.PrimaryMode.usedOreIDs) {
+					for (int id : Sets.union(PrimaryMode.usedOreIDs, SecondaryMode.usedOreIDs)) {
 						if (!oreStacks.containsKey(id)) {
 							@SuppressWarnings("deprecation")
 							List<ItemStack> is = OreDictionary.getOres(id);
@@ -127,7 +109,8 @@ public class LClientEventHandler {
 			}
 		}
 		if (e.phase == Phase.END) {
-			animTicks++;
+			primary.tick();
+			secondary.tick();
 		}
 	}
 	
@@ -176,120 +159,49 @@ public class LClientEventHandler {
 		}
 	}
 	
+	PrimaryMode[] primaryVals = PrimaryMode.values();
+	SecondaryMode[] secondaryVals = SecondaryMode.values();
+	Mode[] allVals = union(primaryVals, secondaryVals, new Mode[primaryVals.length+secondaryVals.length]);
+	
 	@SubscribeEvent
 	public void onPostRenderGameOverlay(RenderGameOverlayEvent.Post e) {
 		if (e.type == ElementType.ALL) {
 			Minecraft mc = Minecraft.getMinecraft();
 			EntityClientPlayerMP p = mc.thePlayer;
 			if (p.getHeldItem() != null && p.getHeldItem().getItem() == LItems.rifle) {
+				ItemStack stack = p.getHeldItem();
+				
 				counts.clear();
-				for (ItemRifle.PrimaryMode mode : ItemRifle.PrimaryMode.values()) {
+				for (Mode mode : allVals) {
 					counts.put(mode, 0);
 				}
-				//int blazeCount = 0;
 				for (ItemStack is : mc.thePlayer.inventory.mainInventory) {
 					if (is == null) continue;
-					for (ItemRifle.PrimaryMode mode : ItemRifle.PrimaryMode.values()) {
+					for (Mode mode : allVals) {
 						if (mode.stackMatches(is)) {
 							counts.put(mode, counts.get(mode)+is.stackSize);
 						}
 					}
-					/*if (is.getItem() == Items.blaze_powder) {
-						blazeCount += is.stackSize;
-					}*/
-				}
-				ItemStack stack = p.getHeldItem();
-				ItemRifle.PrimaryMode selected = LItems.rifle.getMode(stack);
-				ItemRifle.PrimaryMode[] vals = ItemRifle.PrimaryMode.values();
-				if (lastSelected == -1) {
-					lastSelected = selected.ordinal();
-				}
-				float i = 0;
-				if (lastSelected != selected.ordinal()) {
-					int distA = selected.ordinal() - lastSelected;
-					int distB = selected.ordinal() - (lastSelected+vals.length);
-					int distC = (lastSelected - (selected.ordinal()+vals.length))*-1;
-					int dist;
-					if (Math.abs(distC) < Math.abs(distA) && Math.abs(distC) < Math.abs(distB)) {
-						dist = distC;
-					} else if (Math.abs(distB) < Math.abs(distA) && Math.abs(distB) < Math.abs(distC)) {
-						dist = distB;
-					} else if (Math.abs(distA) < Math.abs(distB) && Math.abs(distA) < Math.abs(distC)) {
-						dist = distA;
-					} else {
-						dist = distA;
-					}
-					if (animTicks >= ANIMATION_TIME) {
-						animTicks = 0;
-						diff = dist;
-					} else {
-						diff += dist;
-					}
-					prevSelected = lastSelected;
-					lastSelected = selected.ordinal();
 				}
 				GL11.glEnable(GL12.GL_RESCALE_NORMAL);
 				RenderHelper.enableGUIStandardItemLighting();
-				boolean renderedAnything = false;
-				for (ItemRifle.PrimaryMode m : vals) {
-					if (LItems.rifle.hasAmmoFor(p, stack, m)) {
-						float s = (i-selected.ordinal())+2;
-						float anim = 0;
-						if (animTicks < ANIMATION_TIME) {
-							anim = 1-((animTicks+e.partialTicks)/(float)ANIMATION_TIME);
-						}
-						s += anim*diff;
-						int x = Math.round(MathHelper.sin((s / vals.length)*TAUf)*38f);
-						int y = Math.round(MathHelper.cos((s / vals.length)*TAUf)*38f);
-						x += 8;
-						y += 10;
-						GL11.glPushMatrix();
-						GL11.glTranslatef(x, y, 0);
-						float d = 0;
-						if (m == selected) {
-							mc.fontRenderer.drawStringWithShadow(StatCollector.translateToLocal("mode."+m.translationKey+".name"), 24, 8, m.color);
-							d = (1-anim);
-						} else if (m.ordinal() == prevSelected) {
-							d = anim;
-						}
-						GL11.glTranslatef(d*-8, d*-8, 0);
-						GL11.glScalef(d+1, d+1, 1.0f);
-						ItemStack modeStack = null;
-						if (m.type instanceof ItemStack) {
-							modeStack = (ItemStack)m.type;
-						} else if (m.type instanceof Integer) {
-							modeStack = oreStacks.get((Integer)m.type);
-						}
-						if (modeStack != null) {
-							itemRenderer.renderItemAndEffectIntoGUI(mc.fontRenderer, mc.getTextureManager(), modeStack, 0, 0);
-						}
-						GL11.glScalef(0.5f, 0.5f, 1f);
-						GL11.glTranslatef(0, 0, 100);
-						mc.fontRenderer.drawStringWithShadow(keys[(int)i], 4, 4, -1);
-						int count = counts.get(m)*LItems.rifle.getAttachment(stack).getAmmoPerDust();
-						if (m == selected) {
-							count += LItems.rifle.getBufferedShots(stack);
-						}
-						String str = mc.thePlayer.capabilities.isCreativeMode ? "∞" : Integer.toString(count);
-						mc.fontRenderer.drawStringWithShadow(str, 30-(mc.fontRenderer.getStringWidth(str)), 20, -1);
-						GL11.glPopMatrix();
-						renderedAnything = true;
-					}
-					i++;
-				}
-				if (!renderedAnything) {
-					mc.fontRenderer.drawStringWithShadow(StatCollector.translateToLocal("ui.no_ammo_hint"), 4, 4, -1);
-				} else {
-					GL11.glPushMatrix();
-					GL11.glScalef(1.5f, 1.5f, 0);
-					GL11.glPopMatrix();
-				}
+				primary.render(p, stack, 0, 0, e.partialTicks);
+				secondary.render(p, stack, e.resolution.getScaledWidth(), 0, e.partialTicks);
 				RenderHelper.disableStandardItemLighting();
 				GL11.glDisable(GL12.GL_RESCALE_NORMAL);
 			}
 		}
 	}
 	
+	private <T> T[] union(T[] a, T[] b, T[] result) {
+		if (result.length != a.length+b.length) {
+			result = Arrays.copyOf(result, a.length+b.length);
+		}
+		System.arraycopy(a, 0, result, 0, a.length);
+		System.arraycopy(b, 0, result, a.length, b.length);
+		return result;
+	}
+
 	private boolean linuxNag = true;
 	
 	@SubscribeEvent
@@ -314,7 +226,9 @@ public class LClientEventHandler {
 	public void onKeyboardInput(KeyInputEvent e) {
 		Minecraft mc = Minecraft.getMinecraft();
 		if (mc.thePlayer != null) {
-			if (mc.thePlayer.isSneaking()) {
+			boolean primary = Keyboard.isKeyDown(Minecraft.getMinecraft().gameSettings.keyBindSneak.getKeyCode());
+			boolean secondary = Keyboard.isKeyDown(Minecraft.getMinecraft().gameSettings.keyBindSprint.getKeyCode());
+			if (primary || secondary) {
 				if (mc.thePlayer.getHeldItem() != null) {
 					ItemStack held = mc.thePlayer.getHeldItem();
 					if (held.getItem() == LItems.rifle) {
@@ -329,35 +243,35 @@ public class LClientEventHandler {
 							}
 							if (Keyboard.getEventCharacter() == '@') {
 								while (mc.gameSettings.keyBindsHotbar[1].isPressed()) {}
-								Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, 2));
+								Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, 2));
 								return;
 							}
 							if (Keyboard.getEventCharacter() == '^') {
 								while (mc.gameSettings.keyBindsHotbar[5].isPressed()) {}
-								Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, 6));
+								Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, 6));
 								return;
 							}
 						}
 						if (Keyboard.getEventKey() == Keyboard.KEY_0) {
-							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, 10));
+							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, 10));
 							return;
 						}
 						if (Keyboard.getEventKey() == Keyboard.KEY_UNDERLINE) {
-							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, 11));
+							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, 11));
 							return;
 						}
 						if (Keyboard.getEventKey() == Keyboard.KEY_EQUALS) {
-							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, 12));
+							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, 12));
 							return;
 						}
 						if (Keyboard.getEventKey() == Keyboard.KEY_GRAVE) {
-							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, 0));
+							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, 0));
 							return;
 						}
 						for (int i = 0; i < 9; i++) {
 							if (mc.gameSettings.keyBindsHotbar[i].isPressed()) {
 								while (mc.gameSettings.keyBindsHotbar[i].isPressed()) {} // drain pressTicks to zero to suppress vanilla behavior
-								Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, i+1));
+								Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, i+1));
 							}
 						}
 						return;
@@ -373,7 +287,9 @@ public class LClientEventHandler {
 			int dWheel = Mouse.getEventDWheel();
 			mc.thePlayer.inventory.changeCurrentItem(dWheel*-1);
 			if (dWheel != 0) {
-				if (mc.thePlayer.isSneaking()) {
+				boolean primary = Keyboard.isKeyDown(Minecraft.getMinecraft().gameSettings.keyBindSneak.getKeyCode());
+				boolean secondary = Keyboard.isKeyDown(Minecraft.getMinecraft().gameSettings.keyBindSprint.getKeyCode());
+				if (primary || secondary) {
 					if (mc.thePlayer.getHeldItem() != null) {
 						ItemStack held = mc.thePlayer.getHeldItem();
 						if (held.getItem() == LItems.rifle) {
@@ -383,7 +299,7 @@ public class LClientEventHandler {
 							if (dWheel < 0) {
 								dWheel = -1;
 							}
-							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(false, dWheel*-1));
+							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(false, primary, dWheel*-1));
 							return;
 						}
 					}

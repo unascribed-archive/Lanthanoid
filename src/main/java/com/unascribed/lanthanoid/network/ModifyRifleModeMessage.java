@@ -4,31 +4,34 @@ import io.netty.buffer.ByteBuf;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 
 public class ModifyRifleModeMessage implements IMessage {
-	private boolean set;
-	private int value;
+	public boolean set;
+	public boolean primary;
+	public int value;
 	public ModifyRifleModeMessage() {} // Required constructor for Forge
-	public ModifyRifleModeMessage(boolean set, int value) {
+	public ModifyRifleModeMessage(boolean set, boolean primary, int value) {
 		this.set = set;
+		this.primary = primary;
 		this.value = value;
-	}
-
-	public int getValue() {
-		return value;
-	}
-	
-	public boolean isSet() {
-		return set;
 	}
 	
 	@Override
 	public void fromBytes(ByteBuf buf) {
-		set = buf.readBoolean();
+		int flags = buf.readUnsignedByte();
+		set = (flags & 0b00000001) != 0;
+		primary = (flags & 0b00000010) != 0;
 		value = buf.readByte();
 	}
 
 	@Override
 	public void toBytes(ByteBuf buf) {
-		buf.writeBoolean(set);
+		int flags = 0;
+		if (set) {
+			flags |= 0b00000001;
+		}
+		if (primary) {
+			flags |= 0b00000010;
+		}
+		buf.writeByte(flags);
 		buf.writeByte(value);
 	}
 

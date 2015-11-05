@@ -16,4 +16,6 @@ public interface TextureCompositor {
 
 	void addItem(String name, int color, ItemType type);
 
+	void addAlias(String regex, String replacement);
+
 }

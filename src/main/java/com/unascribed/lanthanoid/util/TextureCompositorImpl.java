@@ -11,6 +11,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 
@@ -120,6 +122,7 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 	private List<Task> tasks = Lists.newArrayList();
 	private Map<BlockBackdrop, BufferedImage> backdrops = Maps.newEnumMap(BlockBackdrop.class);
 	private Map<CompositeType, List<CompositeStep>> types = Maps.newHashMap();
+	private Map<Pattern, String> aliases = Maps.newHashMap();
 	
 	private Map<String, byte[]> results = Maps.newHashMap();
 	private Set<String> animated = Sets.newHashSet();
@@ -433,6 +436,11 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		o.steps.addAll(types.get(type));
 		tasks.add(o);
 	}
+	
+	@Override
+	public void addAlias(String regex, String replacement) {
+		aliases.put(Pattern.compile(regex), replacement);
+	}
 
 	private boolean isResultName(String name) {
 		String str = "assets/lanthanoid_compositor/textures/";
@@ -442,7 +450,20 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 	private String nameToResultName(String name) {
 		String str = "assets/lanthanoid_compositor/textures/";
 		int len = (name.endsWith(".png") ? 4 : 11);
-		return name.substring(str.length(), name.length()-len);
+		String nm = name.substring(str.length(), name.length()-len);
+		boolean modified;
+		do {
+			modified = false;
+			for (Map.Entry<Pattern, String> en : aliases.entrySet()) {
+				Matcher m = en.getKey().matcher(nm);
+				if (m.matches()) {
+					nm = m.replaceAll(en.getValue());
+					modified = true;
+					break;
+				}
+			}
+		} while (modified);
+		return nm;
 	}
 	
 	@Override

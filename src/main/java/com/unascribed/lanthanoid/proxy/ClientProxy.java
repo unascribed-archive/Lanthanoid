@@ -30,6 +30,7 @@ public class ClientProxy implements Proxy {
 	@Override
 	public void init() {
 		LClientEventHandler ceh = new LClientEventHandler();
+		ceh.init();
 		FMLCommonHandler.instance().bus().register(ceh);
 		MinecraftForge.EVENT_BUS.register(ceh);
 		MinecraftForgeClient.registerItemRenderer(LItems.rifle, new RifleItemRenderer());

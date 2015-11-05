@@ -13,8 +13,9 @@ import com.unascribed.lanthanoid.block.BlockMulti;
 import com.unascribed.lanthanoid.block.BlockTechnical;
 import com.unascribed.lanthanoid.item.ItemBlockWithCustomName;
 import com.unascribed.lanthanoid.item.ItemMulti;
-import com.unascribed.lanthanoid.item.ItemRifle;
 import com.unascribed.lanthanoid.item.ItemTeleporter;
+import com.unascribed.lanthanoid.item.rifle.Variant;
+import com.unascribed.lanthanoid.item.rifle.ItemRifle;
 import com.unascribed.lanthanoid.network.BeamParticleHandler;
 import com.unascribed.lanthanoid.network.BeamParticleMessage;
 import com.unascribed.lanthanoid.network.ModifyRifleModeHandler;
@@ -215,6 +216,8 @@ public class Lanthanoid {
 			
 			compositor.addBlock("machineCombustorFrontWorking", 0xFFFFFF, BlockType.MACHINE_COMBUSTOR_WORKING, BlockBackdrop.COBBLESTONE);
 			compositor.addBlock("machineCombustorFrontIdle", 0xFFFFFF, BlockType.MACHINE_COMBUSTOR_IDLE, BlockBackdrop.COBBLESTONE);
+			
+			compositor.addAlias("^weakPlating(.*)$", "plating$1");
 		}
 		
 		metalsPlusVanilla.addAll(metals);
@@ -284,6 +287,13 @@ public class Lanthanoid {
 				
 				all(gemsAndMetal, "block")
 				), ItemBlockWithCustomName.class, "storage");
+		
+		GameRegistry.registerBlock(LBlocks.weak_plating = new BlockMulti(
+				Material.iron,
+				Blocks.iron_block,
+				
+				all(metalsPlusVanilla, "weakPlating")
+				), ItemBlockWithCustomName.class, "weak_plating");
 		
 		GameRegistry.registerBlock(LBlocks.plating = new BlockMulti(
 				Material.iron,
@@ -363,12 +373,18 @@ public class Lanthanoid {
 		}
 		
 		for (String s : metalsPlusVanilla) {
-			GameRegistry.addRecipe(new ShapedOreRecipe(LBlocks.plating.getStackForName("plating"+s, 8),
+			GameRegistry.addRecipe(new ShapedOreRecipe(LBlocks.weak_plating.getStackForName("plating"+s, 8),
 					"iii",
 					"iIi",
 					"iii",
 					'i', "nugget"+s,
 					'I', "stone"));
+			GameRegistry.addRecipe(new ShapedOreRecipe(LBlocks.plating.getStackForName("plating"+s, 8),
+					"iii",
+					"iIi",
+					"iii",
+					'i', "nugget"+s,
+					'I', Blocks.obsidian));
 			if (s.equals("Gold")) {
 				GameRegistry.addSmelting(LBlocks.plating.getStackForName("plating"+s, 1), new ItemStack(Items.gold_nugget), 0);
 			} else {
@@ -385,7 +401,7 @@ public class Lanthanoid {
 				"nuggetIron", "nuggetIron", "nuggetIron",
 				"nuggetIron", "nuggetIron", "nuggetIron",
 				"nuggetIron", "nuggetIron", "nuggetIron"));
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.rifle, 1, ItemRifle.Attachment.NONE.ordinal()),
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.rifle, 1, Variant.NONE.ordinal()),
 				"fz ",
 				"zdo",
 				" sb",
@@ -395,39 +411,39 @@ public class Lanthanoid {
 				's', "stickHolmium",
 				'z', "ingotHolmium",
 				'd', "nuggetDysprosium"));
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.rifle, 1, ItemRifle.Attachment.ZOOM.ordinal()),
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.rifle, 1, Variant.ZOOM.ordinal()),
 				"r ",
 				"gq",
 				
 				'g', LItems.rifle,
 				'r', "gemRaspite",
 				'q', "gemQuartz"));
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.rifle, 1, ItemRifle.Attachment.OVERCLOCK.ordinal()),
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.rifle, 1, Variant.OVERCLOCK.ordinal()),
 				"d ",
 				"gb",
 				
 				'g', LItems.rifle,
 				'd', "ingotDysprosium",
 				'b', "ingotGold"));
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.rifle, 1, ItemRifle.Attachment.SUPERCLOCKED.ordinal()),
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.rifle, 1, Variant.SUPERCLOCKED.ordinal()),
 				"d ",
 				"gb",
 				
-				'g', new ItemStack(LItems.rifle, 1, ItemRifle.Attachment.OVERCLOCK.ordinal()),
+				'g', new ItemStack(LItems.rifle, 1, Variant.OVERCLOCK.ordinal()),
 				'd', "blockDysprosium",
 				'b', "blockGold"));
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.rifle, 1, ItemRifle.Attachment.EFFICIENCY.ordinal()),
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.rifle, 1, Variant.EFFICIENCY.ordinal()),
 				"c ",
 				"gd",
 				
 				'g', LItems.rifle,
 				'c', "ingotCerium",
 				'd', "gemDiamond"));
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.rifle, 1, ItemRifle.Attachment.SUPEREFFICIENCY.ordinal()),
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.rifle, 1, Variant.SUPEREFFICIENCY.ordinal()),
 				"c ",
 				"gd",
 				
-				'g', new ItemStack(LItems.rifle, 1, ItemRifle.Attachment.EFFICIENCY.ordinal()),
+				'g', new ItemStack(LItems.rifle, 1, Variant.EFFICIENCY.ordinal()),
 				'c', "blockCerium",
 				'd', "blockDiamond"));
 		

@@ -1,6 +1,6 @@
 package com.unascribed.lanthanoid;
 
-import com.unascribed.lanthanoid.item.ItemRifle;
+import com.unascribed.lanthanoid.item.rifle.Variant;
 import com.unascribed.lanthanoid.network.BeamParticleMessage;
 import com.unascribed.lanthanoid.network.SetScopeFactorMessage;
 
@@ -26,7 +26,7 @@ public class LEventHandler {
 		LanthanoidProperties props = (LanthanoidProperties)e.player.getExtendedProperties("lanthanoid");
 		if (props.scopeFactor > 1) {
 			ItemStack held = e.player.getHeldItem();
-			if (held == null || held.getItem() != LItems.rifle || LItems.rifle.getAttachment(held) != ItemRifle.Attachment.ZOOM) {
+			if (held == null || held.getItem() != LItems.rifle || LItems.rifle.getVariant(held) != Variant.ZOOM) {
 				props.scopeFactor = 1;
 				if (!e.player.worldObj.isRemote && e.player instanceof EntityPlayerMP) {
 					Lanthanoid.inst.network.sendTo(new SetScopeFactorMessage(props.scopeFactor), (EntityPlayerMP)e.player);
@@ -34,7 +34,7 @@ public class LEventHandler {
 			}
 		} else if (props.scopeFactor == 0) {
 			ItemStack held = e.player.getHeldItem();
-			if (held == null || held.getItem() != LItems.rifle || LItems.rifle.getAttachment(held) != ItemRifle.Attachment.NONE) {
+			if (held == null || held.getItem() != LItems.rifle || LItems.rifle.getVariant(held) != Variant.NONE) {
 				props.scopeFactor = 1;
 				if (!e.player.worldObj.isRemote && e.player instanceof EntityPlayerMP) {
 					Lanthanoid.inst.network.sendTo(new SetScopeFactorMessage(props.scopeFactor), (EntityPlayerMP)e.player);

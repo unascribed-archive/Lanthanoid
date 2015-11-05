@@ -1,6 +1,6 @@
 package com.unascribed.lanthanoid.entity;
 
-import com.unascribed.lanthanoid.item.ItemRifle;
+import com.unascribed.lanthanoid.item.rifle.PrimaryMode;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.block.Block;
@@ -74,13 +74,13 @@ public class EntityRifleShot extends Entity {
 		setDead(); // TODO
 	}
 	
-	public ItemRifle.PrimaryMode getMode() {
-		ItemRifle.PrimaryMode[] vals = ItemRifle.PrimaryMode.values();
+	public PrimaryMode getMode() {
+		PrimaryMode[] vals = PrimaryMode.values();
 		int idx = dataWatcher.getWatchableObjectByte(MODE_INDEX)%vals.length;
 		return vals[idx];
 	}
 	
-	public void setMode(ItemRifle.PrimaryMode mode) {
+	public void setMode(PrimaryMode mode) {
 		dataWatcher.updateObject(MODE_INDEX, (byte)mode.ordinal());
 	}
 
