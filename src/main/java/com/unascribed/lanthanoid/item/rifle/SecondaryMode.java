@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
 import net.minecraft.block.Block;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
@@ -15,9 +14,8 @@ public final class SecondaryMode extends Mode<SecondaryMode> {
 	private static final List<SecondaryMode> values = Lists.newArrayList();
 	
 	public static final SecondaryMode NONE = new SecondaryMode(0, "NONE", 0xFFFFFF);
-	public static final SecondaryMode BLAZE = new SecondaryMode(1, "BLAZE", Items.blaze_powder, 0xFFAA00);
-	public static final SecondaryMode CHAIN = new SecondaryMode(2, "CHAIN", "dustNeodymium", 0x8D8DFF);
-	public static final SecondaryMode BOUNCE = new SecondaryMode(3, "BOUNCE", "dustPraseodymium", 0x98FF8F);
+	public static final SecondaryMode CHAIN = new SecondaryMode(1, "CHAIN", "dustNeodymium", 0x8D8DFF);
+	public static final SecondaryMode BOUNCE = new SecondaryMode(2, "BOUNCE", "dustPraseodymium", 0x98FF8F);
 	
 	
 	public static final ImmutableSet<Integer> usedOreIDs;

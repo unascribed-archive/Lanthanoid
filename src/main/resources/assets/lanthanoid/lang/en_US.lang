@@ -36,16 +36,18 @@ command.lanspike.start=Generating %s block long spike
 command.lanspike.end=%s blocks changed
 
 
+mode.none.name=None
+mode.blaze.name=Blaze
+mode.chain.name=Chain
+mode.bounce.name=Deflect
+
 mode.tractor.name=Tractor Beam
 mode.explode.name=Explosion
 mode.damage.name=Beam
 mode.mine.name=Destruction
 mode.grow.name=Grow
 mode.shrink.name=Shrink
-mode.chain_damage.name=Chain Beam
 mode.healing.name=Healing Beam
-mode.chain_healing.name=Chain Healing Beam
-mode.bounce_damage.name=Deflection Beam
 mode.knockback.name=Shockwave
 mode.replicate.name=Replicator
 mode.wormhole.name=Wormhole

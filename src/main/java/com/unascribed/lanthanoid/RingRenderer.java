@@ -39,6 +39,7 @@ public class RingRenderer {
 	
 	private final Mode[] values;
 	private final Function<ItemStack, ? extends Mode> modeGetter;
+	private final Function<ItemStack, Integer> bufferGetter;
 	private int prevSelected, lastSelected, animTicks, diff;
 	
 	private final Minecraft mc = Minecraft.getMinecraft();
@@ -47,10 +48,11 @@ public class RingRenderer {
 	
 	private boolean flipped;
 	
-	public RingRenderer(Function<ItemStack, ? extends Mode> modeGetter, Mode[] values, Map<Mode, Integer> counts, Map<Integer, ItemStack> oreStacks) {
+	public RingRenderer(Function<ItemStack, ? extends Mode> modeGetter, Function<ItemStack, Integer> bufferGetter, Mode[] values, Map<Mode, Integer> counts, Map<Integer, ItemStack> oreStacks) {
 		this.counts = counts;
 		this.oreStacks = oreStacks;
 		this.modeGetter = modeGetter;
+		this.bufferGetter = bufferGetter;
 		this.values = values;
 	}
 
@@ -138,9 +140,9 @@ public class RingRenderer {
 				GL11.glScalef(0.5f, 0.5f, 1f);
 				GL11.glTranslatef(0, 0, 100);
 				mc.fontRenderer.drawStringWithShadow(keys[m.ordinal()], 4, 4, -1);
-				int count = counts.get(m)*LItems.rifle.getVariant(stack).getAmmoPerDust();
+				int count = counts.get(m)*(m.doesBuffer() ? LItems.rifle.getVariant(stack).getAmmoPerDust() : 1);
 				if (m == selected) {
-					count += LItems.rifle.getBufferedShots(stack);
+					count += bufferGetter.apply(stack);
 				}
 				boolean infinite = mc.thePlayer.capabilities.isCreativeMode || m.type == null;
 				String str = infinite ? "∞" : Integer.toString(count);

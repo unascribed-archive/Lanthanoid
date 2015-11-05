@@ -28,6 +28,7 @@ import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -126,12 +127,20 @@ public class ItemRifle extends ItemBase {
 		return val[getCompound(stack).getInteger("mode2")%val.length];
 	}
 	
-	public int getBufferedShots(ItemStack stack) {
+	public int getBufferedPrimaryShots(ItemStack stack) {
 		return getCompound(stack).getInteger("buffer");
 	}
 	
-	public void setBufferedShots(ItemStack stack, int shots) {
+	public void setBufferedPrimaryShots(ItemStack stack, int shots) {
 		getCompound(stack).setInteger("buffer", shots);
+	}
+	
+	public int getBufferedSecondaryShots(ItemStack stack) {
+		return getCompound(stack).getInteger("buffer2");
+	}
+	
+	public void setBufferedSecondaryShots(ItemStack stack, int shots) {
+		getCompound(stack).setInteger("buffer2", shots);
 	}
 	
 	public Variant getVariant(ItemStack stack) {
@@ -217,20 +226,24 @@ public class ItemRifle extends ItemBase {
 				mode = vals[idx%vals.length];
 			}
 		}
-		if (mode != oldMode) {
-			setBufferedShots(stack, 0);
-		}
 		player.worldObj.playSoundAtEntity(player, "lanthanoid:rifle_mode", 1.0f, (mode.ordinal()*0.05f)+1.0f);
 		if (primary) {
+			if (mode != oldMode) {
+				setBufferedPrimaryShots(stack, 0);
+			}
 			getCompound(stack).setInteger("mode", mode.ordinal());
 		} else {
+			if (mode != oldMode) {
+				setBufferedSecondaryShots(stack, 0);
+			}
 			getCompound(stack).setInteger("mode2", mode.ordinal());
 		}
 	}
 	
 	public boolean hasAmmoFor(EntityPlayer player, ItemStack stack, Mode mode) {
 		if (player.capabilities.isCreativeMode) return true;
-		if (mode == getPrimaryMode(stack) && getBufferedShots(stack) > 0) return true;
+		if (mode == getPrimaryMode(stack) && getBufferedPrimaryShots(stack) > 0) return true;
+		if (mode == getSecondaryMode(stack) && getBufferedSecondaryShots(stack) > 0) return true;
 		if (mode.type == null) return true;
 		for (ItemStack is : player.inventory.mainInventory) {
 			if (is == null) continue;
@@ -244,13 +257,7 @@ public class ItemRifle extends ItemBase {
 	@Override
 	public ItemStack onEaten(ItemStack stack, World world, EntityPlayer player) {
 		if (!world.isRemote) {
-			setBufferedShots(stack, getBufferedShots(stack)-2);
-			if (getBufferedShots(stack) <= 0) {
-				PrimaryMode mode = getPrimaryMode(stack);
-				if (consumeInventoryItem(player.inventory, mode::stackMatches)) {
-					setBufferedShots(stack, getBufferedShots(stack)+getVariant(stack).getAmmoPerDust());
-				}
-			}
+			consume(stack, player, 2);
 		}
 		player.playSound("lanthanoid:rifle_overheat", 1.0f, 1.0f);
 		getCompound(stack).setInteger("cooldownStart", 480);
@@ -260,6 +267,23 @@ public class ItemRifle extends ItemBase {
 		return stack;
 	}
 	
+	private void consume(ItemStack stack, EntityPlayer player, int count) {
+		setBufferedPrimaryShots(stack, getBufferedPrimaryShots(stack)-count);
+		if (getBufferedPrimaryShots(stack) <= 0) {
+			PrimaryMode mode = getPrimaryMode(stack);
+			if (consumeInventoryItem(player.inventory, mode::stackMatches)) {
+				setBufferedPrimaryShots(stack, getBufferedPrimaryShots(stack)+(mode.doesBuffer() ? getVariant(stack).getAmmoPerDust() : 1));
+			}
+		}
+		setBufferedSecondaryShots(stack, getBufferedSecondaryShots(stack)-count);
+		if (getBufferedSecondaryShots(stack) <= 0) {
+			SecondaryMode mode = getSecondaryMode(stack);
+			if (consumeInventoryItem(player.inventory, mode::stackMatches)) {
+				setBufferedSecondaryShots(stack, getBufferedSecondaryShots(stack)+(mode.doesBuffer() ? getVariant(stack).getAmmoPerDust() : 1));
+			}
+		}
+	}
+
 	@Override
 	public boolean onEntitySwing(EntityLivingBase entityLiving, ItemStack stack) {
 		if (entityLiving instanceof EntityPlayer) {
@@ -301,12 +325,9 @@ public class ItemRifle extends ItemBase {
 			if (!world.isRemote) {
 				PrimaryMode primaryMode = getPrimaryMode(stack);
 				SecondaryMode secondaryMode = getSecondaryMode(stack);
-				setBufferedShots(stack, getBufferedShots(stack)-1);
-				if (getBufferedShots(stack) <= 0) {
-					if (consumeInventoryItem(player.inventory, primaryMode::stackMatches)) {
-						setBufferedShots(stack, getBufferedShots(stack)+variant.getAmmoPerDust());
-					}
-				}
+				
+				consume(stack, player, 1);
+				
 				Vec3 start = Vec3.createVectorHelper(player.posX, player.boundingBox.maxY-0.2f, player.posZ);
 				Vec3 look = player.getLookVec();
 				float range;
@@ -358,7 +379,7 @@ public class ItemRifle extends ItemBase {
 					direction.yCoord += itemRand.nextGaussian() * 0.0075 * spread;
 					direction.zCoord += itemRand.nextGaussian() * 0.0075 * spread;
 				}
-				boolean fire = false;//(variant == Variant.FIRE && player.inventory.consumeInventoryItem(Items.blaze_powder));
+				boolean fire = isBlazeEnabled(stack) && player.inventory.consumeInventoryItem(Items.blaze_powder);;
 				shootLaser(world, primaryMode, secondaryMode, fire, start, direction, player);
 			}
 			if (variant == Variant.SUPERCLOCKED) {
@@ -368,6 +389,14 @@ public class ItemRifle extends ItemBase {
 		}
 	}
 	
+	public boolean isBlazeEnabled(ItemStack stack) {
+		return getCompound(stack).getBoolean("blaze");
+	}
+	
+	public void setBlazeEnabled(ItemStack stack, boolean blaze) {
+		getCompound(stack).setBoolean("blaze", blaze);
+	}
+
 	private void shootLaser(World world, PrimaryMode primaryMode, SecondaryMode secondaryMode, boolean fire, Vec3 start, Vec3 direction, EntityPlayer shooter) {
 		if (primaryMode == PrimaryMode.KNOCKBACK) {
 			
@@ -385,6 +414,9 @@ public class ItemRifle extends ItemBase {
 			spawnParticles(world, primaryMode, fire, start.xCoord, start.yCoord, start.zCoord, end.xCoord, end.yCoord, end.zCoord);
 			if (mop != null) {
 				if (mop.entityHit instanceof EntityLivingBase) {
+					if (fire) {
+						mop.entityHit.setFire(5);
+					}
 					if (primaryMode.doesDamage()) {
 						((EntityLivingBase)mop.entityHit).attackEntityFrom(new EntityDamageSource("laser", shooter), 7);
 					}
@@ -419,6 +451,9 @@ public class ItemRifle extends ItemBase {
 							if (check == null) {
 								hit = (EntityLivingBase)nxt;
 								vec3 = Vec3.createVectorHelper(hit.posX, hit.posY+hit.height/2, hit.posZ);
+								if (fire) {
+									hit.setFire(5);
+								}
 								if (primaryMode.doesDamage()) {
 									hit.attackEntityFrom(new EntityDamageSource("laser", shooter), 6-i);
 								}
@@ -458,6 +493,9 @@ public class ItemRifle extends ItemBase {
 					}
 					if (shoot != null) {
 						spawnParticles(world, primaryMode, fire, end.xCoord, end.yCoord, end.zCoord, shoot.posX, shoot.posY, shoot.posZ);
+						if (fire) {
+							shoot.setFire(5);
+						}
 						if (primaryMode.doesDamage()) {
 							shoot.attackEntityFrom(new EntityDamageSource("laser", shooter), 5);
 						}

@@ -57,8 +57,8 @@ public class LClientEventHandler {
 	private Map<Integer, ItemStack> oreStacks = Maps.newHashMap();
 	
 	public void init() {
-		primary = new RingRenderer(LItems.rifle::getPrimaryMode, PrimaryMode.values(), counts, oreStacks);
-		secondary = new RingRenderer(LItems.rifle::getSecondaryMode, SecondaryMode.values(), counts, oreStacks).flip();
+		primary = new RingRenderer(LItems.rifle::getPrimaryMode, LItems.rifle::getBufferedPrimaryShots, PrimaryMode.values(), counts, oreStacks);
+		secondary = new RingRenderer(LItems.rifle::getSecondaryMode, LItems.rifle::getBufferedSecondaryShots, SecondaryMode.values(), counts, oreStacks).flip();
 	}
 	
 	@SubscribeEvent
