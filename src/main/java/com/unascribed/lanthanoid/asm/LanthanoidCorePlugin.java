@@ -41,7 +41,7 @@ public class LanthanoidCorePlugin implements IFMLLoadingPlugin
 	public String[] getASMTransformerClass()
 	{
 		return new String[] {
-				"com.unascribed.lanthanoid.LanthanoidTransformer"
+				"com.unascribed.lanthanoid.transform.LanthanoidTransformer"
 			};
 	}
 

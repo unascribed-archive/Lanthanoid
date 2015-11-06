@@ -82,6 +82,8 @@ public class LBlocks {
 				), ItemBlockWithCustomName.class, "plating");
 		
 		GameRegistry.registerBlock(LBlocks.technical = new BlockTechnical(), null, "technical");
+		
+		GameRegistry.registerBlock(LBlocks.energized_lutetium = new BlockEnergizedLutetium(), "energized_lutetium");
 	}
 
 }

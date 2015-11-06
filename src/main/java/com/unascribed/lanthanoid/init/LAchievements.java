@@ -68,6 +68,7 @@ public class LAchievements {
 		}
 		
 		page = new AchievementPage("Lanthanoid", li.toArray(new Achievement[li.size()]));
+		AchievementPage.registerAchievementPage(LAchievements.page);
 	}
 	/*
 	private static Achievement addAchievement(String name, int x, int y, Block block, int meta, Achievement dependency) {

@@ -35,7 +35,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.WorldProvider;
-import net.minecraftforge.common.AchievementPage;
 import net.minecraftforge.common.MinecraftForge;
 
 @Mod(
@@ -81,18 +80,14 @@ public class Lanthanoid {
 		
 		proxy.setup();
 		
-		network = new SimpleNetworkWrapper("Lanthanoid");
 		LNetwork.init();
 		
 		LItems.init();
 		LBlocks.init();
 		
-		//EntityRegistry.registerModEntity(EntityRifleShot.class, "lanthanoid:rifle_shot", 0, this, 64, 12, true);
-		
 		LOres.register();
 		
 		LAchievements.init();
-		AchievementPage.registerAchievementPage(LAchievements.page);
 		
 		LRecipes.init();
 		
