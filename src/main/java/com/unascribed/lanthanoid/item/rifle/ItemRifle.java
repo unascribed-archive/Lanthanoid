@@ -6,6 +6,7 @@ import java.util.Set;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import com.unascribed.lanthanoid.LAchievements;
 import com.unascribed.lanthanoid.LBlocks;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.LanthanoidProperties;
@@ -24,6 +25,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.monster.EntitySlime;
+import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -175,6 +177,15 @@ public class ItemRifle extends ItemBase {
 	
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
+		if (entity instanceof EntityPlayer) {
+			((EntityPlayer)entity).triggerAchievement(LAchievements.craftRifle);
+			if (getVariant(stack).tier > 0) {
+				((EntityPlayer)entity).triggerAchievement(LAchievements.modifyRifle);
+				if (getVariant(stack).tier > 1) {
+					((EntityPlayer)entity).triggerAchievement(LAchievements.modifyRifle2);
+				}
+			}
+		}
 		int cool = getCompound(stack).getInteger("cooldown");
 		if (cool > 0) {
 			if (entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.isCreativeMode) {
@@ -291,12 +302,14 @@ public class ItemRifle extends ItemBase {
 			if (player.isSneaking()) {
 				LanthanoidProperties props = (LanthanoidProperties)entityLiving.getExtendedProperties("lanthanoid");
 				if (getVariant(stack) == Variant.ZOOM) {
+					player.triggerAchievement(LAchievements.scope);
 					props.scopeFactor = ((props.scopeFactor)%10)+1;
 					player.playSound("lanthanoid:rifle_scope", 1.0f, 1.0f+(props.scopeFactor/10f));
 				} else if (getVariant(stack) == Variant.NONE) {
 					if (props.scopeFactor == 0) {
 						props.scopeFactor = 1;
 					} else {
+						player.triggerAchievement(LAchievements.ironsights);
 						props.scopeFactor = 0;
 					}
 				} else {
@@ -347,7 +360,9 @@ public class ItemRifle extends ItemBase {
 					start = start.addVector(right.xCoord*rightAdj, right.yCoord*rightAdj, right.zCoord*rightAdj);
 				} else if (scopeFactor > 1) {
 					start.yCoord -= 0.25;
+					range *= 1+(Math.log10(scopeFactor));
 				}
+				System.out.println(range);
 				double spread;
 				switch (scopeFactor) {
 					case 1:
@@ -398,11 +413,11 @@ public class ItemRifle extends ItemBase {
 	}
 
 	private void shootLaser(World world, PrimaryMode primaryMode, SecondaryMode secondaryMode, boolean fire, Vec3 start, Vec3 direction, EntityPlayer shooter) {
-		if (primaryMode == PrimaryMode.KNOCKBACK) {
+		/*if (primaryMode == PrimaryMode.KNOCKBACK) {
 			
 		} else if (primaryMode == PrimaryMode.WORMHOLE) {
 			
-		} else if (primaryMode == PrimaryMode.MINE) {
+		} else */if (primaryMode == PrimaryMode.MINE) {
 			Vec3 end = start.addVector(direction.xCoord, direction.yCoord, direction.zCoord);
 			spawnParticles(world, primaryMode, fire, start.xCoord, start.yCoord, start.zCoord, end.xCoord, end.yCoord, end.zCoord);
 		} else {
@@ -423,6 +438,11 @@ public class ItemRifle extends ItemBase {
 					if (primaryMode.doesHeal()) {
 						((EntityLivingBase)mop.entityHit).heal(10);
 					}
+					if ((mop.entityHit instanceof IMob || mop.entityHit instanceof EntityPlayer)
+							&& ((EntityLivingBase)mop.entityHit).getHealth() <= 0
+							&& mop.entityHit.getDistanceSqToEntity(shooter) >= (100*100)) {
+						shooter.triggerAchievement(LAchievements.snipe);
+					}
 				}
 				if (secondaryMode == SecondaryMode.CHAIN && (primaryMode.doesDamage() || primaryMode.doesHeal())) {
 					if (mop.entityHit instanceof EntityLivingBase) {
@@ -430,6 +450,8 @@ public class ItemRifle extends ItemBase {
 						world.playSoundEffect(end.xCoord, end.yCoord, end.zCoord, "lanthanoid:rifle_fire", 0.5f, 1.5f);
 						Set<Entity> shot = Sets.newHashSet(shooter, hit);
 						Vec3 vec3 = end;
+						boolean allDied = hit.getHealth() <= 0;
+						boolean allMonsters = (hit instanceof IMob || hit instanceof EntityPlayer);
 						for (int i = 0; i < 4; i++) {
 							double minDist = Double.MAX_VALUE;
 							Entity nxt = null;
@@ -459,6 +481,14 @@ public class ItemRifle extends ItemBase {
 								}
 								if (primaryMode.doesHeal()) {
 									hit.heal(9-i);
+								}
+								allMonsters &= (hit instanceof IMob || hit instanceof EntityPlayer);
+								allDied &= hit.getHealth() <= 0;
+								if (allMonsters && i == 3) {
+									shooter.triggerAchievement(LAchievements.fullChain);
+									if (allDied) {
+										shooter.triggerAchievement(LAchievements.fullChainKill);
+									}
 								}
 							}
 						}
@@ -493,6 +523,16 @@ public class ItemRifle extends ItemBase {
 					}
 					if (shoot != null) {
 						spawnParticles(world, primaryMode, fire, end.xCoord, end.yCoord, end.zCoord, shoot.posX, shoot.posY, shoot.posZ);
+						if (shoot instanceof IMob && shooter instanceof EntityPlayerMP) {
+							EntityPlayerMP mp = (EntityPlayerMP)shooter;
+							// avoid incurring the cost of another raycast if we don't need to
+							if (mp.func_147099_x().canUnlockAchievement(LAchievements.cornerDeflect)
+									&& !mp.func_147099_x().hasAchievementUnlocked(LAchievements.cornerDeflect)) {
+								if (!mp.canEntityBeSeen(shoot)) {
+									mp.triggerAchievement(LAchievements.cornerDeflect);
+								}
+							}
+						}
 						if (fire) {
 							shoot.setFire(5);
 						}
@@ -501,6 +541,9 @@ public class ItemRifle extends ItemBase {
 						}
 						if (primaryMode.doesHeal()) {
 							shoot.heal(7);
+						}
+						if (shoot.getHealth() <= 0 && shoot.getDistanceSqToEntity(shooter) >= (100*100)) {
+							shooter.triggerAchievement(LAchievements.snipe);
 						}
 					}
 				}
@@ -540,7 +583,7 @@ public class ItemRifle extends ItemBase {
 						world.setBlock(x, y, z, LBlocks.technical, 0, 2);
 					}
 				}
-			} else if (primaryMode == PrimaryMode.REPLICATE) {
+			}/* else if (primaryMode == PrimaryMode.REPLICATE) {
 				if (mop != null) {
 					if (mop.typeOfHit == MovingObjectType.BLOCK) {
 						
@@ -550,7 +593,7 @@ public class ItemRifle extends ItemBase {
 						}
 					}
 				}
-			} else if (primaryMode == PrimaryMode.EXPLODE) {
+			}*/ else if (primaryMode == PrimaryMode.EXPLODE) {
 				shooter.worldObj.newExplosion(null, end.xCoord, end.yCoord, end.zCoord, 3f, fire, true);
 			}
 		}

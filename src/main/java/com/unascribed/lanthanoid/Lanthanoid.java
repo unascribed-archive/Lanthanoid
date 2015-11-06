@@ -24,6 +24,10 @@ import com.unascribed.lanthanoid.network.RifleChargingSoundHandler;
 import com.unascribed.lanthanoid.network.RifleChargingSoundRequest;
 import com.unascribed.lanthanoid.network.SetScopeFactorHandler;
 import com.unascribed.lanthanoid.network.SetScopeFactorMessage;
+import com.unascribed.lanthanoid.network.SpaceShipCrashHandler;
+import com.unascribed.lanthanoid.network.SpaceShipCrashMessage;
+import com.unascribed.lanthanoid.network.ToggleRifleBlazeModeHandler;
+import com.unascribed.lanthanoid.network.ToggleRifleBlazeModeMessage;
 import com.unascribed.lanthanoid.proxy.Proxy;
 import com.unascribed.lanthanoid.util.Generate;
 import com.unascribed.lanthanoid.util.GeneratorGroup;
@@ -44,13 +48,16 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityTrackerEntry;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -59,6 +66,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldProvider;
 import net.minecraftforge.common.AchievementPage;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.oredict.OreDictionary;
@@ -69,7 +77,8 @@ import net.minecraftforge.oredict.ShapelessOreRecipe;
 	modid="lanthanoid",
 	name="Lanthanoid",
 	version="@VERSION@",
-	acceptedMinecraftVersions="@MCVERSION@"
+	acceptedMinecraftVersions="@MCVERSION@",
+	dependencies="required-after:malisiscore"
 	)
 public class Lanthanoid {
 	public static final Logger log = LogManager.getLogger("Lanthanoid");
@@ -77,6 +86,7 @@ public class Lanthanoid {
 	public static Lanthanoid inst;
 	@SidedProxy(clientSide="com.unascribed.lanthanoid.proxy.ClientProxy", serverSide="com.unascribed.lanthanoid.proxy.ServerProxy")
 	public static Proxy proxy;
+	public static boolean isObfEnv;
 	
 	public TextureCompositor compositor;
 	public CreativeTabs creativeTab = new CreativeTabs("lanthanoid") {
@@ -161,6 +171,7 @@ public class Lanthanoid {
 		// Shipwreck lanthanides
 		addAll("Dysprosium", 0x860096, BlockType.TRACE_ORE, BlockBackdrop.STONE, ItemType.INGOT);
 		addAll("Cerium", 0xD0003E, BlockType.TRACE_ORE, BlockBackdrop.STONE, ItemType.INGOT);
+		addAll("Lutetium", 0xBEE22F, BlockType.TRACE_ORE, BlockBackdrop.STONE, ItemType.INGOT);
 		
 		// Gems
 		addAll("Actinolite", 0x40AD83, BlockType.GEM_ORE, BlockBackdrop.STONE, ItemType.SQUARE_GEM);
@@ -210,14 +221,15 @@ public class Lanthanoid {
 			compositor.addBlock("platingIron", ironColor, BlockType.PLATING);
 			compositor.addBlock("platingGold", goldColor, BlockType.PLATING);
 			
+			compositor.addBlock("weakplatingIron", ironColor, BlockType.WEAK_PLATING);
+			compositor.addBlock("weakplatingGold", goldColor, BlockType.WEAK_PLATING);
+			
 			compositor.addBlock("machineCobbleSide", 0xFFFFFF, BlockType.MACHINE_BLOCK, BlockBackdrop.COBBLESTONE);
 			compositor.addBlock("machineCobbleTop", 0xFFFFFF, BlockType.MACHINE_BLOCK_TOP, BlockBackdrop.COBBLESTONE);
 			compositor.addBlock("machineCobbleBottom", 0xFFFFFF, BlockType.MACHINE_BLOCK_BOTTOM, BlockBackdrop.COBBLESTONE);
 			
 			compositor.addBlock("machineCombustorFrontWorking", 0xFFFFFF, BlockType.MACHINE_COMBUSTOR_WORKING, BlockBackdrop.COBBLESTONE);
 			compositor.addBlock("machineCombustorFrontIdle", 0xFFFFFF, BlockType.MACHINE_COMBUSTOR_IDLE, BlockBackdrop.COBBLESTONE);
-			
-			compositor.addAlias("^weakPlating(.*)$", "plating$1");
 		}
 		
 		metalsPlusVanilla.addAll(metals);
@@ -236,6 +248,8 @@ public class Lanthanoid {
 		network.registerMessage(ModifyRifleModeHandler.class, ModifyRifleModeMessage.class, 1, Side.SERVER);
 		network.registerMessage(BeamParticleHandler.class, BeamParticleMessage.class, 2, Side.CLIENT);
 		network.registerMessage(SetScopeFactorHandler.class, SetScopeFactorMessage.class, 3, Side.CLIENT);
+		network.registerMessage(SpaceShipCrashHandler.class, SpaceShipCrashMessage.class, 4, Side.CLIENT);
+		network.registerMessage(ToggleRifleBlazeModeHandler.class, ToggleRifleBlazeModeMessage.class, 5, Side.SERVER);
 		
 		GameRegistry.registerItem(LItems.ingot = new ItemMulti(all(metals, "ingot")), "ingot");
 		GameRegistry.registerItem(LItems.stick = new ItemMulti(all(metalsPlusVanilla, "stick")), "stick");
@@ -290,26 +304,17 @@ public class Lanthanoid {
 		
 		GameRegistry.registerBlock(LBlocks.weak_plating = new BlockMulti(
 				Material.iron,
-				Blocks.iron_block,
+				Blocks.cobblestone,
 				
-				all(metalsPlusVanilla, "weakPlating")
+				all(metalsPlusVanilla, "weakplating")
 				), ItemBlockWithCustomName.class, "weak_plating");
 		
 		GameRegistry.registerBlock(LBlocks.plating = new BlockMulti(
 				Material.iron,
-				Blocks.iron_block,
+				Blocks.obsidian,
 				
 				all(metalsPlusVanilla, "plating")
-				) {
-			@Override
-			public float getExplosionResistance(Entity p_149638_1_) {
-				return 50000;
-			}
-			@Override
-			public float getExplosionResistance(Entity par1Entity, World world, int x, int y, int z, double explosionX, double explosionY, double explosionZ) {
-				return 50000;
-			}
-		}, ItemBlockWithCustomName.class, "plating");
+				), ItemBlockWithCustomName.class, "plating");
 		
 		GameRegistry.registerBlock(LBlocks.technical = new BlockTechnical(), null, "technical");
 		
@@ -378,7 +383,7 @@ public class Lanthanoid {
 					"iIi",
 					"iii",
 					'i', "nugget"+s,
-					'I', "stone"));
+					'I', "cobblestone"));
 			GameRegistry.addRecipe(new ShapedOreRecipe(LBlocks.plating.getStackForName("plating"+s, 8),
 					"iii",
 					"iIi",
@@ -387,8 +392,10 @@ public class Lanthanoid {
 					'I', Blocks.obsidian));
 			if (s.equals("Gold")) {
 				GameRegistry.addSmelting(LBlocks.plating.getStackForName("plating"+s, 1), new ItemStack(Items.gold_nugget), 0);
+				GameRegistry.addSmelting(LBlocks.weak_plating.getStackForName("weakplating"+s, 1), new ItemStack(Items.gold_nugget), 0);
 			} else {
 				GameRegistry.addSmelting(LBlocks.plating.getStackForName("plating"+s, 1), LItems.nugget.getStackForName("nugget"+s), 0);
+				GameRegistry.addSmelting(LBlocks.weak_plating.getStackForName("weakplating"+s, 1), LItems.nugget.getStackForName("nugget"+s), 0);
 			}
 			GameRegistry.addRecipe(new ShapedOreRecipe(LItems.stick.getStackForName("stick"+s, 4),
 					"i",
@@ -526,6 +533,12 @@ public class Lanthanoid {
 				.range(18, 32)
 				.size(8));
 		
+		try {
+			Class.forName(EntityTrackerEntry.class.getCanonicalName());
+		} catch (ClassNotFoundException e1) {
+			e1.printStackTrace();
+		}
+		
 		GameRegistry.registerWorldGenerator(group, 5000);
 		
 		LEventHandler handler = new LEventHandler();
@@ -608,6 +621,7 @@ public class Lanthanoid {
 			if (compositor != null) {
 				compositor.addBlock("block"+name, color, BlockType.METAL_BLOCK);
 				compositor.addBlock("plating"+name, color, BlockType.PLATING);
+				compositor.addBlock("weakplating"+name, color, BlockType.WEAK_PLATING);
 			}
 			metals.add(name);
 			gemsAndMetal.add(name);
@@ -626,6 +640,29 @@ public class Lanthanoid {
 		if (compositor != null) {
 			compositor.addItem("dust"+name, color, ItemType.DUST);
 		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static Vec3 modifySkyColor(WorldProvider base, Entity entity, float partialTicks) {
+		Vec3 color = base.getSkyColor(entity, partialTicks);
+		LClientEventHandler.inst.onSkyColor(color, entity, partialTicks);
+		return color;
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static double getDistanceWeight(double base) {
+		return base*getDistanceWeightForFactor(LClientEventHandler.scopeFactor);
+	}
+	
+	public static double getDistanceWeightForFactor(int scopeFactor) {
+		double hscope = scopeFactor/2.5D;
+		return Math.max(1, hscope);
+	}
+	
+	public static boolean forceTrackingFor(EntityPlayerMP player, Entity entity) {
+		int scopeFactor = ((LanthanoidProperties)player.getExtendedProperties("lanthanoid")).scopeFactor;
+		double dist = 64*getDistanceWeightForFactor(scopeFactor);
+		return scopeFactor > 1 && entity.getDistanceSqToEntity(player) <= (dist*dist);
 	}
 	
 }

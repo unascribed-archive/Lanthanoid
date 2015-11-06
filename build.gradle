@@ -40,10 +40,14 @@ repositories {
 		name = "chickenbones"
 			url = "http://chickenbones.net/maven"
 	}
+	maven {
+		name = 'sonatype-nexus'
+		url = 'https://oss.sonatype.org/content/repositories/public/'
+	}
 }
 
-
 dependencies {
+	compile 'net.malisis:malisiscore:1.7.10-0.12.10:dev'
 	compile 'codechicken:CodeChickenLib:1.7.10-1.1.3.127:dev'
 	compile 'codechicken:CodeChickenCore:1.7.10-1.0.4.29:dev'
 	compile 'codechicken:NotEnoughItems:1.7.10-1.0.3.74:dev'
@@ -52,7 +56,10 @@ dependencies {
 jar {
 	manifest {
 		attributes (
-			'FMLAT': 'lanthanoid_at.cfg'
+			'FMLAT': 'lanthanoid_at.cfg',
+			'FMLCorePlugin': 'com.unascribed.lanthanoid.asm.LanthanoidCorePlugin',
+			'FMLCorePluginContainsFMLMod': 'true',
+			'ForceLoadAsMod': 'true',
 		)
 	}
 }

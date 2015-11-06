@@ -58,6 +58,7 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		MACHINE_BLOCK_BOTTOM,
 		MACHINE_COMBUSTOR_IDLE,
 		MACHINE_COMBUSTOR_WORKING,
+		WEAK_PLATING,
 		;
 		public String prefix() { return "blocks/"; }
 	}
@@ -333,6 +334,7 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		loadSingleStepBevel(BlockType.MACHINE_BLOCK_TOP);
 		loadMachineFront(BlockType.MACHINE_COMBUSTOR_IDLE);
 		loadMachineFront(BlockType.MACHINE_COMBUSTOR_WORKING);
+		loadSingleStep(BlockType.WEAK_PLATING);
 		
 		loadTwoStepGlint(ItemType.WAFER);
 		loadTwoStepGlint(ItemType.INGOT);

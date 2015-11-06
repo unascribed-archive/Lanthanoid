@@ -1,18 +1,20 @@
 package com.unascribed.lanthanoid.item.rifle;
 
 public enum Variant {
-	NONE("ironsights", false),
-	ZOOM("scope", false),
-	OVERCLOCK("radiator", true),
-	SUPERCLOCKED("radiator2", true),
-	EFFICIENCY("cartridge", true),
-	SUPEREFFICIENCY("wot", true),
+	NONE("ironsights", false, 0),
+	ZOOM("scope", false, 1),
+	OVERCLOCK("radiator", true, 1),
+	SUPERCLOCKED("radiator2", true, 2),
+	EFFICIENCY("cartridge", true, 1),
+	SUPEREFFICIENCY("wot", true, 2),
 	;
 	public final String icon;
-	public boolean colorize;
-	Variant(String icon, boolean colorize) {
+	public final boolean colorize;
+	public final int tier;
+	Variant(String icon, boolean colorize, int tier) {
 		this.icon = icon;
 		this.colorize = colorize;
+		this.tier = tier;
 	}
 	public float getSpeedMultiplier() {
 		switch (this) {

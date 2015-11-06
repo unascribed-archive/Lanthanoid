@@ -10,6 +10,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.unascribed.lanthanoid.item.rifle.ItemRifle;
@@ -17,6 +18,7 @@ import com.unascribed.lanthanoid.item.rifle.Mode;
 import com.unascribed.lanthanoid.item.rifle.PrimaryMode;
 import com.unascribed.lanthanoid.item.rifle.SecondaryMode;
 import com.unascribed.lanthanoid.network.ModifyRifleModeMessage;
+import com.unascribed.lanthanoid.network.ToggleRifleBlazeModeMessage;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.InputEvent.KeyInputEvent;
@@ -32,9 +34,12 @@ import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Vec3;
+import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.FOVUpdateEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
@@ -44,6 +49,14 @@ import net.minecraftforge.oredict.OreDictionary;
 
 @SideOnly(Side.CLIENT)
 public class LClientEventHandler {
+	public static class SkyFlash {
+		public SkyFlash(Vec3 color) {
+			this.color = color;
+		}
+		public int ticks;
+		public Vec3 color;
+	}
+	
 	private static final ResourceLocation SCOPE_TEX = new ResourceLocation("lanthanoid", "textures/misc/scope.png");
 	private static final ResourceLocation WIDGITS = new ResourceLocation("textures/gui/widgets.png");
 	
@@ -52,13 +65,29 @@ public class LClientEventHandler {
 	
 	private int ticks = 0;
 	
+	public static List<SkyFlash> flashes = Lists.newArrayList();
+	
 	public static int scopeFactor = 1;
+	public static LClientEventHandler inst;
 	private Map<Mode, Integer> counts = Maps.newHashMap();
 	private Map<Integer, ItemStack> oreStacks = Maps.newHashMap();
+	
+	public LClientEventHandler() {
+		inst = this;
+	}
 	
 	public void init() {
 		primary = new RingRenderer(LItems.rifle::getPrimaryMode, LItems.rifle::getBufferedPrimaryShots, PrimaryMode.values(), counts, oreStacks);
 		secondary = new RingRenderer(LItems.rifle::getSecondaryMode, LItems.rifle::getBufferedSecondaryShots, SecondaryMode.values(), counts, oreStacks).flip();
+	}
+	
+	public void onSkyColor(Vec3 color, Entity entity, float partialTicks) {
+		
+	}
+	
+	@SubscribeEvent
+	public void onFogColor(EntityViewRenderEvent.FogColors e) {
+		
 	}
 	
 	@SubscribeEvent
@@ -292,6 +321,10 @@ public class LClientEventHandler {
 				if (primary || secondary) {
 					if (mc.thePlayer.getHeldItem() != null) {
 						ItemStack held = mc.thePlayer.getHeldItem();
+						if (mc.gameSettings.keyBindPickBlock.isPressed()) {
+							while (mc.gameSettings.keyBindPickBlock.isPressed()) {}
+							Lanthanoid.inst.network.sendToServer(new ToggleRifleBlazeModeMessage());
+						}
 						if (held.getItem() == LItems.rifle) {
 							if (dWheel > 0) {
 								dWheel = 1;

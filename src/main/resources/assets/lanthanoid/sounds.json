@@ -79,5 +79,14 @@
 				"stream": false
 			}
 		]
+	},
+	"spaceship_crash": {
+		"category": "master",
+		"sounds": [
+			{
+				"name": "spaceship-crash",
+				"stream": false
+			}
+		]
 	}
 }

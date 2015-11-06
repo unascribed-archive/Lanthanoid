@@ -11,6 +11,8 @@
   "credits": "See CREDITS file",
   "logoFile": "assets/lanthanoid/textures/misc/logo.png",
   "screenshots": [],
-  "dependencies": []
+  "dependencies": [
+  	"malisiscore"
+  ]
 }
 ]

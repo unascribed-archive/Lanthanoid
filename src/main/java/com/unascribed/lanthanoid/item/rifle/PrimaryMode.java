@@ -20,10 +20,10 @@ public final class PrimaryMode extends Mode<PrimaryMode> {
 	public static final PrimaryMode MINE = new PrimaryMode(3, "MINE", "dustHolmium", 0xFFF4D6);
 	public static final PrimaryMode GROW = new PrimaryMode(4, "GROW", "dustCerium", 0xFF004C).setDoesPoof();
 	public static final PrimaryMode SHRINK = new PrimaryMode(5, "SHRINK", "dustDysprosium", 0xE400FF).setDoesPoof();
-	public static final PrimaryMode KNOCKBACK = new PrimaryMode(6, "KNOCKBACK", "dustYttrium", 0xA9F8FF);
-	public static final PrimaryMode REPLICATE = new PrimaryMode(7, "REPLICATE", "dustActinolite", 0x83FFCF).setDoesPoof();
-	public static final PrimaryMode WORMHOLE = new PrimaryMode(8, "WORMHOLE", "dustDiaspore", 0x8762FF);
-	public static final PrimaryMode LIGHT = new PrimaryMode(9, "LIGHT", "dustThulite", 0xFF7768);
+	//public static final PrimaryMode KNOCKBACK = new PrimaryMode(6, "KNOCKBACK", "dustYttrium", 0xA9F8FF);
+	//public static final PrimaryMode REPLICATE = new PrimaryMode(7, "REPLICATE", "dustActinolite", 0x83FFCF).setDoesPoof();
+	//public static final PrimaryMode WORMHOLE = new PrimaryMode(8, "WORMHOLE", "dustDiaspore", 0x8762FF);
+	public static final PrimaryMode LIGHT = new PrimaryMode(6, "LIGHT", "dustThulite", 0xFF7768);
 	
 	public static final ImmutableSet<Integer> usedOreIDs;
 	

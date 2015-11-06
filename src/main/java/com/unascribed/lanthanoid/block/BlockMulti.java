@@ -29,6 +29,8 @@ public class BlockMulti extends BlockBase implements NameDelegate {
 	
 	protected boolean useCompositor = true;
 	
+	protected float explosionResistance;
+	
 	public BlockMulti(Material materialIn, Block defaultTemplate, String... names) {
 		super(materialIn);
 		helper = new MultiHelper("tile", names);

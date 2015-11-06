@@ -22,6 +22,7 @@ material.iron=Iron
 material.gold=Gold
 material.diamond=Diamond
 material.emerald=Emerald
+material.lutetium=Lutetium
 
 material.actinolite=Actinolite
 material.diaspore=Diaspore
@@ -59,6 +60,7 @@ machine.combustor=Combustor
 tile.ore.template=%s Ore
 tile.block.template=Block of %s
 tile.plating.template=%s Armor Plating
+tile.weakplating.template=Weak %s Armor Plating
 
 
 item.rifle_none.name=Lanthanide Rifle
@@ -107,6 +109,38 @@ death.attack.laser.item=%1$s was vaporized by %2$s using %3$s
 death.attack.self_telefrag=%1$s teleported into a wall
 death.attack.telefrag=%1$s was telefragged by %2$s
 death.attack.telefrag.item=%1$s was telefragged by %2$s using %3$s
+
+
+achievement.craftRifle=Pew Pew Pew
+achievement.craftRifle.desc=Obtain a Lanthanide Rifle.
+
+achievement.modifyRifle=This One Is Mine
+achievement.modifyRifle.desc=Craft a Lanthanide Rifle variant.
+
+achievement.modifyRifle2=There Aren't Many Like It
+achievement.modifyRifle2.desc=Craft a tier 2 Lanthanide Rifle variant.
+
+
+achievement.scope=ENHANCE!
+achievement.scope.desc=Use the scope on a scoped Lanthanide Rifle.
+
+achievement.ironsights=Target Sighted
+achievement.ironsights.desc=Use the (rather useless) iron sights on the default Lanthanide Rifle.
+
+
+achievement.cornerDeflect=Boing
+achievement.cornerDeflect.desc=Use the Deflect secondary mode to hit a monster you cannot see.
+
+achievement.fullChain=Five's A Crowd
+achievement.fullChain.desc=Damage five monsters (the maximum) at once using the Chain secondary mode.
+
+achievement.fullChainKill=MULTI-KILL
+achievement.fullChainKill.desc=Kill five monsters (the maximum) at once using the Chain secondary mode.
+
+
+achievement.snipe=Sniped
+achievement.snipe.desc=Kill a monster using the Lanthanide Rifle from over 100 meters away.
+
 
 achievement.craftTeleporter=Futuristic...
 achievement.craftTeleporter.desc=Obtain a Spelunker's Teleporter.
