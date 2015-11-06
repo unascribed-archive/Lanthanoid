@@ -1,4 +1,4 @@
-package com.unascribed.lanthanoid.util;
+package com.unascribed.lanthanoid.client;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -23,6 +23,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.unascribed.lanthanoid.Lanthanoid;
+import com.unascribed.lanthanoid.util.LazyReference;
+import com.unascribed.lanthanoid.util.TextureCompositor;
 
 import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.client.resources.SimpleReloadableResourceManager;

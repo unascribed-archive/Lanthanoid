@@ -3,6 +3,7 @@ package com.unascribed.lanthanoid;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.item.ItemTeleporter;
 import com.unascribed.lanthanoid.item.rifle.Variant;
 

@@ -1,4 +1,4 @@
-package com.unascribed.lanthanoid;
+package com.unascribed.lanthanoid.client;
 
 import java.util.Map;
 

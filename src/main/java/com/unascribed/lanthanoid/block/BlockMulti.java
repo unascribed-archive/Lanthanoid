@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.unascribed.lanthanoid.MultiHelper;
+import com.unascribed.lanthanoid.util.MultiHelper;
 import com.unascribed.lanthanoid.util.NameDelegate;
 
 import cpw.mods.fml.relauncher.Side;

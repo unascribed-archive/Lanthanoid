@@ -2,8 +2,8 @@ package com.unascribed.lanthanoid.network;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 
-import com.unascribed.lanthanoid.LItems;
 import com.unascribed.lanthanoid.Lanthanoid;
+import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.item.rifle.PrimaryMode;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;

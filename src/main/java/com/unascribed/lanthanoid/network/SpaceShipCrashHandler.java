@@ -1,7 +1,7 @@
 package com.unascribed.lanthanoid.network;
 
-import com.unascribed.lanthanoid.LClientEventHandler;
-import com.unascribed.lanthanoid.LClientEventHandler.SkyFlash;
+import com.unascribed.lanthanoid.client.LClientEventHandler;
+import com.unascribed.lanthanoid.client.LClientEventHandler.SkyFlash;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;

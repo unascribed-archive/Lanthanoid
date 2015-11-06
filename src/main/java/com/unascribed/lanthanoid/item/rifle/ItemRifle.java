@@ -7,9 +7,10 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.unascribed.lanthanoid.LAchievements;
-import com.unascribed.lanthanoid.LBlocks;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.LanthanoidProperties;
+import com.unascribed.lanthanoid.init.LBlocks;
+import com.unascribed.lanthanoid.init.LMaterials;
 import com.unascribed.lanthanoid.item.ItemBase;
 import com.unascribed.lanthanoid.network.BeamParticleMessage;
 import com.unascribed.lanthanoid.network.RifleChargingSoundRequest;
@@ -17,6 +18,7 @@ import com.unascribed.lanthanoid.network.SetScopeFactorMessage;
 import com.unascribed.lanthanoid.util.LVectors;
 
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
+import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
@@ -44,6 +46,8 @@ import net.minecraft.util.Vec3;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.event.world.BlockEvent;
 
 public class ItemRifle extends ItemBase {
 	private IIcon base;
@@ -104,7 +108,7 @@ public class ItemRifle extends ItemBase {
 	
 	@Override
 	public int getColorFromItemStack(ItemStack stack, int pass) {
-		return pass == 2 ? getPrimaryMode(stack).color : pass == 1 ? getVariant(stack).colorize ? Lanthanoid.inst.colors.get("Holmium") : -1 : Lanthanoid.inst.colors.get("Holmium");
+		return pass == 2 ? getPrimaryMode(stack).color : pass == 1 ? getVariant(stack).colorize ? LMaterials.colors.get("Holmium") : -1 : LMaterials.colors.get("Holmium");
 	}
 	
 	@Override
@@ -343,15 +347,6 @@ public class ItemRifle extends ItemBase {
 				
 				Vec3 start = Vec3.createVectorHelper(player.posX, player.boundingBox.maxY-0.2f, player.posZ);
 				Vec3 look = player.getLookVec();
-				float range;
-				if (primaryMode == PrimaryMode.LIGHT) {
-					range = 25;
-				} else if (primaryMode == PrimaryMode.MINE) {
-					range = 30;
-				} else {
-					range = 150;
-				}
-				Vec3 direction = Vec3.createVectorHelper(look.xCoord*range, look.yCoord*range, look.zCoord*range);
 				int scopeFactor = ((LanthanoidProperties)player.getExtendedProperties("lanthanoid")).scopeFactor;
 				if (scopeFactor == 1) {
 					Vec3 right = player.getLookVec();
@@ -360,8 +355,16 @@ public class ItemRifle extends ItemBase {
 					start = start.addVector(right.xCoord*rightAdj, right.yCoord*rightAdj, right.zCoord*rightAdj);
 				} else if (scopeFactor > 1) {
 					start.yCoord -= 0.25;
-					range *= 1+(Math.log10(scopeFactor));
 				}
+				float range;
+				if (primaryMode == PrimaryMode.LIGHT) {
+					range = 25;
+				} else if (primaryMode == PrimaryMode.MINE) {
+					range = 30;
+				} else {
+					range = (float) (150 * (1+Math.log10(scopeFactor)));
+				}
+				Vec3 direction = Vec3.createVectorHelper(look.xCoord*range, look.yCoord*range, look.zCoord*range);
 				System.out.println(range);
 				double spread;
 				switch (scopeFactor) {
@@ -417,9 +420,30 @@ public class ItemRifle extends ItemBase {
 			
 		} else if (primaryMode == PrimaryMode.WORMHOLE) {
 			
-		} else */if (primaryMode == PrimaryMode.MINE) {
+		} else */if (primaryMode == PrimaryMode.MINE && shooter instanceof EntityPlayerMP) {
+			EntityPlayerMP mp = (EntityPlayerMP)shooter;
 			Vec3 end = start.addVector(direction.xCoord, direction.yCoord, direction.zCoord);
 			spawnParticles(world, primaryMode, fire, start.xCoord, start.yCoord, start.zCoord, end.xCoord, end.yCoord, end.zCoord);
+			float planck = 0.5f;
+			float dist = (float) start.distanceTo(end);
+			Vec3 add = direction.normalize();
+			add.xCoord *= planck;
+			add.yCoord *= planck;
+			add.zCoord *= planck;
+			Vec3 cursor = clone(start);
+			for (int i = 0; i < dist/planck; i++) {
+				for (int xo = -1; xo <= 1; xo++) {
+					for (int yo = -1; yo <= 1; yo++) {
+						for (int zo = -1; zo <= 1; zo++) {
+							harvest(mp, mp.worldObj, (int)cursor.xCoord+xo, (int)cursor.yCoord+yo, (int)cursor.zCoord+zo);
+						}
+					}
+				}
+				
+				cursor.xCoord += add.xCoord;
+				cursor.yCoord += add.yCoord;
+				cursor.zCoord += add.zCoord;
+			}
 		} else {
 			Vec3 end = start.addVector(direction.xCoord, direction.yCoord, direction.zCoord);
 			MovingObjectPosition mop = rayTrace(world, shooter, clone(start), clone(direction));
@@ -596,6 +620,29 @@ public class ItemRifle extends ItemBase {
 			}*/ else if (primaryMode == PrimaryMode.EXPLODE) {
 				shooter.worldObj.newExplosion(null, end.xCoord, end.yCoord, end.zCoord, 3f, fire, true);
 			}
+		}
+	}
+	
+	private boolean harvest(EntityPlayerMP player, World world, int x, int y, int z) {
+		BlockEvent.BreakEvent event = ForgeHooks.onBlockBreakEvent(world, player.theItemInWorldManager.getGameType(), player, x, y, z);
+		if (event.isCanceled()) {
+			return false;
+		} else {
+			Block block = world.getBlock(x, y, z);
+			int meta = world.getBlockMetadata(x, y, z);
+			System.out.println(block.getBlockHardness(world, x, y, z));
+			if (block.getBlockHardness(world, x, y, z) < 0)
+				return false;
+			world.playAuxSFX(2001, x, y, z, Block.getIdFromBlock(block) + (world.getBlockMetadata(x, y, z) << 12));
+			block.onBlockHarvested(world, x, y, z, meta, player);
+			boolean success = block.removedByPlayer(world, player, x, y, z, true);
+
+			if (success) {
+				block.onBlockDestroyedByPlayer(world, x, y, z, meta);
+				block.harvestBlock(world, player, x, y, z, meta);
+				block.dropXpOnBlockBreak(world, x, y, z, event.getExpToDrop() != 0 ? event.getExpToDrop() : block.getExpDrop(world, meta, 0));
+			}
+			return success;
 		}
 	}
 	

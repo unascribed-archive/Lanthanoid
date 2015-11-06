@@ -1,4 +1,4 @@
-package com.unascribed.lanthanoid.util;
+package com.unascribed.lanthanoid.gen;
 
 import java.util.Random;
 

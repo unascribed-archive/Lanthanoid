@@ -1,6 +1,6 @@
 package com.unascribed.lanthanoid.network;
 
-import com.unascribed.lanthanoid.MovingSoundEntity;
+import com.unascribed.lanthanoid.client.MovingSoundEntity;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;

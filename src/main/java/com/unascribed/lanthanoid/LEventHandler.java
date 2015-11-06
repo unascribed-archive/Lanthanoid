@@ -1,5 +1,6 @@
 package com.unascribed.lanthanoid;
 
+import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.item.rifle.Variant;
 import com.unascribed.lanthanoid.network.BeamParticleMessage;
 import com.unascribed.lanthanoid.network.SetScopeFactorMessage;

@@ -84,27 +84,4 @@ public class EntityRifleShot extends Entity {
 		dataWatcher.updateObject(MODE_INDEX, (byte)mode.ordinal());
 	}
 
-	@SuppressWarnings("unused")
-	private boolean harvest(EntityPlayerMP player, int x, int y, int z) {
-		BlockEvent.BreakEvent event = ForgeHooks.onBlockBreakEvent(worldObj, player.theItemInWorldManager.getGameType(), player, x, y, z);
-		if (event.isCanceled()) {
-			return false;
-		} else {
-			Block block = worldObj.getBlock(x, y, z);
-			int meta = worldObj.getBlockMetadata(x, y, z);
-			if (block.getBlockHardness(worldObj, x, y, z) < 0)
-				return false;
-			worldObj.playAuxSFX(2001, x, y, z, Block.getIdFromBlock(block) + (worldObj.getBlockMetadata(x, y, z) << 12));
-			block.onBlockHarvested(worldObj, x, y, z, meta, player);
-			boolean success = block.removedByPlayer(worldObj, player, x, y, z, true);
-
-			if (success) {
-				block.onBlockDestroyedByPlayer(worldObj, x, y, z, meta);
-				block.harvestBlock(worldObj, player, x, y, z, meta);
-				block.dropXpOnBlockBreak(worldObj, x, y, z, event.getExpToDrop() != 0 ? event.getExpToDrop() : block.getExpDrop(worldObj, meta, 0));
-			}
-			return success;
-		}
-	}
-
 }

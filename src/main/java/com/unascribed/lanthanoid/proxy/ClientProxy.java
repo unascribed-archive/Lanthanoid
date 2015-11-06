@@ -1,10 +1,10 @@
 package com.unascribed.lanthanoid.proxy;
 
-import com.unascribed.lanthanoid.LClientEventHandler;
-import com.unascribed.lanthanoid.LItems;
-import com.unascribed.lanthanoid.RifleItemRenderer;
+import com.unascribed.lanthanoid.client.LClientEventHandler;
+import com.unascribed.lanthanoid.client.RifleItemRenderer;
+import com.unascribed.lanthanoid.client.TextureCompositorImpl;
+import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.util.TextureCompositor;
-import com.unascribed.lanthanoid.util.TextureCompositorImpl;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.client.Minecraft;

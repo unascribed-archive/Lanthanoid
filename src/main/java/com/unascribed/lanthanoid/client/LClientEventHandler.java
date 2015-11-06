@@ -1,4 +1,4 @@
-package com.unascribed.lanthanoid;
+package com.unascribed.lanthanoid.client;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +13,8 @@ import org.lwjgl.opengl.GL12;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.unascribed.lanthanoid.Lanthanoid;
+import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.item.rifle.ItemRifle;
 import com.unascribed.lanthanoid.item.rifle.Mode;
 import com.unascribed.lanthanoid.item.rifle.PrimaryMode;

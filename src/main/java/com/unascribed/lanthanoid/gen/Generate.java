@@ -1,4 +1,4 @@
-package com.unascribed.lanthanoid.util;
+package com.unascribed.lanthanoid.gen;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;

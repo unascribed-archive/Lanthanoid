@@ -1,9 +1,10 @@
-package com.unascribed.lanthanoid;
+package com.unascribed.lanthanoid.client;
 
 import java.util.Map;
 
 import org.lwjgl.opengl.GL11;
 import com.google.common.base.Function;
+import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.item.rifle.Mode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;

@@ -2,7 +2,7 @@ package com.unascribed.lanthanoid.item;
 
 import java.util.List;
 import com.google.common.collect.ImmutableList;
-import com.unascribed.lanthanoid.MultiHelper;
+import com.unascribed.lanthanoid.util.MultiHelper;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;

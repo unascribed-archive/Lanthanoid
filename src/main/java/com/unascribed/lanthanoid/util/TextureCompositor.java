@@ -1,8 +1,8 @@
 package com.unascribed.lanthanoid.util;
 
-import com.unascribed.lanthanoid.util.TextureCompositorImpl.BlockBackdrop;
-import com.unascribed.lanthanoid.util.TextureCompositorImpl.BlockType;
-import com.unascribed.lanthanoid.util.TextureCompositorImpl.ItemType;
+import com.unascribed.lanthanoid.client.TextureCompositorImpl.BlockBackdrop;
+import com.unascribed.lanthanoid.client.TextureCompositorImpl.BlockType;
+import com.unascribed.lanthanoid.client.TextureCompositorImpl.ItemType;
 
 public interface TextureCompositor {
 
