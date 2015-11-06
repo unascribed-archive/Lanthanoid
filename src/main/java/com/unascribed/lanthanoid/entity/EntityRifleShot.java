@@ -3,16 +3,12 @@ package com.unascribed.lanthanoid.entity;
 import com.unascribed.lanthanoid.item.rifle.PrimaryMode;
 
 import cpw.mods.fml.common.FMLCommonHandler;
-import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.event.world.BlockEvent;
 
 public class EntityRifleShot extends Entity {
 

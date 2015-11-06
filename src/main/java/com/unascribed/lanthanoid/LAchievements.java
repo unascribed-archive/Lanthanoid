@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.unascribed.lanthanoid.init.LItems;
-import com.unascribed.lanthanoid.item.ItemTeleporter;
 import com.unascribed.lanthanoid.item.rifle.Variant;
 
 import net.minecraft.block.Block;
@@ -71,11 +70,11 @@ public class LAchievements {
 		
 		page = new AchievementPage("Lanthanoid", li.toArray(new Achievement[li.size()]));
 	}
-
+	/*
 	private static Achievement addAchievement(String name, int x, int y, Block block, int meta, Achievement dependency) {
 		return addAchievement(name, x, y, new ItemStack(block, 1, meta), dependency);
 	}
-	
+	*/
 	private static Achievement addAchievement(String name, int x, int y, Item item, int meta, Achievement dependency) {
 		return addAchievement(name, x, y, new ItemStack(item, 1, meta), dependency);
 	}

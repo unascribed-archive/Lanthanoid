@@ -43,7 +43,6 @@ public class LEventHandler {
 			}
 		}
 		if (props.grabbedEntity != null) {
-			ItemStack held = e.player.getHeldItem();
 			if (props.grabbedEntity.isDead) {
 				props.grabbedEntity = null;
 			}/* else if (held == null || held.getItem() != LItems.rifle || LItems.rifle.getMode(held) != ItemRifle.PrimaryMode.TRACTOR) {

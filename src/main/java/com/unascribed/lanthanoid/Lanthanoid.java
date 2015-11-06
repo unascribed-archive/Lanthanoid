@@ -4,11 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.unascribed.lanthanoid.client.LClientEventHandler;
-import com.unascribed.lanthanoid.client.TextureCompositorImpl.BlockBackdrop;
-import com.unascribed.lanthanoid.client.TextureCompositorImpl.BlockType;
 import com.unascribed.lanthanoid.client.TextureCompositorImpl.ItemType;
-import com.unascribed.lanthanoid.gen.Generate;
 import com.unascribed.lanthanoid.init.LBlocks;
+import com.unascribed.lanthanoid.init.LCommands;
 import com.unascribed.lanthanoid.init.LGenerator;
 import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.init.LMaterials;
@@ -29,12 +27,8 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.block.Block;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.ICommandSender;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.util.Vec3;
@@ -123,38 +117,7 @@ public class Lanthanoid {
 
 	@EventHandler
 	public void onServerStart(FMLServerStartingEvent e) {
-		e.registerServerCommand(new CommandBase() {
-			
-			@Override
-			public void processCommand(ICommandSender sender, String[] args) {
-				EntityPlayer p = ((EntityPlayer)sender);
-				Vec3 look = p.getLookVec();
-				Block block = getBlockByText(sender, args[0]);
-				int meta = parseIntBounded(sender, args[1], 0, 15);
-				int length = parseIntBounded(sender, args[2], 1, 150);
-				func_152373_a(sender, this, "command.lanspike.start", length);
-				int changed = Generate.spike(p.worldObj, block, meta,
-						(int)p.posX, (int)p.posY, (int)p.posZ,
-						(float)look.xCoord, (float)look.yCoord, (float)look.zCoord,
-						length);
-				func_152373_a(sender, this, "command.lanspike.end", changed);
-			}
-			
-			@Override
-			public int getRequiredPermissionLevel() {
-				return 4;
-			}
-			
-			@Override
-			public String getCommandUsage(ICommandSender sender) {
-				return "/lanspike <TileName> <dataValue> <length>";
-			}
-			
-			@Override
-			public String getCommandName() {
-				return "lanspike";
-			}
-		});
+		LCommands.register(e::registerServerCommand);
 	}
 	
 	@SideOnly(Side.CLIENT)
