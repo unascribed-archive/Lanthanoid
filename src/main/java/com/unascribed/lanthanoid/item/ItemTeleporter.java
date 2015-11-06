@@ -2,7 +2,7 @@ package com.unascribed.lanthanoid.item;
 
 import java.util.List;
 
-import com.unascribed.lanthanoid.LAchievements;
+import com.unascribed.lanthanoid.init.LAchievements;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;

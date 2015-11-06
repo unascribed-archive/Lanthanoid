@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.unascribed.lanthanoid.client.LClientEventHandler;
 import com.unascribed.lanthanoid.client.TextureCompositorImpl.ItemType;
+import com.unascribed.lanthanoid.init.LAchievements;
 import com.unascribed.lanthanoid.init.LBlocks;
 import com.unascribed.lanthanoid.init.LCommands;
 import com.unascribed.lanthanoid.init.LGenerator;

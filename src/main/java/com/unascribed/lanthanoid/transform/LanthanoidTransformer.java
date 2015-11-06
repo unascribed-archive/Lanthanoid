@@ -1,4 +1,4 @@
-package com.unascribed.lanthanoid;
+package com.unascribed.lanthanoid.transform;
 
 import static org.objectweb.asm.Opcodes.*;
 

@@ -1,9 +1,8 @@
-package com.unascribed.lanthanoid;
+package com.unascribed.lanthanoid.init;
 
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.item.rifle.Variant;
 
 import net.minecraft.block.Block;
