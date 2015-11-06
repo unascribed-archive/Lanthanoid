@@ -12,6 +12,7 @@ import com.unascribed.lanthanoid.init.LGenerator;
 import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.init.LMaterials;
 import com.unascribed.lanthanoid.init.LNetwork;
+import com.unascribed.lanthanoid.init.LOres;
 import com.unascribed.lanthanoid.init.LRecipes;
 import com.unascribed.lanthanoid.item.ItemTeleporter;
 import com.unascribed.lanthanoid.proxy.Proxy;
@@ -36,7 +37,6 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.WorldProvider;
 import net.minecraftforge.common.AchievementPage;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.oredict.OreDictionary;
 
 @Mod(
 	modid="lanthanoid",
@@ -89,21 +89,10 @@ public class Lanthanoid {
 		
 		//EntityRegistry.registerModEntity(EntityRifleShot.class, "lanthanoid:rifle_shot", 0, this, 64, 12, true);
 		
-		LBlocks.ore_metal.registerOres();
-		LBlocks.ore_gem.registerOres();
-		LBlocks.ore_other.registerOres();
-		LBlocks.storage.registerOres();
-		LItems.ingot.registerOres();
-		LItems.stick.registerOres();
-		LItems.nugget.registerOres();
-		LItems.dust.registerOres();
-		LItems.gem.registerOres();
+		LOres.register();
 		
 		LAchievements.init();
 		AchievementPage.registerAchievementPage(LAchievements.page);
-		
-		OreDictionary.registerOre("lanthanoidPrivate-blockEndMetal", LBlocks.storage.getStackForName("blockErbium"));
-		OreDictionary.registerOre("lanthanoidPrivate-blockEndMetal", LBlocks.storage.getStackForName("blockGadolinium"));
 		
 		LRecipes.init();
 		
