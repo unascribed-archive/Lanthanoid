@@ -83,7 +83,9 @@ public class LBlocks {
 		
 		GameRegistry.registerBlock(LBlocks.technical = new BlockTechnical(), null, "technical");
 		
-		GameRegistry.registerBlock(LBlocks.energized_lutetium = new BlockEnergizedLutetium(), "energized_lutetium");
+		GameRegistry.registerBlock(LBlocks.energized_lutetium = (BlockEnergizedLutetium) new BlockEnergizedLutetium()
+				.setBlockName("energized_lutetium")
+				.setBlockTextureName("lanthanoid_compositor:blockLutetium"), "energized_lutetium");
 	}
 
 }

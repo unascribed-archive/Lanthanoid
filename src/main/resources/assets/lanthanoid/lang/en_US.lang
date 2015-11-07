@@ -61,7 +61,7 @@ tile.ore.template=%s Ore
 tile.block.template=Block of %s
 tile.plating.template=%s Armor Plating
 tile.weakplating.template=Weak %s Armor Plating
-
+tile.energized_lutetium.name=Energized Lutetium
 
 item.rifle_none.name=Lanthanide Rifle
 item.rifle_zoom.name=Scoped Lanthanide Rifle
@@ -109,6 +109,8 @@ death.attack.laser.item=%1$s was vaporized by %2$s using %3$s
 death.attack.self_telefrag=%1$s teleported into a wall
 death.attack.telefrag=%1$s was telefragged by %2$s
 death.attack.telefrag.item=%1$s was telefragged by %2$s using %3$s
+
+death.attack.zap=%1$s was electrocuted
 
 
 achievement.craftRifle=Pew Pew Pew

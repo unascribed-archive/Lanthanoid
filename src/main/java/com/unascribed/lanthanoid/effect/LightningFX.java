@@ -43,8 +43,11 @@ public class LightningFX extends EntityFX {
 	}
 
 	protected LightningFX(final World w, final double x, final double y, final double z, final double r, final double g, final double b, final int maxAge) {
-		super(w, x, y, z, r, g, b);
+		super(w, x, y, z, 0, 0, 0);
 		this.Steps = new double[this.steps][3];
+		particleRed = (float)r;
+		particleGreen = (float)g;
+		particleBlue = (float)b;
 		this.motionX = 0;
 		this.motionY = 0;
 		this.motionZ = 0;
@@ -76,7 +79,7 @@ public class LightningFX extends EntityFX {
 	@Override
 	public void renderParticle(final Tessellator tess, final float l, final float rX, final float rY, final float rZ, final float rYZ, final float rXY) {
 		final float j = 1.0f;
-		tess.setColorRGBA_F(this.particleRed * j * 0.9f, this.particleGreen * j * 0.95f, this.particleBlue * j, this.particleAlpha);
+		tess.setColorRGBA_F(this.particleRed * j, this.particleGreen * j, this.particleBlue * j, this.particleAlpha);
 		if (this.particleAge == 3) {
 			this.regen();
 		}
@@ -108,13 +111,13 @@ public class LightningFX extends EntityFX {
 				offX *= 0.001;
 				offY *= 0.001;
 				offZ *= 0.001;
-				tess.setColorRGBA_F(this.particleRed * j * 0.4f, this.particleGreen * j * 0.25f, this.particleBlue * j * 0.45f, this.particleAlpha);
+				tess.setColorRGBA_F(this.particleRed * j, this.particleGreen * j, this.particleBlue * j, this.particleAlpha);
 			} else {
 				offX = 0;
 				offY = 0;
 				offZ = 0;
 				scale = 0.02;
-				tess.setColorRGBA_F(this.particleRed * j * 0.9f, this.particleGreen * j * 0.65f, this.particleBlue * j * 0.85f, this.particleAlpha);
+				tess.setColorRGBA_F(this.particleRed * j * 0.75f, this.particleGreen * j * 0.75f, this.particleBlue * j * 0.75f, this.particleAlpha);
 			}
 
 			for (int cycle = 0; cycle < 3; cycle++) {

@@ -88,5 +88,14 @@
 				"stream": false
 			}
 		]
+	},
+	"spark": {
+		"category": "block",
+		"sounds": [
+			{
+				"name": "spark",
+				"stream": false
+			}
+		]
 	}
 }
