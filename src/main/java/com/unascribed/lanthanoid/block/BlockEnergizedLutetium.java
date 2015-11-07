@@ -1,20 +1,21 @@
 package com.unascribed.lanthanoid.block;
 
-import java.util.List;
 import java.util.Random;
 
+import com.unascribed.lanthanoid.effect.LightningArcFX;
 import com.unascribed.lanthanoid.effect.LightningFX;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockWall;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
@@ -73,6 +74,23 @@ public class BlockEnergizedLutetium extends BlockBase {
 	}
 
 	@Override
+	public float getPlayerRelativeBlockHardness(EntityPlayer player, World world, int x, int y, int z) {
+		ItemStack held = player.getHeldItem();
+		if (held == null) {
+			player.attackEntityFrom(zap, 4);
+			if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
+				bzztToward(world, x, y, z, player, world.rand);
+			}
+		} else if (held.getItem().getHarvestLevel(held, "pickaxe") > 1 || held.getItem() == Items.golden_pickaxe) {
+			player.attackEntityFrom(zap, 2);
+			if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
+				bzztToward(world, x, y, z, player, world.rand);
+			}
+		}
+		return super.getPlayerRelativeBlockHardness(player, world, x, y, z);
+	}
+	
+	@Override
 	public boolean isBlockNormalCube() {
 		return false;
 	}
@@ -116,7 +134,7 @@ public class BlockEnergizedLutetium extends BlockBase {
 		if (entity instanceof EntityLivingBase) {
 			EntityLivingBase elb = ((EntityLivingBase)entity);
 			if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
-				bzzt(world, x, y, z, world.rand);
+				bzztToward(world, x, y, z, elb, world.rand);
 			}
 			if (elb instanceof EntityPlayer && ((EntityPlayer)elb).capabilities.disableDamage) return;
 			if (!elb.isEntityInvulnerable()) {
@@ -125,10 +143,25 @@ public class BlockEnergizedLutetium extends BlockBase {
 		}
 	}
 	
+	private void bzztToward(World world, int x, int y, int z, Entity e, Random rand) {
+		bzztToward(world, x, y, z, e.posX+(world.rand.nextGaussian()*(e.width/2)),
+				e.posY+(world.rand.nextGaussian()*(e.height/2)), e.posZ+(world.rand.nextGaussian()*(e.width/2)), rand);
+	}
+
 	@Override
 	public void randomDisplayTick(World w, int x, int y, int z, Random r) {
 		if (r.nextInt(24) != 0) return;
 		bzzt(w, x, y, z, r);
+	}
+	
+	public void bzztToward(World w, int x, int y, int z, double ex, double ey, double ez, Random r) {
+		Minecraft.getMinecraft().getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation("lanthanoid", "spark"),
+				0.3f, 1.0f+(r.nextFloat()/4),
+				x+0.5f, y+0.5f, z+0.5f));
+		for (int i = 0; i < 4; i++) {
+			LightningArcFX fx = new LightningArcFX(w, x+0.5, y+0.5, z+0.5, ex, ey, ez, 220/255D, 255/255D, 87/255D);
+			Minecraft.getMinecraft().effectRenderer.addEffect(fx);
+		}
 	}
 	
 	public void bzzt(World w, int x, int y, int z, Random r) {
