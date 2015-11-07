@@ -10,10 +10,12 @@ import com.unascribed.lanthanoid.util.LArrays;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 
 public class LBlocks {
 
@@ -69,23 +71,32 @@ public class LBlocks {
 		
 		GameRegistry.registerBlock(LBlocks.weak_plating = new BlockMulti(
 				Material.iron,
-				Blocks.cobblestone,
+				Blocks.iron_block,
 				
 				LArrays.all(LMaterials.metalsPlusVanilla, "weakplating")
 				), ItemBlockWithCustomName.class, "weak_plating");
 		
 		GameRegistry.registerBlock(LBlocks.plating = new BlockMulti(
 				Material.iron,
-				Blocks.obsidian,
+				Blocks.iron_block,
 				
 				LArrays.all(LMaterials.metalsPlusVanilla, "plating")
-				), ItemBlockWithCustomName.class, "plating");
+				) {
+			@Override
+			public float getExplosionResistance(Entity p_149638_1_) {
+				return 5000;
+			}
+			@Override
+			public float getExplosionResistance(Entity par1Entity, World world, int x, int y, int z, double explosionX, double explosionY, double explosionZ) {
+				return 5000;
+			}
+		}, ItemBlockWithCustomName.class, "plating");
 		
 		GameRegistry.registerBlock(LBlocks.technical = new BlockTechnical(), null, "technical");
 		
 		GameRegistry.registerBlock(LBlocks.energized_lutetium = (BlockEnergizedLutetium) new BlockEnergizedLutetium()
 				.setBlockName("energized_lutetium")
-				.setBlockTextureName("lanthanoid_compositor:blockLutetium"), "energized_lutetium");
+				.setBlockTextureName("lanthanoid:plasma"), "energized_lutetium");
 	}
 
 }

@@ -17,6 +17,8 @@ public class LOres {
 		
 		OreDictionary.registerOre("lanthanoidPrivate-blockEndMetal", LBlocks.storage.getStackForName("blockErbium"));
 		OreDictionary.registerOre("lanthanoidPrivate-blockEndMetal", LBlocks.storage.getStackForName("blockGadolinium"));
+		
+		OreDictionary.registerOre("energizedLutetium", LBlocks.energized_lutetium);
 	}
 
 }

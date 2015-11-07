@@ -34,7 +34,9 @@ material.gypsum=Gypsum
 
 
 command.lanspike.start=Generating %s block long spike
-command.lanspike.end=%s blocks changed
+command.lannacelle.start=Generating nacelle
+
+command.gen.end=%s blocks changed
 
 
 mode.none.name=None

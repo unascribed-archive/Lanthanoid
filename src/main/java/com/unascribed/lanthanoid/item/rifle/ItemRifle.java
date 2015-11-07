@@ -360,7 +360,11 @@ public class ItemRifle extends ItemBase {
 				} else if (primaryMode == PrimaryMode.MINE) {
 					range = 30;
 				} else {
-					range = (float) (150 * (1+Math.log10(scopeFactor)));
+					if (scopeFactor <= 1) {
+						range = 150;
+					} else {
+						range = (float) (150 * (1+Math.log10(scopeFactor)));
+					}
 				}
 				Vec3 direction = Vec3.createVectorHelper(look.xCoord*range, look.yCoord*range, look.zCoord*range);
 				System.out.println(range);

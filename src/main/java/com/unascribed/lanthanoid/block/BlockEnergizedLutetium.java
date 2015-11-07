@@ -7,12 +7,14 @@ import com.unascribed.lanthanoid.effect.LightningFX;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
+import net.minecraft.client.particle.EntityFX;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -30,6 +32,16 @@ public class BlockEnergizedLutetium extends BlockBase {
 		setResistance(10);
 	}
 
+	@Override
+	public int colorMultiplier(IBlockAccess block, int x, int y, int z) {
+		return 0xBEE22F;
+	}
+	
+	@Override
+	public int getRenderColor(int p_149741_1_) {
+		return 0xBEE22F;
+	}
+	
 	@Override
 	public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z) {
 		double minX = 0.3;
@@ -131,39 +143,51 @@ public class BlockEnergizedLutetium extends BlockBase {
 	
 	@Override
 	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
-		if (entity instanceof EntityLivingBase) {
-			EntityLivingBase elb = ((EntityLivingBase)entity);
-			if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
-				bzztToward(world, x, y, z, elb, world.rand);
-			}
-			if (elb instanceof EntityPlayer && ((EntityPlayer)elb).capabilities.disableDamage) return;
-			if (!elb.isEntityInvulnerable()) {
-				elb.attackEntityFrom(zap, 2);
-			}
+		if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
+			bzztToward(world, x, y, z, entity, world.rand);
+		}
+		if (entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.disableDamage) return;
+		if (!entity.isEntityInvulnerable()) {
+			entity.attackEntityFrom(zap, 2);
 		}
 	}
 	
+	@SideOnly(Side.CLIENT)
 	private void bzztToward(World world, int x, int y, int z, Entity e, Random rand) {
+		float vol;
+		if (e instanceof EntityItem) {
+			vol = 0.3f;
+		} else {
+			vol = (float)(e.boundingBox.getAverageEdgeLength()/3);
+		}
 		bzztToward(world, x, y, z, e.posX+(world.rand.nextGaussian()*(e.width/2)),
-				e.posY+(world.rand.nextGaussian()*(e.height/2)), e.posZ+(world.rand.nextGaussian()*(e.width/2)), rand);
+				e.posY+(world.rand.nextGaussian()*(e.height/2)), e.posZ+(world.rand.nextGaussian()*(e.width/2)), rand, vol);
+		if (e instanceof EntityFX) {
+			e.setDead();
+		}
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public void randomDisplayTick(World w, int x, int y, int z, Random r) {
 		if (r.nextInt(24) != 0) return;
 		bzzt(w, x, y, z, r);
 	}
 	
-	public void bzztToward(World w, int x, int y, int z, double ex, double ey, double ez, Random r) {
-		Minecraft.getMinecraft().getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation("lanthanoid", "spark"),
-				0.3f, 1.0f+(r.nextFloat()/4),
-				x+0.5f, y+0.5f, z+0.5f));
-		for (int i = 0; i < 4; i++) {
+	@SideOnly(Side.CLIENT)
+	public void bzztToward(World w, int x, int y, int z, double ex, double ey, double ez, Random r, float volume) {
+		if (volume >= 0.1) {
+			Minecraft.getMinecraft().getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation("lanthanoid", "spark"),
+					volume, 1.0f+(r.nextFloat()/4),
+					x+0.5f, y+0.5f, z+0.5f));
+		}
+		for (int i = 0; i < (volume*4); i++) {
 			LightningArcFX fx = new LightningArcFX(w, x+0.5, y+0.5, z+0.5, ex, ey, ez, 220/255D, 255/255D, 87/255D);
 			Minecraft.getMinecraft().effectRenderer.addEffect(fx);
 		}
 	}
 	
+	@SideOnly(Side.CLIENT)
 	public void bzzt(World w, int x, int y, int z, Random r) {
 		Minecraft.getMinecraft().getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation("lanthanoid", "spark"),
 				0.3f, 1.0f+(r.nextFloat()/4),
