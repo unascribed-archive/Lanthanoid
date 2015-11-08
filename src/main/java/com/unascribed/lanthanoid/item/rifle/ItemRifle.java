@@ -10,6 +10,7 @@ import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.LanthanoidProperties;
 import com.unascribed.lanthanoid.init.LAchievements;
 import com.unascribed.lanthanoid.init.LBlocks;
+import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.init.LMaterials;
 import com.unascribed.lanthanoid.item.ItemBase;
 import com.unascribed.lanthanoid.network.BeamParticleMessage;
@@ -26,8 +27,10 @@ import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.monster.IMob;
+import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -40,12 +43,14 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.StatCollector;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.oredict.OreDictionary;
 
 public class ItemRifle extends ItemBase {
 	private IIcon base;
@@ -357,9 +362,9 @@ public class ItemRifle extends ItemBase {
 				float range;
 				if (primaryMode == PrimaryMode.LIGHT) {
 					range = 25;
-				} else if (primaryMode == PrimaryMode.MINE) {
+				}/* else if (primaryMode == PrimaryMode.MINE) {
 					range = 30;
-				} else {
+				}*/ else {
 					if (scopeFactor <= 1) {
 						range = 150;
 					} else {
@@ -367,7 +372,6 @@ public class ItemRifle extends ItemBase {
 					}
 				}
 				Vec3 direction = Vec3.createVectorHelper(look.xCoord*range, look.yCoord*range, look.zCoord*range);
-				System.out.println(range);
 				double spread;
 				switch (scopeFactor) {
 					case 1:
@@ -422,7 +426,7 @@ public class ItemRifle extends ItemBase {
 			
 		} else if (primaryMode == PrimaryMode.WORMHOLE) {
 			
-		} else */if (primaryMode == PrimaryMode.MINE && shooter instanceof EntityPlayerMP) {
+		} else if (primaryMode == PrimaryMode.MINE && shooter instanceof EntityPlayerMP) {
 			EntityPlayerMP mp = (EntityPlayerMP)shooter;
 			Vec3 end = start.addVector(direction.xCoord, direction.yCoord, direction.zCoord);
 			spawnParticles(world, primaryMode, fire, start.xCoord, start.yCoord, start.zCoord, end.xCoord, end.yCoord, end.zCoord);
@@ -446,7 +450,7 @@ public class ItemRifle extends ItemBase {
 				cursor.yCoord += add.yCoord;
 				cursor.zCoord += add.zCoord;
 			}
-		} else {
+		} else {*/
 			Vec3 end = start.addVector(direction.xCoord, direction.yCoord, direction.zCoord);
 			MovingObjectPosition mop = rayTrace(world, shooter, clone(start), clone(direction));
 			if (mop != null) {
@@ -609,20 +613,44 @@ public class ItemRifle extends ItemBase {
 						world.setBlock(x, y, z, LBlocks.technical, 0, 2);
 					}
 				}
-			}/* else if (primaryMode == PrimaryMode.REPLICATE) {
+			} else if (primaryMode == PrimaryMode.REPLICATE) {
 				if (mop != null) {
 					if (mop.typeOfHit == MovingObjectType.BLOCK) {
-						
+						if (itemRand.nextBoolean()) {
+							Block b = shooter.worldObj.getBlock(mop.blockX, mop.blockY, mop.blockZ);
+							int meta = shooter.worldObj.getBlockMetadata(mop.blockX, mop.blockY, mop.blockZ);
+							ItemStack spawn = null;
+							if (b == LBlocks.ore_metal) {
+								if (meta == LBlocks.ore_metal.getMetaForName("oreErbium")) {
+									spawn = LItems.dust.getStackForName("dustErbium");
+								} else if (meta == LBlocks.ore_metal.getMetaForName("oreGadolinium")) {
+									spawn = LItems.dust.getStackForName("dustGadolinium");
+								}
+							}
+							if (spawn != null) {
+								EntityItem item = new EntityItem(shooter.worldObj, mop.hitVec.xCoord, mop.hitVec.yCoord, mop.hitVec.zCoord, spawn);
+								Vec3 vel = clone(direction).normalize();
+								vel.xCoord *= -1;
+								vel.yCoord *= -1;
+								vel.zCoord *= -1;
+								item.posX += (vel.xCoord*0.2);
+								item.posY += (vel.yCoord*0.2);
+								item.posZ += (vel.zCoord*0.2);
+								item.setPosition(item.posX, item.posY, item.posZ);
+								item.setVelocity(vel.xCoord, vel.yCoord, vel.zCoord);
+								shooter.worldObj.spawnEntityInWorld(item);
+							}
+						}
 					} else if (mop.typeOfHit == MovingObjectType.ENTITY) {
 						if (mop.entityHit instanceof EntityAnimal) {
 							((EntityAnimal)mop.entityHit).func_146082_f(shooter);
 						}
 					}
 				}
-			}*/ else if (primaryMode == PrimaryMode.EXPLODE) {
+			} else if (primaryMode == PrimaryMode.EXPLODE) {
 				shooter.worldObj.newExplosion(null, end.xCoord, end.yCoord, end.zCoord, 3f, fire, true);
 			}
-		}
+		//}
 	}
 	
 	private boolean harvest(EntityPlayerMP player, World world, int x, int y, int z) {

@@ -1,5 +1,6 @@
 package com.unascribed.lanthanoid.init;
 
+import com.unascribed.lanthanoid.item.ItemDisabled;
 import com.unascribed.lanthanoid.item.ItemMulti;
 import com.unascribed.lanthanoid.item.ItemTeleporter;
 import com.unascribed.lanthanoid.item.rifle.ItemRifle;
@@ -19,7 +20,18 @@ public class LItems {
 		GameRegistry.registerItem(LItems.dust = new ItemMulti(LArrays.all(LMaterials.gemsAndMetalPlusVanilla, "dust")), "dust");
 		GameRegistry.registerItem(LItems.gem = new ItemMulti(LArrays.all(LMaterials.gems, "gem")), "gem");
 		
-		GameRegistry.registerItem(LItems.teleporter = new ItemTeleporter(), "teleporter");
-		GameRegistry.registerItem(LItems.rifle = new ItemRifle(), "rifle");
+		LItems.teleporter = new ItemTeleporter();
+		if (LConfig.item_teleporter) {
+			GameRegistry.registerItem(LItems.teleporter, "teleporter");
+		} else {
+			GameRegistry.registerItem(new ItemDisabled().setUnlocalizedName("teleporter"), "teleporter");
+		}
+		
+		LItems.rifle = new ItemRifle();
+		if (LConfig.item_rifle) {
+			GameRegistry.registerItem(LItems.rifle, "rifle");
+		} else {
+			GameRegistry.registerItem(new ItemDisabled().setUnlocalizedName("rifle"), "rifle");
+		}
 	}
 }

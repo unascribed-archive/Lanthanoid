@@ -84,7 +84,9 @@ public class LClientEventHandler {
 	}
 	
 	public void onSkyColor(Vec3 color, Entity entity, float partialTicks) {
-		
+		for (SkyFlash sf : flashes) {
+			
+		}
 	}
 	
 	@SubscribeEvent
@@ -299,6 +301,10 @@ public class LClientEventHandler {
 							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, 0));
 							return;
 						}
+						if (mc.gameSettings.keyBindPickBlock.isPressed()) {
+							while (mc.gameSettings.keyBindPickBlock.isPressed()) {}
+							Lanthanoid.inst.network.sendToServer(new ToggleRifleBlazeModeMessage());
+						}
 						for (int i = 0; i < 9; i++) {
 							if (mc.gameSettings.keyBindsHotbar[i].isPressed()) {
 								while (mc.gameSettings.keyBindsHotbar[i].isPressed()) {} // drain pressTicks to zero to suppress vanilla behavior
@@ -323,10 +329,6 @@ public class LClientEventHandler {
 				if (primary || secondary) {
 					if (mc.thePlayer.getHeldItem() != null) {
 						ItemStack held = mc.thePlayer.getHeldItem();
-						if (mc.gameSettings.keyBindPickBlock.isPressed()) {
-							while (mc.gameSettings.keyBindPickBlock.isPressed()) {}
-							Lanthanoid.inst.network.sendToServer(new ToggleRifleBlazeModeMessage());
-						}
 						if (held.getItem() == LItems.rifle) {
 							if (dWheel > 0) {
 								dWheel = 1;

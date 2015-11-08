@@ -44,8 +44,8 @@ public class BeamParticleHandler implements IMessageHandler<BeamParticleMessage,
 			}
 		}
 		if (msg.poof) {
-			for (int i = 0; i < 200; i++) {
-				EntityRifleFX fx = new EntityRifleFX(Minecraft.getMinecraft().theWorld, msg.endX+rand.nextGaussian(), msg.endY+rand.nextGaussian(), msg.endZ+rand.nextGaussian(), 1.0f, 0, 0, 0);
+			for (int i = 0; i < 100; i++) {
+				EntityRifleFX fx = new EntityRifleFX(Minecraft.getMinecraft().theWorld, msg.endX+(rand.nextGaussian()/2), msg.endY+(rand.nextGaussian()/2), msg.endZ+(rand.nextGaussian()/2), 1.0f, 0, 0, 0);
 				fx.motionX = fx.motionY = fx.motionZ = 0;
 				fx.setRBGColorF(r, g, b);
 				Minecraft.getMinecraft().effectRenderer.addEffect(fx);

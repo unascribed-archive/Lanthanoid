@@ -5,14 +5,14 @@ import static org.objectweb.asm.Opcodes.*;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
 
 import net.malisis.core.asm.AsmHook;
 import net.malisis.core.asm.MalisisClassTransformer;
 import net.malisis.core.asm.mappings.McpFieldMapping;
 import net.malisis.core.asm.mappings.McpMethodMapping;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.JumpInsnNode;
-import org.objectweb.asm.tree.LabelNode;
 
 public class LanthanoidTransformer extends MalisisClassTransformer {
 
@@ -22,7 +22,7 @@ public class LanthanoidTransformer extends MalisisClassTransformer {
 		register(renderDistanceHook());
 		register(trackingDistanceHook());
 	}
-	
+
 	public AsmHook trackingDistanceHook() {
 		McpMethodMapping updatePlayerEntity = new McpMethodMapping("tryStartWachingThis", "func_73117_b", 
 				"net.minecraft.entity.EntityTrackerEntry", "(Lnet/minecraft/entity/player/EntityPlayerMP;)V");

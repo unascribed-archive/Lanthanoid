@@ -1,8 +1,9 @@
 package com.unascribed.lanthanoid.init;
 
-
+import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.function.Consumer;
 import com.unascribed.lanthanoid.gen.Generate;
+import com.unascribed.lanthanoid.network.SpaceShipCrashMessage;
 
 import net.minecraft.block.Block;
 import net.minecraft.command.CommandBase;
@@ -10,7 +11,6 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.Vec3;
 
 public class LCommands {
@@ -113,6 +113,33 @@ public class LCommands {
 			@Override
 			public String getCommandName() {
 				return "lancell";
+			}
+		});
+		register.accept(new CommandBase() {
+			
+			@Override
+			public void processCommand(ICommandSender sender, String[] args) {
+				if (args.length != 1) {
+					throw new CommandException(getCommandUsage(sender));
+				}
+				SpaceShipCrashMessage.Type type = SpaceShipCrashMessage.Type.valueOf(args[0]);
+				SpaceShipCrashMessage msg = new SpaceShipCrashMessage(type);
+				Lanthanoid.inst.network.sendToDimension(msg, sender.getEntityWorld().provider.dimensionId);
+			}
+			
+			@Override
+			public int getRequiredPermissionLevel() {
+				return 4;
+			}
+			
+			@Override
+			public String getCommandUsage(ICommandSender sender) {
+				return "/lanship <Type>";
+			}
+			
+			@Override
+			public String getCommandName() {
+				return "lanship";
 			}
 		});
 	}

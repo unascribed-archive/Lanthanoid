@@ -1,34 +1,29 @@
 package com.unascribed.lanthanoid.gen;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Random;
-
-import com.google.common.collect.Lists;
 
 import cpw.mods.fml.common.IWorldGenerator;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 
-public class GeneratorGroup implements IWorldGenerator {
-	private List<IWorldGenerator> generators = Lists.newArrayList();
+public class GeneratorGroup extends ArrayList<IWorldGenerator> implements IWorldGenerator {
+	private static final long serialVersionUID = -840506724968382866L;
+
 	public GeneratorGroup() {}
 	public GeneratorGroup(IWorldGenerator... generators) {
 		for (IWorldGenerator g : generators) {
-			this.generators.add(g);
+			add(g);
 		}
 	}
 	public GeneratorGroup(Collection<? extends IWorldGenerator> generators) {
-		this.generators.addAll(generators);
-	}
-	
-	public void add(IWorldGenerator gen) {
-		generators.add(gen);
+		addAll(generators);
 	}
 	
 	@Override
 	public void generate(Random random, int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider) {
-		for (IWorldGenerator gen : generators) {
+		for (IWorldGenerator gen : this) {
 			gen.generate(random, chunkX, chunkZ, world, chunkGenerator, chunkProvider);
 		}
 	}

@@ -13,13 +13,45 @@ import net.minecraftforge.oredict.ShapelessOreRecipe;
 public class LRecipes {
 
 	public static void init() {
-		LRecipes.initStorage();
-		LRecipes.initPlating();
+		initStorage();
+		initPlating();
 		
-		LRecipes.initRifle();
-		LRecipes.initTeleporter();
+		initRifle();
+		initTeleporter();
+		
+		initStopgap();
 	}
 	
+	private static void initStopgap() {
+		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.ingot.getStackForName("ingotDysprosium", 2), 
+				"dbd",
+				"bEb",
+				"dbd",
+				'E', "lanthanoidPrivate-blockEndMetal",
+				'b', "ingotBarium",
+				'd', "dyePurple"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.ingot.getStackForName("ingotCerium", 2), 
+				"dbd",
+				"bGb",
+				"dbd",
+				'G', "lanthanoidPrivate-blockEndMetal",
+				'b', "ingotBarium",
+				'd', "dyeRed"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.ingot.getStackForName("ingotLutetium", 2), 
+				"dbd",
+				"bGb",
+				"dbd",
+				'G', "lanthanoidPrivate-blockEndMetal",
+				'b', "ingotBarium",
+				'd', "dyeYellow"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(LBlocks.energized_lutetium, 
+				"rrr",
+				"rlr",
+				"rrr",
+				'r', "dustRedstone",
+				'l', "ingotLutetium"));
+	}
+
 	public static void initTeleporter() {
 		int i = 0;
 		for (String s : ItemTeleporter.flavors) {

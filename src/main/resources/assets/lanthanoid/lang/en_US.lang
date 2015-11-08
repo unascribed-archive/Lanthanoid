@@ -65,6 +65,8 @@ tile.plating.template=%s Armor Plating
 tile.weakplating.template=Weak %s Armor Plating
 tile.energized_lutetium.name=Energized Lutetium
 
+item.rifle.name=Lanthanide Rifle
+
 item.rifle_none.name=Lanthanide Rifle
 item.rifle_zoom.name=Scoped Lanthanide Rifle
 item.rifle_overclock.name=Overclocked Lanthanide Rifle
@@ -88,6 +90,9 @@ item.rifle_fire.help.1=Uses Blaze Powder when available for an added flame effec
 item.rifle.ammo_usage_tooltip=Ammo Usage: %s%%
 item.rifle.charge_speed_tooltip=Charge Speed: %s%%
 item.rifle.cooldown_speed_tooltip=Cooldown Speed: %s%%
+
+
+item.teleporter.name=Spelunker's Teleporter
 
 item.teleporter.template=%s Spelunker's Teleporter
 item.teleporter.lore=Produces instantaneous, discontinous transmission of particularized matter via instrumentality of the spatial continuum. This technology hasn't quite been perfected yet, so you need to be very careful.

@@ -1,6 +1,5 @@
 package com.unascribed.lanthanoid;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.unascribed.lanthanoid.client.LClientEventHandler;
@@ -8,6 +7,7 @@ import com.unascribed.lanthanoid.client.TextureCompositorImpl.ItemType;
 import com.unascribed.lanthanoid.init.LAchievements;
 import com.unascribed.lanthanoid.init.LBlocks;
 import com.unascribed.lanthanoid.init.LCommands;
+import com.unascribed.lanthanoid.init.LConfig;
 import com.unascribed.lanthanoid.init.LGenerator;
 import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.init.LMaterials;
@@ -24,6 +24,7 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
@@ -45,7 +46,7 @@ import net.minecraftforge.common.MinecraftForge;
 	dependencies="required-after:malisiscore"
 	)
 public class Lanthanoid {
-	public static final Logger log = LogManager.getLogger("Lanthanoid");
+	public static Logger log;
 	@Instance
 	public static Lanthanoid inst;
 	@SidedProxy(clientSide="com.unascribed.lanthanoid.proxy.ClientProxy", serverSide="com.unascribed.lanthanoid.proxy.ServerProxy")
@@ -64,11 +65,13 @@ public class Lanthanoid {
 	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent e) {
-		PeriodicTable.print();
+		log = e.getModLog();
 		if (Loader.isModLoaded("farrago")) {
 			log.warn("Farrago is deprecated, and duplicates some of the functionality in Lanthanoid. It is recommended you remove it.");
 		}
 		compositor = proxy.createCompositor();
+		
+		LConfig.init(e.getSuggestedConfigurationFile());
 		
 		LMaterials.init();
 		
@@ -99,7 +102,14 @@ public class Lanthanoid {
 		MinecraftForge.EVENT_BUS.register(handler);
 		proxy.init();
 	}
-
+	
+	@EventHandler
+	public void onPostInit(FMLPostInitializationEvent e) {
+		if (!Loader.isModLoaded("engination")) {
+			log.info("Daremo ga modomeru shoukei wa tsukurareta mahoroshi..");
+		}
+	}
+	
 	@EventHandler
 	public void onServerStart(FMLServerStartingEvent e) {
 		LCommands.register(e::registerServerCommand);
