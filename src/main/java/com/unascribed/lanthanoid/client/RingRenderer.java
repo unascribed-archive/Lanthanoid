@@ -9,6 +9,7 @@ import com.unascribed.lanthanoid.item.rifle.Mode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
@@ -17,10 +18,9 @@ public class RingRenderer {
 
 	public static final int ANIMATION_TIME = 4;
 	
-	private static RenderItem itemRenderer = new RenderItem();
+	public static RenderItem itemRenderer = new RenderItem();
 	
 	private String[] keys = {
-			"~",
 			"1",
 			"2",
 			"3",
@@ -134,7 +134,13 @@ public class RingRenderer {
 					modeStack = oreStacks.get((Integer)m.type);
 				}
 				if (modeStack != null) {
-					itemRenderer.renderItemAndEffectIntoGUI(mc.fontRenderer, mc.getTextureManager(), modeStack, 0, 0);
+					if (m == selected) {
+						GL11.glColor4f(1, 1, 1, 1);
+					} else {
+						GL11.glColor4f(1, 1, 1, 0.25f);
+					}
+					mc.renderEngine.bindTexture(modeStack.getItemSpriteNumber() == 0 ? TextureMap.locationBlocksTexture : TextureMap.locationItemsTexture);
+					itemRenderer.renderIcon(0, 0, modeStack.getIconIndex(), 16, 16);
 				} else {
 					mc.fontRenderer.drawStringWithShadow("/", 4, 4, m.color);
 				}

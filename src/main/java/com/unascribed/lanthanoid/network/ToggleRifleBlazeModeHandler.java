@@ -16,7 +16,7 @@ public class ToggleRifleBlazeModeHandler implements IMessageHandler<ToggleRifleB
 		if (player.getHeldItem() != null) {
 			if (player.getHeldItem().getItem() == LItems.rifle) {
 				LItems.rifle.setBlazeEnabled(player.getHeldItem(), !LItems.rifle.isBlazeEnabled(player.getHeldItem()));
-				System.out.println(LItems.rifle.isBlazeEnabled(player.getHeldItem()));
+				player.worldObj.playSoundAtEntity(player, "lanthanoid:rifle_mode", 1.0f, LItems.rifle.isBlazeEnabled(player.getHeldItem()) ? 1.5f : 1.0f);
 			}
 		}
 		return null;

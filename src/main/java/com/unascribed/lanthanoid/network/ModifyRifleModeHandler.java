@@ -35,7 +35,7 @@ public class ModifyRifleModeHandler implements IMessageHandler<ModifyRifleModeMe
 						if (value == 0) return null;
 					}
 				}
-				LItems.rifle.modifyMode(player, player.getHeldItem(), message.set, value, message.primary);
+				LItems.rifle.modifyMode(player, player.getHeldItem(), message.set, value*(message.primary?1:-1), message.primary);
 			}
 		}
 		return null;

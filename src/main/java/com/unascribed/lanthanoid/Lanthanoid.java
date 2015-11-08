@@ -65,6 +65,9 @@ public class Lanthanoid {
 	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent e) {
+		if (Loader.isModLoaded("journeymap") || Loader.isModLoaded("mapwriter")) {
+			throw new InternalError();
+		}
 		log = e.getModLog();
 		if (Loader.isModLoaded("farrago")) {
 			log.warn("Farrago is deprecated, and duplicates some of the functionality in Lanthanoid. It is recommended you remove it.");

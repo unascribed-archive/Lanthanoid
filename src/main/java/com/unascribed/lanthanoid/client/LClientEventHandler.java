@@ -3,6 +3,7 @@ package com.unascribed.lanthanoid.client;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.SystemUtils;
 import org.lwjgl.input.Keyboard;
@@ -27,6 +28,7 @@ import cpw.mods.fml.common.gameevent.InputEvent.KeyInputEvent;
 import cpw.mods.fml.common.gameevent.InputEvent.MouseInputEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.Phase;
+import cpw.mods.fml.common.gameevent.TickEvent.RenderTickEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
@@ -36,10 +38,13 @@ import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.StatCollector;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.FOVUpdateEvent;
@@ -73,6 +78,9 @@ public class LClientEventHandler {
 	public static LClientEventHandler inst;
 	private Map<Mode, Integer> counts = Maps.newHashMap();
 	private Map<Integer, ItemStack> oreStacks = Maps.newHashMap();
+	
+	private boolean lastBlaze = false;
+	private int blazeTicks = 0;
 	
 	public LClientEventHandler() {
 		inst = this;
@@ -110,6 +118,33 @@ public class LClientEventHandler {
 		}
 	}
 	
+	private Pattern chunkUpdates = Pattern.compile(", [0-9]+ chunk updates");
+	
+	@SubscribeEvent
+	public void onDebugText(RenderGameOverlayEvent.Text e) {
+		if (!Minecraft.getMinecraft().thePlayer.capabilities.isCreativeMode && Minecraft.getMinecraft().gameSettings.showDebugInfo) {
+			int s = e.left.size();
+			for (int i = 1; i < s; i++) {
+				e.left.remove(1);
+			}
+			e.left.set(0, chunkUpdates.matcher(e.left.get(0)).replaceAll(""));
+			e.left.add("");
+			e.left.add("Enter creative for full debug menu");
+		}
+	}
+	
+	@SubscribeEvent
+	public void onPreRender(RenderTickEvent e) {
+		if (e.phase == Phase.START) {
+			Minecraft mc = Minecraft.getMinecraft();
+			if (mc.thePlayer != null) {
+				if (!mc.thePlayer.capabilities.isCreativeMode) {
+					RenderManager.debugBoundingBox = false;
+				}
+			}
+		}
+	}
+	
 	@SubscribeEvent
 	public void onClientTick(ClientTickEvent e) {
 		if (e.phase == Phase.START) {
@@ -144,6 +179,7 @@ public class LClientEventHandler {
 		if (e.phase == Phase.END) {
 			primary.tick();
 			secondary.tick();
+			blazeTicks++;
 		}
 	}
 	
@@ -204,6 +240,7 @@ public class LClientEventHandler {
 			if (p.getHeldItem() != null && p.getHeldItem().getItem() == LItems.rifle) {
 				ItemStack stack = p.getHeldItem();
 				
+				int blazeCount = 0;
 				counts.clear();
 				for (Mode mode : allVals) {
 					counts.put(mode, 0);
@@ -215,9 +252,52 @@ public class LClientEventHandler {
 							counts.put(mode, counts.get(mode)+is.stackSize);
 						}
 					}
+					if (is.getItem() == Items.blaze_powder) {
+						blazeCount += is.stackSize;
+					}
 				}
 				GL11.glEnable(GL12.GL_RESCALE_NORMAL);
 				RenderHelper.enableGUIStandardItemLighting();
+				boolean blaze = LItems.rifle.isBlazeEnabled(stack);
+				if (lastBlaze != blaze) {
+					blazeTicks = 0;
+					lastBlaze = blaze;
+				}
+				GL11.glPushMatrix();
+					GL11.glTranslatef(e.resolution.getScaledWidth()/2, 0, 0);
+					float anim = (blazeTicks < RingRenderer.ANIMATION_TIME ? ((float)blazeTicks+e.partialTicks)/RingRenderer.ANIMATION_TIME : 1);
+					if (blaze) {
+						GL11.glScalef(1f+anim, 1f+anim, 1f);
+					} else {
+						GL11.glScalef(2f-anim, 2f-anim, 1f);
+					}
+					GL11.glTranslatef(-8, 0, 0);
+					GL11.glPushMatrix();
+						mc.renderEngine.bindTexture(TextureMap.locationItemsTexture);
+						if (blaze) {
+							GL11.glColor4f(1, 1, 1, 1);
+						} else {
+							GL11.glColor4f(1, 1, 1, 0.5f);	
+						}
+						RingRenderer.itemRenderer.renderIcon(0, 0, Items.blaze_powder.getIconFromDamage(0), 16, 16);
+					GL11.glPopMatrix();
+					GL11.glPushMatrix();
+						GL11.glTranslatef(0, 2, 0);
+						GL11.glScalef(0.5f, 0.5f, 1f);
+						mc.fontRenderer.drawStringWithShadow("~", 0, 0, -1);
+					GL11.glPopMatrix();
+					GL11.glPushMatrix();
+						boolean infinite = mc.thePlayer.capabilities.isCreativeMode;
+						String str = infinite ? "∞" : Integer.toString(blazeCount);
+						GL11.glTranslatef(20-(mc.fontRenderer.getStringWidth(str)), 12, 0);
+						GL11.glScalef(0.5f, 0.5f, 1f);
+						mc.fontRenderer.drawStringWithShadow(str, 0, 0, -1);
+					GL11.glPopMatrix();
+				GL11.glPopMatrix();
+				if (blaze) {
+					String blz = StatCollector.translateToLocal("mode.blaze.name");
+					mc.fontRenderer.drawStringWithShadow(blz, (e.resolution.getScaledWidth()/2)-(mc.fontRenderer.getStringWidth(blz)/2), (int)(16+(16*anim)), 0xFFAA00);
+				}
 				primary.render(p, stack, 0, 0, e.partialTicks);
 				secondary.render(p, stack, e.resolution.getScaledWidth(), 0, e.partialTicks);
 				RenderHelper.disableStandardItemLighting();
@@ -276,39 +356,35 @@ public class LClientEventHandler {
 							}
 							if (Keyboard.getEventCharacter() == '@') {
 								while (mc.gameSettings.keyBindsHotbar[1].isPressed()) {}
-								Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, 2));
+								Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, 1));
 								return;
 							}
 							if (Keyboard.getEventCharacter() == '^') {
 								while (mc.gameSettings.keyBindsHotbar[5].isPressed()) {}
-								Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, 6));
+								Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, 5));
 								return;
 							}
 						}
-						if (Keyboard.getEventKey() == Keyboard.KEY_0) {
+						if (Keyboard.getEventKey() == Keyboard.KEY_0 && Keyboard.getEventKeyState()) {
+							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, 9));
+							return;
+						}
+						if (Keyboard.getEventKey() == Keyboard.KEY_UNDERLINE && Keyboard.getEventKeyState()) {
 							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, 10));
 							return;
 						}
-						if (Keyboard.getEventKey() == Keyboard.KEY_UNDERLINE) {
+						if (Keyboard.getEventKey() == Keyboard.KEY_EQUALS && Keyboard.getEventKeyState()) {
 							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, 11));
 							return;
 						}
-						if (Keyboard.getEventKey() == Keyboard.KEY_EQUALS) {
-							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, 12));
-							return;
-						}
-						if (Keyboard.getEventKey() == Keyboard.KEY_GRAVE) {
-							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, 0));
-							return;
-						}
-						if (mc.gameSettings.keyBindPickBlock.isPressed()) {
-							while (mc.gameSettings.keyBindPickBlock.isPressed()) {}
+						if (Keyboard.getEventKey() == Keyboard.KEY_GRAVE && Keyboard.getEventKeyState()) {
 							Lanthanoid.inst.network.sendToServer(new ToggleRifleBlazeModeMessage());
+							return;
 						}
 						for (int i = 0; i < 9; i++) {
 							if (mc.gameSettings.keyBindsHotbar[i].isPressed()) {
 								while (mc.gameSettings.keyBindsHotbar[i].isPressed()) {} // drain pressTicks to zero to suppress vanilla behavior
-								Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, i+1));
+								Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, i));
 							}
 						}
 						return;

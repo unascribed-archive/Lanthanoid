@@ -34,6 +34,7 @@ import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
@@ -403,7 +404,7 @@ public class ItemRifle extends ItemBase {
 					direction.yCoord += itemRand.nextGaussian() * 0.0075 * spread;
 					direction.zCoord += itemRand.nextGaussian() * 0.0075 * spread;
 				}
-				boolean fire = isBlazeEnabled(stack) && player.inventory.consumeInventoryItem(Items.blaze_powder);;
+				boolean fire = isBlazeEnabled(stack) && (player.capabilities.isCreativeMode || player.inventory.consumeInventoryItem(Items.blaze_powder));
 				shootLaser(world, primaryMode, secondaryMode, fire, start, direction, player);
 			}
 			if (variant == Variant.SUPERCLOCKED) {
@@ -458,6 +459,44 @@ public class ItemRifle extends ItemBase {
 			}
 			spawnParticles(world, primaryMode, fire, start.xCoord, start.yCoord, start.zCoord, end.xCoord, end.yCoord, end.zCoord);
 			if (mop != null) {
+				if (mop.typeOfHit == MovingObjectType.BLOCK && fire) {
+					int x = mop.blockX;
+					int y = mop.blockY;
+					int z = mop.blockZ;
+					switch (mop.sideHit) {
+					case -1:
+						// none
+						break;
+					case 0:
+						// bottom
+						y -= 1;
+						break;
+					case 1:
+						// top
+						y += 1;
+						break;
+					case 2:
+						// east
+						z -= 1;
+						break;
+					case 3:
+						// west
+						z += 1;
+						break;
+					case 4:
+						// north
+						x -= 1;
+						break;
+					case 5:
+						// south
+						x += 1;
+						break;
+					}
+					Block block = shooter.worldObj.getBlock(x, y, z);
+					if (block.isAir(shooter.worldObj, x, y, z) || block.isReplaceable(shooter.worldObj, x, y, z)) {
+						shooter.worldObj.setBlock(x, y, z, Blocks.fire);
+					}
+				}
 				if (mop.entityHit instanceof EntityLivingBase) {
 					if (fire) {
 						mop.entityHit.setFire(5);
@@ -472,6 +511,33 @@ public class ItemRifle extends ItemBase {
 							&& ((EntityLivingBase)mop.entityHit).getHealth() <= 0
 							&& mop.entityHit.getDistanceSqToEntity(shooter) >= (100*100)) {
 						shooter.triggerAchievement(LAchievements.snipe);
+					}
+				}
+				if (secondaryMode == SecondaryMode.AOE && (primaryMode.doesDamage() || primaryMode.doesHeal())) {
+					AxisAlignedBB aabb = AxisAlignedBB.getBoundingBox(end.xCoord-5, end.yCoord-5, end.zCoord-5,
+							end.xCoord+5, end.yCoord+5, end.zCoord+5);
+					latestAABB = aabb;
+					List<EntityLivingBase> li = (List<EntityLivingBase>)world.getEntitiesWithinAABB(EntityLivingBase.class, aabb);
+					for (EntityLivingBase elb : li) {
+						if (elb == mop.entityHit) continue;
+						double distance = elb.getDistanceSq(end.xCoord, end.yCoord, end.zCoord);
+						if (distance > 5*5) continue;
+						Vec3 nxtVec = Vec3.createVectorHelper(elb.posX, elb.posY+(elb.height/2), elb.posZ);
+						MovingObjectPosition check = world.rayTraceBlocks(Vec3.createVectorHelper(end.xCoord, end.yCoord, end.zCoord), nxtVec);
+						if (check == null) {
+							spawnParticles(shooter.worldObj, primaryMode, fire, end.xCoord, end.yCoord, end.zCoord, elb.posX, elb.posY, elb.posZ);
+							float damage = (float) (7*(((5*5)-distance)/(5*5)));
+							System.out.println(damage);
+							if (fire) {
+								elb.setFire(5);
+							}
+							if (primaryMode.doesDamage()) {
+								elb.attackEntityFrom(new EntityDamageSource("laser", shooter), damage);
+							}
+							if (primaryMode.doesHeal()) {
+								elb.heal(damage);
+							}
+						}
 					}
 				}
 				if (secondaryMode == SecondaryMode.CHAIN && (primaryMode.doesDamage() || primaryMode.doesHeal())) {

@@ -43,6 +43,7 @@ mode.none.name=None
 mode.blaze.name=Blaze
 mode.chain.name=Chain
 mode.bounce.name=Deflect
+mode.aoe.name=Splash
 
 mode.tractor.name=Tractor Beam
 mode.explode.name=Explosion

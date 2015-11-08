@@ -16,6 +16,7 @@ public final class SecondaryMode extends Mode<SecondaryMode> {
 	public static final SecondaryMode NONE = new SecondaryMode(0, "NONE", 0xFFFFFF);
 	public static final SecondaryMode CHAIN = new SecondaryMode(1, "CHAIN", "dustNeodymium", 0x8D8DFF);
 	public static final SecondaryMode BOUNCE = new SecondaryMode(2, "BOUNCE", "dustPraseodymium", 0x98FF8F);
+	public static final SecondaryMode AOE = new SecondaryMode(3, "AOE", "dustBarium", 0xFF712B).setNoBuffer();
 	
 	
 	public static final ImmutableSet<Integer> usedOreIDs;
