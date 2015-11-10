@@ -27,6 +27,16 @@ public class LRecipes {
 				"tt",
 				"tt",
 				't', "dustThulite"));
+		
+		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.wrecking_ball,
+				", ,",
+				"d,B",
+				"h  ",
+				
+				',', "nuggetDysprosium",
+				'd', "stickDysprosium",
+				'h', "stickHolmium",
+				'B', "blockDysprosium"));
 	}
 	
 	private static void initMachines() {

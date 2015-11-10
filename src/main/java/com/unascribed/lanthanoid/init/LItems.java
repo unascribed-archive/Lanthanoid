@@ -3,15 +3,18 @@ package com.unascribed.lanthanoid.init;
 import com.unascribed.lanthanoid.item.ItemDisabled;
 import com.unascribed.lanthanoid.item.ItemMulti;
 import com.unascribed.lanthanoid.item.ItemTeleporter;
+import com.unascribed.lanthanoid.item.ItemWreckingBall;
 import com.unascribed.lanthanoid.item.rifle.ItemRifle;
 import com.unascribed.lanthanoid.util.LArrays;
 
 import cpw.mods.fml.common.registry.GameRegistry;
+import net.minecraft.enchantment.EnchantmentDurability;
 
 public class LItems {
 	public static ItemMulti ingot, stick, dust, nugget, gem;
 	public static ItemTeleporter teleporter;
 	public static ItemRifle rifle;
+	public static ItemWreckingBall wrecking_ball;
 	
 	public static void init() {
 		GameRegistry.registerItem(LItems.ingot = new ItemMulti(LArrays.all(LMaterials.metals, "ingot")), "ingot");
@@ -32,6 +35,13 @@ public class LItems {
 			GameRegistry.registerItem(LItems.rifle, "rifle");
 		} else {
 			GameRegistry.registerItem(new ItemDisabled().setUnlocalizedName("rifle"), "rifle");
+		}
+		
+		LItems.wrecking_ball = new ItemWreckingBall();
+		if (LConfig.item_wreckingBall) {
+			GameRegistry.registerItem(LItems.wrecking_ball, "wrecking_ball");
+		} else {
+			GameRegistry.registerItem(new ItemDisabled().setUnlocalizedName("wrecking_ball"), "wrecking_ball");
 		}
 	}
 }

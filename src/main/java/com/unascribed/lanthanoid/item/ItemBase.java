@@ -36,7 +36,7 @@ public class ItemBase extends Item {
 			}
 		}
 		addHelp(list, getHoverBaseKey(stack), true);
-		if (getHoverBaseKey(stack) != getUnlocalizedName(stack)) {
+		if (!getHoverBaseKey(stack).equals(getUnlocalizedName(stack))) {
 			addHelp(list, getUnlocalizedName(stack), false);
 		}
 	}

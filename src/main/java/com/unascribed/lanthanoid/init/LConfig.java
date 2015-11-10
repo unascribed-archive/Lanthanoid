@@ -66,6 +66,8 @@ public class LConfig {
 	public static boolean item_teleporter = true;
 	@Comment("Lanthanide Rifle, a versatile laser rifle, with many variants and modes.")
 	public static boolean item_rifle = true;
+	@Comment("Dysprosium Wrecking Ball, a tool that mines stone and ores extremely quickly but only drops 1/4 of them.")
+	public static boolean item_wreckingBall = true;
 	
 	public static void init(File file) {
 		try {

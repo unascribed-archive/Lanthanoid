@@ -4,8 +4,8 @@ import org.lwjgl.opengl.GL11;
 
 import com.unascribed.lanthanoid.init.LBlocks;
 
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderBlocks;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.IItemRenderer;
@@ -47,6 +47,7 @@ public class MachineItemRenderer implements IItemRenderer {
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
 		GL11.glEnable(GL11.GL_BLEND);
+		OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
 		GL11.glPushMatrix();
 			GL11.glTranslatef(4f, 4f, 0f);
 			GL11.glRotatef(45, 0, 0, 1);
