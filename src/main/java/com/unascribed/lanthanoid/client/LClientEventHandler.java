@@ -272,7 +272,7 @@ public class LClientEventHandler {
 		FontRenderer fontrenderer = Minecraft.getMinecraft().fontRenderer;
 		Tessellator tess = Tessellator.instance;
 		
-		//if (Lanthanoid.inst.waypointManager.allWaypoints(Minecraft.getMinecraft().theWorld).isEmpty()) return;
+		if (Lanthanoid.inst.waypointManager.allWaypoints(Minecraft.getMinecraft().theWorld).isEmpty()) return;
 		GL11.glDisable(GL11.GL_LIGHTING);
 		GL11.glDepthMask(false);
 		GL11.glEnable(GL11.GL_BLEND);
@@ -287,66 +287,78 @@ public class LClientEventHandler {
 	
 				GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
 	
-				double qY = dY+1;
+				double qX = Math.min(100, Math.abs(dX))*Math.signum(dX);
+				double qY = Math.min(100, Math.abs(dY))*Math.signum(dY);
+				double qZ = Math.min(100, Math.abs(dZ))*Math.signum(dZ);
 				
-				GL11.glEnable(GL11.GL_DEPTH_TEST);
+				float rawF = (float) (MathHelper.sqrt_double((dX * dX) + (dY * dY) + (dZ * dZ)));
+				float f = rawF;
 				
-				Minecraft.getMinecraft().renderEngine.bindTexture(beam);
-				GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, 10497.0F);
-				GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, 10497.0F);
-				GL11.glDisable(GL11.GL_LIGHTING);
-				GL11.glEnable(GL11.GL_BLEND);
-				GL11.glDepthMask(true);
-				OpenGlHelper.glBlendFunc(770, 1, 1, 0);
-				float f2 = 0;
-				float f3 = -f2 * 0.2F - (float) MathHelper.floor_float(-f2 * 0.1F);
-				byte b0 = 1;
-				double d3 = (double) f2 * 0.025D * (1.0D - (double) (b0 & 1) * 2.5D);
-				tess.startDrawingQuads();
-				tess.setColorOpaque_I(waypoint.color);
-				double d5 = (double) b0 * 0.2D;
-				double d7 = 0.5D + Math.cos(d3 + 2.356194490192345D) * d5;
-				double d9 = 0.5D + Math.sin(d3 + 2.356194490192345D) * d5;
-				double d11 = 0.5D + Math.cos(d3 + (Math.PI / 4D)) * d5;
-				double d13 = 0.5D + Math.sin(d3 + (Math.PI / 4D)) * d5;
-				double d15 = 0.5D + Math.cos(d3 + 3.9269908169872414D) * d5;
-				double d17 = 0.5D + Math.sin(d3 + 3.9269908169872414D) * d5;
-				double d19 = 0.5D + Math.cos(d3 + 5.497787143782138D) * d5;
-				double d21 = 0.5D + Math.sin(d3 + 5.497787143782138D) * d5;
-				double d23 = (double) (512.0F * f1);
-				double d25 = 0.0D;
-				double d27 = 1.0D;
-				double d28 = (double) (-1.0F + f3);
-				double d29 = (double) (512.0F * f1) * (0.5D / d5) + d28;
-				d29 -= (Minecraft.getMinecraft().theWorld.getTotalWorldTime()+partialTicks)/10f;
-				d28 -= (Minecraft.getMinecraft().theWorld.getTotalWorldTime()+partialTicks)/10f;
-				tess.addVertexWithUV(dX+ d7, qY + d23, dZ+ d9, d27, d29);
-				tess.addVertexWithUV(dX+ d7, qY, dZ+ d9, d27, d28);
-				tess.addVertexWithUV(dX+ d11, qY, dZ+ d13, d25, d28);
-				tess.addVertexWithUV(dX+ d11, qY + d23, dZ+ d13, d25, d29);
-				tess.addVertexWithUV(dX+ d19, qY + d23, dZ+ d21, d27, d29);
-				tess.addVertexWithUV(dX+ d19, qY, dZ+ d21, d27, d28);
-				tess.addVertexWithUV(dX+ d15, qY, dZ+ d17, d25, d28);
-				tess.addVertexWithUV(dX+ d15, qY + d23, dZ+ d17, d25, d29);
-				tess.addVertexWithUV(dX+ d11, qY + d23, dZ+ d13, d27, d29);
-				tess.addVertexWithUV(dX+ d11, qY, dZ+ d13, d27, d28);
-				tess.addVertexWithUV(dX+ d19, qY, dZ+ d21, d25, d28);
-				tess.addVertexWithUV(dX+ d19, qY + d23, dZ+ d21, d25, d29);
-				tess.addVertexWithUV(dX+ d15, qY + d23, dZ+ d17, d27, d29);
-				tess.addVertexWithUV(dX+ d15, qY, dZ+ d17, d27, d28);
-				tess.addVertexWithUV(dX+ d7, qY, dZ+ d9, d25, d28);
-				tess.addVertexWithUV(dX+ d7, qY + d23, dZ+ d9, d25, d29);
-				tess.draw();
-				
-				GL11.glEnable(GL11.GL_TEXTURE_2D);
-				GL11.glDepthMask(true);
-				
+				if (f < 150) {
+					GL11.glEnable(GL11.GL_DEPTH_TEST);
+					
+					Minecraft.getMinecraft().renderEngine.bindTexture(beam);
+					GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, 10497.0F);
+					GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, 10497.0F);
+					GL11.glDisable(GL11.GL_LIGHTING);
+					GL11.glEnable(GL11.GL_BLEND);
+					GL11.glDepthMask(true);
+					OpenGlHelper.glBlendFunc(770, 1, 1, 0);
+					float f2 = 0;
+					float f3 = -f2 * 0.2F - (float) MathHelper.floor_float(-f2 * 0.1F);
+					byte b0 = 1;
+					double d3 = (double) f2 * 0.025D * (1.0D - (double) (b0 & 1) * 2.5D);
+					tess.startDrawingQuads();
+					tess.setColorOpaque_I(waypoint.color);
+					double d5 = (double) b0 * 0.2D;
+					double d7 = 0.5D + Math.cos(d3 + 2.356194490192345D) * d5;
+					double d9 = 0.5D + Math.sin(d3 + 2.356194490192345D) * d5;
+					double d11 = 0.5D + Math.cos(d3 + (Math.PI / 4D)) * d5;
+					double d13 = 0.5D + Math.sin(d3 + (Math.PI / 4D)) * d5;
+					double d15 = 0.5D + Math.cos(d3 + 3.9269908169872414D) * d5;
+					double d17 = 0.5D + Math.sin(d3 + 3.9269908169872414D) * d5;
+					double d19 = 0.5D + Math.cos(d3 + 5.497787143782138D) * d5;
+					double d21 = 0.5D + Math.sin(d3 + 5.497787143782138D) * d5;
+					double d23 = (double) (512.0F * f1);
+					double d25 = 0.0D;
+					double d27 = 1.0D;
+					double d28 = (double) (-1.0F + f3);
+					double d29 = (double) (512.0F * f1) * (0.5D / d5) + d28;
+					d29 -= (Minecraft.getMinecraft().theWorld.getTotalWorldTime()+partialTicks)/10f;
+					d28 -= (Minecraft.getMinecraft().theWorld.getTotalWorldTime()+partialTicks)/10f;
+					tess.addVertexWithUV(qX+ d7, qY + d23, qZ+ d9, d27, d29);
+					tess.addVertexWithUV(qX+ d7, qY, qZ+ d9, d27, d28);
+					tess.addVertexWithUV(qX+ d11, qY, qZ+ d13, d25, d28);
+					tess.addVertexWithUV(qX+ d11, qY + d23, qZ+ d13, d25, d29);
+					tess.addVertexWithUV(qX+ d19, qY + d23, qZ+ d21, d27, d29);
+					tess.addVertexWithUV(qX+ d19, qY, qZ+ d21, d27, d28);
+					tess.addVertexWithUV(qX+ d15, qY, qZ+ d17, d25, d28);
+					tess.addVertexWithUV(qX+ d15, qY + d23, qZ+ d17, d25, d29);
+					tess.addVertexWithUV(qX+ d11, qY + d23, qZ+ d13, d27, d29);
+					tess.addVertexWithUV(qX+ d11, qY, qZ+ d13, d27, d28);
+					tess.addVertexWithUV(qX+ d19, qY, qZ+ d21, d25, d28);
+					tess.addVertexWithUV(qX+ d19, qY + d23, qZ+ d21, d25, d29);
+					tess.addVertexWithUV(qX+ d15, qY + d23, qZ+ d17, d27, d29);
+					tess.addVertexWithUV(qX+ d15, qY, qZ+ d17, d27, d28);
+					tess.addVertexWithUV(qX+ d7, qY, qZ+ d9, d25, d28);
+					tess.addVertexWithUV(qX+ d7, qY + d23, qZ+ d9, d25, d29);
+					tess.draw();
+					
+					GL11.glEnable(GL11.GL_TEXTURE_2D);
+					GL11.glDepthMask(true);
+					
+				}
 				GL11.glDisable(GL11.GL_DEPTH_TEST);
-				
-				float f = (float) (MathHelper.sqrt_double((dX * dX) + (dY * dY) + (dZ * dZ)));
+				String dist = Integer.toString((int) f);
+				if (f < 10) {
+					f = 10;
+				}
+				if (f > 150) {
+					f = 150-((f-150)/15f);
+				}
 				f *= 0.75f;
 				float f8 = 0.016666668F * f;
-				GL11.glTranslatef((float) dX + 0.5F, (float) dY + 0.5F, (float) dZ + 0.5f);
+				GL11.glTranslatef((float) qX + 0.5F, (float) qY + 0.5F, (float) qZ + 0.5f);
 				GL11.glNormal3f(0.0F, 1.0F, 0.0F);
 				GL11.glRotatef(-RenderManager.instance.playerViewY, 0.0F, 1.0F, 0.0F);
 				GL11.glRotatef(RenderManager.instance.playerViewX, 1.0F, 0.0F, 0.0F);
@@ -355,16 +367,15 @@ public class LClientEventHandler {
 				OpenGlHelper.glBlendFunc(770, 771, 1, 0);
 				byte b9 = -8;
 	
-				Vec3 vec31 = Vec3.createVectorHelper((waypoint.x+0.5) - player.posX,
-						(waypoint.y+0.5) - (player.posY + player.getEyeHeight()),
-						(waypoint.z+0.5) - player.posZ);
+				Vec3 vec31 = Vec3.createVectorHelper(qX+0.5,
+						qY+0.5 - player.getEyeHeight(),
+						qZ+0.5);
 				double d0 = vec31.lengthVector();
 				vec31 = vec31.normalize();
 				double d1 = vec3.dotProduct(vec31);
 				GL11.glDisable(GL11.GL_TEXTURE_2D);
-				if (d1 > 1.0D - 0.03D / d0) {
+				if (d1 > 1.0D - Math.max(0.025D, rawF/1200) / d0) {
 					tess.startDrawingQuads();
-					String dist = ((int) f) + "m";
 					int w = Math.max((fontrenderer.getStringWidth(dist) / 2) + (fontrenderer.getStringWidth(owner) / 2) + 8, fontrenderer.getStringWidth(name));
 					int j = w / 2;
 					tess.setColorRGBA_I(waypoint.color, 96);
@@ -376,7 +387,7 @@ public class LClientEventHandler {
 					GL11.glEnable(GL11.GL_TEXTURE_2D);
 					fontrenderer.drawString(name, -fontrenderer.getStringWidth(name) / 2, b9, -1);
 					GL11.glScalef(0.5f, 0.5f, 0.5f);
-					fontrenderer.drawString(dist, w - fontrenderer.getStringWidth(dist) - 1, (b9 * 2) + 18, -1);
+					fontrenderer.drawString(dist+"m", w - fontrenderer.getStringWidth(dist+"m") - 1, (b9 * 2) + 18, -1);
 					fontrenderer.drawString(owner, -w, (b9 * 2) + 18, -1);
 				} else {
 					GL11.glPushMatrix();
@@ -403,7 +414,6 @@ public class LClientEventHandler {
 						}
 					GL11.glPopMatrix();
 					GL11.glEnable(GL11.GL_TEXTURE_2D);
-					String dist = Integer.toString((int) f); 
 					GL11.glScalef(0.5f, 0.5f, 0.5f);
 					fontrenderer.drawString(dist, -fontrenderer.getStringWidth(dist)/2, -4, -1);
 				}
