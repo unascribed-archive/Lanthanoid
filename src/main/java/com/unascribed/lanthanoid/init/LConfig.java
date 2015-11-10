@@ -57,9 +57,9 @@ public class LConfig {
 	public static boolean generate_raspite = true;
 	
 	@Comment("Large caves full of gypsum and rosasite")
-	public static boolean generate_gypsum_caves = true;
+	public static boolean generate_gypsumCaves = true;
 	@Comment("Huge craters from space ship crashes (required for endgame items)")
-	public static boolean generate_crash_sites = true;
+	public static boolean generate_crashSites = true;
 	
 	
 	@Comment("Spelunker's Teleporter, an unreliable, dangerous, short-ranged handheld teleporter. Was actually designed for a no-teleportation modpack.")

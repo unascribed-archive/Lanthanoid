@@ -21,7 +21,10 @@ public class RifleChargingSoundHandler implements IMessageHandler<RifleChargingS
 			MovingSoundEntity sound = new MovingSoundEntity(new ResourceLocation("lanthanoid", "rifle_charge"), ent, message.speed);
 			Minecraft.getMinecraft().getSoundHandler().playSound(sound);
 		} else {
-			MovingSoundEntity.get(ent).stop();
+			MovingSoundEntity sound = MovingSoundEntity.get(ent);
+			if (sound != null) {
+				sound.stop();
+			}
 		}
 		return null;
 	}

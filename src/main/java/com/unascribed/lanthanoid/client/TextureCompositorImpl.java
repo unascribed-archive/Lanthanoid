@@ -61,6 +61,12 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		MACHINE_COMBUSTOR_IDLE,
 		MACHINE_COMBUSTOR_WORKING,
 		WEAK_PLATING,
+		LAMP,
+		WAYPOINT_TOP,
+		WAYPOINT_BOTTOM,
+		WAYPOINT_SIDE,
+		WAYPOINT_SIDE_DIAMOND,
+		WAYPOINT_SIDE_TRIANGLE
 		;
 		public String prefix() { return "blocks/"; }
 	}
@@ -92,6 +98,7 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		GRAVEL("minecraft", "textures/blocks/gravel.png"),
 		OBSIDIAN("minecraft", "textures/blocks/obsidian.png"),
 		COBBLESTONE("minecraft", "textures/blocks/cobblestone.png"),
+		WAYPOINT_SIDE("lanthanoid_compositor", "textures/blocks/machineWaypointSide.png"),
 		;
 		public final ResourceLocation loc;
 		BlockBackdrop() {
@@ -123,7 +130,7 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 	private SimpleReloadableResourceManager rm;
 	
 	private List<Task> tasks = Lists.newArrayList();
-	private Map<BlockBackdrop, BufferedImage> backdrops = Maps.newEnumMap(BlockBackdrop.class);
+	private Map<BlockBackdrop, LazyReference<BufferedImage>> backdrops = Maps.newEnumMap(BlockBackdrop.class);
 	private Map<CompositeType, List<CompositeStep>> types = Maps.newHashMap();
 	private Map<Pattern, String> aliases = Maps.newHashMap();
 	
@@ -163,6 +170,7 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 					if (img.getWidth() != img.getHeight()) {
 						animated.add(o.name);
 					}
+					rm.reloadResourcePack(this);
 					if ("true".equals(System.getProperty("com.unascribed.lanthanoid.DebugCompositor"))) {
 						ImageIO.write(buffer(img.getScaledInstance(
 								img.getWidth()*2,
@@ -173,7 +181,6 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 					Lanthanoid.log.error("Failed to composite texture for "+o.name, e);
 				}
 			}
-			rm.reloadResourcePack(this);
 		} catch (Exception e) {
 			Lanthanoid.log.error("Failed to composite ore textures", e);
 		}
@@ -294,7 +301,13 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		backdrops.clear();
 		for (BlockBackdrop b : BlockBackdrop.values()) {
 			if (b.loc == null) continue;
-			backdrops.put(b, cropToWidth(readImage(b.loc).get()));
+			backdrops.put(b, new LazyReference<>(() -> {
+				try {
+					return cropToWidth(readImage(b.loc).get());
+				} catch (Exception e) {
+					throw Throwables.propagate(e);
+				}
+			}));
 		}
 	}
 	
@@ -337,6 +350,12 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		loadMachineFront(BlockType.MACHINE_COMBUSTOR_IDLE);
 		loadMachineFront(BlockType.MACHINE_COMBUSTOR_WORKING);
 		loadSingleStep(BlockType.WEAK_PLATING);
+		loadSingleStep(BlockType.LAMP);
+		loadSingleStep(BlockType.WAYPOINT_BOTTOM);
+		loadSingleStep(BlockType.WAYPOINT_TOP);
+		loadSingleStep(BlockType.WAYPOINT_SIDE);
+		loadTwoStepBevel(BlockType.WAYPOINT_SIDE_DIAMOND);
+		loadTwoStepBevel(BlockType.WAYPOINT_SIDE_TRIANGLE);
 		
 		loadTwoStepGlint(ItemType.WAFER);
 		loadTwoStepGlint(ItemType.INGOT);
@@ -425,7 +444,7 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		o.color = color;
 		o.steps = Lists.newArrayList();
 		if (backdrop.loc != null) {
-			o.steps.add(new CompositeStep(new LazyReference<>(() -> backdrops.get(backdrop)), BlendMode.NORMAL));
+			o.steps.add(new CompositeStep(new LazyReference<>(() -> backdrops.get(backdrop).get()), BlendMode.NORMAL));
 		}
 		o.steps.addAll(types.get(type));
 		tasks.add(o);

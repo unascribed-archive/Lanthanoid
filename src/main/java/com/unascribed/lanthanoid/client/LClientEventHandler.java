@@ -1,6 +1,7 @@
 package com.unascribed.lanthanoid.client;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -22,7 +23,9 @@ import com.unascribed.lanthanoid.item.rifle.PrimaryMode;
 import com.unascribed.lanthanoid.item.rifle.SecondaryMode;
 import com.unascribed.lanthanoid.network.ModifyRifleModeMessage;
 import com.unascribed.lanthanoid.network.ToggleRifleBlazeModeMessage;
+import com.unascribed.lanthanoid.waypoint.Waypoint;
 
+import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.InputEvent.KeyInputEvent;
 import cpw.mods.fml.common.gameevent.InputEvent.MouseInputEvent;
@@ -33,16 +36,22 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiIngame;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.monster.EntityEnderman;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.util.Vec3;
@@ -118,21 +127,88 @@ public class LClientEventHandler {
 		}
 	}
 	
-	private Pattern chunkUpdates = Pattern.compile(", [0-9]+ chunk updates");
+	private static final String[] directions = {
+		"SORTH",
+		"NOTCH",
+		"SALAD",
+		"MANGO",
+		"BEYOND",
+		"WEAST",
+		"WATERMELON",
+		"APOAPSIS",
+		"PERIAPSIS",
+		"OVER",
+		"UNDER",
+		"ABOVE",
+		"BELOW",
+		"SOMEWHERE",
+		"WAFFLE",
+		"POTATO",
+		"THISWAY",
+		"SLANTWARDS",
+		"THATWAY",
+		"NEVER",
+		"EAT",
+		"SOGGY",
+		"WHEAT",
+	};
 	
-	@SubscribeEvent
+	@SubscribeEvent(priority=EventPriority.LOWEST)
 	public void onDebugText(RenderGameOverlayEvent.Text e) {
 		if (!Minecraft.getMinecraft().thePlayer.capabilities.isCreativeMode && Minecraft.getMinecraft().gameSettings.showDebugInfo) {
 			int s = e.left.size();
 			for (int i = 1; i < s; i++) {
 				e.left.remove(1);
 			}
-			e.left.set(0, chunkUpdates.matcher(e.left.get(0)).replaceAll(""));
+			EntityPlayer p = Minecraft.getMinecraft().thePlayer;
+			double x = corrupt(p.posX);
+			double y = corrupt(p.boundingBox.minY)%256;
+			double z = corrupt(p.posZ);
+			double yaw = Math.abs(corrupt(p.rotationYaw+p.rotationPitch)%360)-180;
+			e.left.add("C: 121/4581. F: 182, O: 0, E: 28710000000");
+			e.left.add("E: 4/438. B: 3, I: 812");
+			e.left.add("P: 2. T: None: 37");
+			e.left.add("MultiplayerChunkCache: 183, 4372");
 			e.left.add("");
-			e.left.add("Enter creative for full debug menu");
+			e.left.add("x: "+x+" // c: "+((int)(x/16))+" ("+((int)(x%16))+")");
+			e.left.add("y: "+y+" (feet pos, "+((y)+0.162)+" eyes pos)");
+			e.left.add("z: "+z+" // c: "+((int)(z/16))+" ("+((int)(z%16))+")");
+			int idx = Math.abs(((int)yaw)%directions.length);
+			e.left.add("f: "+idx+" ("+directions[idx]+") / "+yaw);
+			e.left.add("lc: 37 b: null bl: 182 sl: -9 rl: 218");
+			if (SystemUtils.IS_OS_LINUX) {
+				e.left.add("ws: 0.1839, fs: ext4, g: entoo, fl: studio");
+			} else if (SystemUtils.IS_OS_MAC) {
+				e.left.add("ws: 0.1839, fs: HFS+, g: entoo, fl: studio");
+			} else if (SystemUtils.IS_OS_WINDOWS) {
+				e.left.add("ws: 0.1839, fs: NTFS, g: entoo, fl: studio");
+			} else if (SystemUtils.IS_OS_UNIX) {
+				e.left.add("ws: 0.1839, fs: XFS, g: entoo, fl: studio");
+			} else {
+				e.left.add("ws: 0.1839, fs: null, g: entoo, fl: studio");
+			}
+			
+			if (SystemUtils.IS_OS_WINDOWS_XP) {
+				e.left.add("");
+				e.left.add("Why the hell are you still using Windows XP? It's "+Calendar.getInstance().get(Calendar.YEAR)+".");
+			} else if (SystemUtils.IS_OS_WINDOWS_7) {
+				e.left.add("");
+				e.left.add("Trusty ol' Windows 7! Screw Windows 10, amirite?");
+			}
+			
+			e.right.add("");
+			e.right.add("");
+			e.right.add("This glorious debug screen");
+			e.right.add("brought to you by Lanthanoid.");
+			e.right.add("");
+			e.right.add("Craft a waypoint or a map!");
 		}
 	}
 	
+	private double corrupt(double d) {
+		return (Double.hashCode(Double.doubleToLongBits(d))^0xDEADBEEF)/50000f;
+	}
+
 	@SubscribeEvent
 	public void onPreRender(RenderTickEvent e) {
 		if (e.phase == Phase.START) {
@@ -181,6 +257,163 @@ public class LClientEventHandler {
 			secondary.tick();
 			blazeTicks++;
 		}
+	}
+	
+	private static final ResourceLocation beam = new ResourceLocation("textures/entity/beacon_beam.png");
+	
+	@SubscribeEvent
+	public void onRenderLast(RenderWorldLastEvent e) {
+		float partialTicks = e.partialTicks;
+		EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
+		double pX = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
+		double pY = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
+		double pZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
+		float f1 = 1;
+		FontRenderer fontrenderer = Minecraft.getMinecraft().fontRenderer;
+		Tessellator tess = Tessellator.instance;
+		
+		//if (Lanthanoid.inst.waypointManager.allWaypoints(Minecraft.getMinecraft().theWorld).isEmpty()) return;
+		GL11.glDisable(GL11.GL_LIGHTING);
+		GL11.glDepthMask(false);
+		GL11.glEnable(GL11.GL_BLEND);
+		Vec3 vec3 = player.getLook(1.0F).normalize();
+		for (Waypoint waypoint : Lanthanoid.inst.waypointManager.allWaypoints(Minecraft.getMinecraft().theWorld)) {
+			GL11.glPushMatrix();
+				String owner = waypoint.ownerName;
+				String name = waypoint.name;
+				double dX = waypoint.x-pX;
+				double dY = waypoint.y-pY;
+				double dZ = waypoint.z-pZ;
+	
+				GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
+	
+				double qY = dY+1;
+				
+				GL11.glEnable(GL11.GL_DEPTH_TEST);
+				
+				Minecraft.getMinecraft().renderEngine.bindTexture(beam);
+				GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, 10497.0F);
+				GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, 10497.0F);
+				GL11.glDisable(GL11.GL_LIGHTING);
+				GL11.glEnable(GL11.GL_BLEND);
+				GL11.glDepthMask(true);
+				OpenGlHelper.glBlendFunc(770, 1, 1, 0);
+				float f2 = 0;
+				float f3 = -f2 * 0.2F - (float) MathHelper.floor_float(-f2 * 0.1F);
+				byte b0 = 1;
+				double d3 = (double) f2 * 0.025D * (1.0D - (double) (b0 & 1) * 2.5D);
+				tess.startDrawingQuads();
+				tess.setColorOpaque_I(waypoint.color);
+				double d5 = (double) b0 * 0.2D;
+				double d7 = 0.5D + Math.cos(d3 + 2.356194490192345D) * d5;
+				double d9 = 0.5D + Math.sin(d3 + 2.356194490192345D) * d5;
+				double d11 = 0.5D + Math.cos(d3 + (Math.PI / 4D)) * d5;
+				double d13 = 0.5D + Math.sin(d3 + (Math.PI / 4D)) * d5;
+				double d15 = 0.5D + Math.cos(d3 + 3.9269908169872414D) * d5;
+				double d17 = 0.5D + Math.sin(d3 + 3.9269908169872414D) * d5;
+				double d19 = 0.5D + Math.cos(d3 + 5.497787143782138D) * d5;
+				double d21 = 0.5D + Math.sin(d3 + 5.497787143782138D) * d5;
+				double d23 = (double) (512.0F * f1);
+				double d25 = 0.0D;
+				double d27 = 1.0D;
+				double d28 = (double) (-1.0F + f3);
+				double d29 = (double) (512.0F * f1) * (0.5D / d5) + d28;
+				d29 -= (Minecraft.getMinecraft().theWorld.getTotalWorldTime()+partialTicks)/10f;
+				d28 -= (Minecraft.getMinecraft().theWorld.getTotalWorldTime()+partialTicks)/10f;
+				tess.addVertexWithUV(dX+ d7, qY + d23, dZ+ d9, d27, d29);
+				tess.addVertexWithUV(dX+ d7, qY, dZ+ d9, d27, d28);
+				tess.addVertexWithUV(dX+ d11, qY, dZ+ d13, d25, d28);
+				tess.addVertexWithUV(dX+ d11, qY + d23, dZ+ d13, d25, d29);
+				tess.addVertexWithUV(dX+ d19, qY + d23, dZ+ d21, d27, d29);
+				tess.addVertexWithUV(dX+ d19, qY, dZ+ d21, d27, d28);
+				tess.addVertexWithUV(dX+ d15, qY, dZ+ d17, d25, d28);
+				tess.addVertexWithUV(dX+ d15, qY + d23, dZ+ d17, d25, d29);
+				tess.addVertexWithUV(dX+ d11, qY + d23, dZ+ d13, d27, d29);
+				tess.addVertexWithUV(dX+ d11, qY, dZ+ d13, d27, d28);
+				tess.addVertexWithUV(dX+ d19, qY, dZ+ d21, d25, d28);
+				tess.addVertexWithUV(dX+ d19, qY + d23, dZ+ d21, d25, d29);
+				tess.addVertexWithUV(dX+ d15, qY + d23, dZ+ d17, d27, d29);
+				tess.addVertexWithUV(dX+ d15, qY, dZ+ d17, d27, d28);
+				tess.addVertexWithUV(dX+ d7, qY, dZ+ d9, d25, d28);
+				tess.addVertexWithUV(dX+ d7, qY + d23, dZ+ d9, d25, d29);
+				tess.draw();
+				
+				GL11.glEnable(GL11.GL_TEXTURE_2D);
+				GL11.glDepthMask(true);
+				
+				GL11.glDisable(GL11.GL_DEPTH_TEST);
+				
+				float f = (float) (MathHelper.sqrt_double((dX * dX) + (dY * dY) + (dZ * dZ)));
+				f *= 0.75f;
+				float f8 = 0.016666668F * f;
+				GL11.glTranslatef((float) dX + 0.5F, (float) dY + 0.5F, (float) dZ + 0.5f);
+				GL11.glNormal3f(0.0F, 1.0F, 0.0F);
+				GL11.glRotatef(-RenderManager.instance.playerViewY, 0.0F, 1.0F, 0.0F);
+				GL11.glRotatef(RenderManager.instance.playerViewX, 1.0F, 0.0F, 0.0F);
+				GL11.glScalef(-f1, -f1, f1);
+				GL11.glScalef(f8, f8, f8);
+				OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+				byte b9 = -8;
+	
+				Vec3 vec31 = Vec3.createVectorHelper((waypoint.x+0.5) - player.posX,
+						(waypoint.y+0.5) - (player.posY + player.getEyeHeight()),
+						(waypoint.z+0.5) - player.posZ);
+				double d0 = vec31.lengthVector();
+				vec31 = vec31.normalize();
+				double d1 = vec3.dotProduct(vec31);
+				GL11.glDisable(GL11.GL_TEXTURE_2D);
+				if (d1 > 1.0D - 0.03D / d0) {
+					tess.startDrawingQuads();
+					String dist = ((int) f) + "m";
+					int w = Math.max((fontrenderer.getStringWidth(dist) / 2) + (fontrenderer.getStringWidth(owner) / 2) + 8, fontrenderer.getStringWidth(name));
+					int j = w / 2;
+					tess.setColorRGBA_I(waypoint.color, 96);
+					tess.addVertex((double) (-j - 1), (double) (-1 + b9), 0.0D);
+					tess.addVertex((double) (-j - 1), (double) (14 + b9), 0.0D);
+					tess.addVertex((double) (j + 1), (double) (14 + b9), 0.0D);
+					tess.addVertex((double) (j + 1), (double) (-1 + b9), 0.0D);
+					tess.draw();
+					GL11.glEnable(GL11.GL_TEXTURE_2D);
+					fontrenderer.drawString(name, -fontrenderer.getStringWidth(name) / 2, b9, -1);
+					GL11.glScalef(0.5f, 0.5f, 0.5f);
+					fontrenderer.drawString(dist, w - fontrenderer.getStringWidth(dist) - 1, (b9 * 2) + 18, -1);
+					fontrenderer.drawString(owner, -w, (b9 * 2) + 18, -1);
+				} else {
+					GL11.glPushMatrix();
+						GL11.glRotatef(45, 0, 0, 1);
+						{
+							tess.startDrawingQuads();
+							tess.setColorRGBA_I(waypoint.color, 32);
+							int w = 5;
+							tess.addVertex((double) (-w), (double) (-w), 0.0D);
+							tess.addVertex((double) (-w), (double) (w), 0.0D);
+							tess.addVertex((double) (w), (double) (w), 0.0D);
+							tess.addVertex((double) (w), (double) (-w), 0.0D);
+							tess.draw();
+						}
+						{
+							tess.startDrawingQuads();
+							tess.setColorRGBA_I(waypoint.color, 64);
+							int w = 4;
+							tess.addVertex((double) (-w), (double) (-w), 0.0D);
+							tess.addVertex((double) (-w), (double) (w), 0.0D);
+							tess.addVertex((double) (w), (double) (w), 0.0D);
+							tess.addVertex((double) (w), (double) (-w), 0.0D);
+							tess.draw();
+						}
+					GL11.glPopMatrix();
+					GL11.glEnable(GL11.GL_TEXTURE_2D);
+					String dist = Integer.toString((int) f); 
+					GL11.glScalef(0.5f, 0.5f, 0.5f);
+					fontrenderer.drawString(dist, -fontrenderer.getStringWidth(dist)/2, -4, -1);
+				}
+			GL11.glPopMatrix();
+		}
+		GL11.glEnable(GL11.GL_LIGHTING);
+		GL11.glEnable(GL11.GL_DEPTH_TEST);
+		GL11.glDisable(GL11.GL_BLEND);
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		GL11.glDepthMask(true);
 	}
 	
 	@SubscribeEvent

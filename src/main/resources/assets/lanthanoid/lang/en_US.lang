@@ -6,6 +6,8 @@ itemGroup.lanthanoid=Lanthanoid
 ui.lore_hint=Hold %s for lore
 ui.help_hint=Hold %s for help
 ui.no_ammo_hint=No ammunition
+chat.waypoint_hint=Name this waypoint on an anvil, first.
+ui.waypoint_hint=Must be named on an anvil before use
 
 material.copper=Copper
 material.yttrium=Yttrium
@@ -65,6 +67,9 @@ tile.block.template=Block of %s
 tile.plating.template=%s Armor Plating
 tile.weakplating.template=Weak %s Armor Plating
 tile.energized_lutetium.name=Energized Lutetium
+tile.lamp.name=Thulite Lamp
+tile.raspite_waypoint.name=Personal Waypoint
+tile.diamond_waypoint.name=Global Waypoint
 
 item.rifle.name=Lanthanide Rifle
 

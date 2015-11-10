@@ -86,7 +86,7 @@ public class LMaterials {
 		
 		addAll("Rosasite", 0x00A6C3, BlockType.LUMPY_ORE, BlockBackdrop.NONE, ItemType.ORB);
 		
-		addAll("Raspite", 0xC67226, BlockType.GEM_SQUARE_ORE, BlockBackdrop.STONE, ItemType.WAFER);
+		addAll("Raspite", 0xC67226, BlockType.GEM_ORE, BlockBackdrop.STONE, ItemType.TRIANGLE_GEM);
 	}
 
 	private static void initMetals() {

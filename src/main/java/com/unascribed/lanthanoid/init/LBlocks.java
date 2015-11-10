@@ -3,9 +3,12 @@ package com.unascribed.lanthanoid.init;
 import java.util.Random;
 
 import com.unascribed.lanthanoid.block.BlockEnergizedLutetium;
+import com.unascribed.lanthanoid.block.BlockMachine;
 import com.unascribed.lanthanoid.block.BlockMulti;
 import com.unascribed.lanthanoid.block.BlockTechnical;
+import com.unascribed.lanthanoid.item.ItemBlockMachine;
 import com.unascribed.lanthanoid.item.ItemBlockWithCustomName;
+import com.unascribed.lanthanoid.tile.TileEntityWaypoint;
 import com.unascribed.lanthanoid.util.LArrays;
 
 import cpw.mods.fml.common.registry.GameRegistry;
@@ -22,9 +25,11 @@ public class LBlocks {
 	public static BlockMulti ore_metal, ore_gem, ore_other, storage, weak_plating, plating;
 	public static BlockTechnical technical;
 	public static BlockEnergizedLutetium energized_lutetium;
+	public static BlockMulti misc;
+	public static BlockMachine machine;
 	
 	public static void init() {
-		GameRegistry.registerBlock(LBlocks.ore_metal = new BlockMulti(
+		GameRegistry.registerBlock(ore_metal = new BlockMulti(
 				Material.rock,
 				Blocks.stone,
 				
@@ -34,7 +39,7 @@ public class LBlocks {
 				.setTemplate("oreNeodymium", Blocks.nether_brick)
 				.setTemplate("oreErbium", Blocks.end_stone)
 				.setTemplate("oreGadolinium", Blocks.end_stone), ItemBlockWithCustomName.class, "ore_metal");
-		GameRegistry.registerBlock(LBlocks.ore_gem = new BlockMulti(Material.rock, Blocks.stone, LArrays.all(LMaterials.gems, "ore")) {
+		GameRegistry.registerBlock(ore_gem = new BlockMulti(Material.rock, Blocks.stone, LArrays.all(LMaterials.gems, "ore")) {
 			@Override
 			public Item getItemDropped(int p_149650_1_, Random p_149650_2_, int p_149650_3_) {
 				return LItems.gem;
@@ -56,27 +61,27 @@ public class LBlocks {
 				return MathHelper.getRandomIntegerInRange(rand, 3, 7);
 			}
 		}, ItemBlockWithCustomName.class, "ore_gem");
-		GameRegistry.registerBlock(LBlocks.ore_other = new BlockMulti(
+		GameRegistry.registerBlock(ore_other = new BlockMulti(
 				Material.rock,
 				Blocks.stone,
 				
 				LArrays.all(LMaterials.others, "ore")), ItemBlockWithCustomName.class, "ore_other");
 		
-		GameRegistry.registerBlock(LBlocks.storage = new BlockMulti(
+		GameRegistry.registerBlock(storage = new BlockMulti(
 				Material.iron,
 				Blocks.iron_block,
 				
-				LArrays.all(LMaterials.gemsAndMetal, "block")
+				LArrays.exclude(LArrays.all(LMaterials.gemsAndMetal, "block"), "blockRosasite")
 				), ItemBlockWithCustomName.class, "storage");
 		
-		GameRegistry.registerBlock(LBlocks.weak_plating = new BlockMulti(
+		GameRegistry.registerBlock(weak_plating = new BlockMulti(
 				Material.iron,
 				Blocks.iron_block,
 				
 				LArrays.all(LMaterials.metalsPlusVanilla, "weakplating")
 				), ItemBlockWithCustomName.class, "weak_plating");
 		
-		GameRegistry.registerBlock(LBlocks.plating = new BlockMulti(
+		GameRegistry.registerBlock(plating = new BlockMulti(
 				Material.iron,
 				Blocks.iron_block,
 				
@@ -92,11 +97,21 @@ public class LBlocks {
 			}
 		}, ItemBlockWithCustomName.class, "plating");
 		
-		GameRegistry.registerBlock(LBlocks.technical = new BlockTechnical(), null, "technical");
+		GameRegistry.registerBlock(technical = new BlockTechnical(), null, "technical");
 		
-		GameRegistry.registerBlock(LBlocks.energized_lutetium = (BlockEnergizedLutetium) new BlockEnergizedLutetium()
+		GameRegistry.registerBlock(energized_lutetium = (BlockEnergizedLutetium) new BlockEnergizedLutetium()
 				.setBlockName("energized_lutetium")
 				.setBlockTextureName("lanthanoid:plasma"), "energized_lutetium");
+		
+		GameRegistry.registerBlock(misc = (BlockMulti) new BlockMulti(
+				Material.glass,
+				Blocks.glowstone,
+				
+				"lampThulite"
+				).setBlockName("lamp"), "misc");
+		
+		GameRegistry.registerBlock(machine = new BlockMachine(), ItemBlockMachine.class, "machine");
+		GameRegistry.registerTileEntity(TileEntityWaypoint.class, "lanthanoid:waypoint");
 	}
 
 }

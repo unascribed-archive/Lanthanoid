@@ -128,6 +128,20 @@ public class BlockMulti extends BlockBase implements NameDelegate {
 		}
 	}
 	
+	@Override
+	public int getLightOpacity(IBlockAccess world, int x, int y, int z) {
+		int meta = world.getBlockMetadata(x, y, z);
+		if (meta < 0 || meta >= templates.length) return 0;
+		return templates[meta].getLightOpacity();
+	}
+	
+	@Override
+	public int getLightValue(IBlockAccess world, int x, int y, int z) {
+		int meta = world.getBlockMetadata(x, y, z);
+		if (meta < 0 || meta >= templates.length) return 0;
+		return templates[meta].getLightValue();
+	}
+	
 	
 	@Override
 	@SideOnly(Side.CLIENT)

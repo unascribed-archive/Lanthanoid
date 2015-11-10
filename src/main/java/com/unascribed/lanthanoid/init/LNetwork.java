@@ -5,6 +5,8 @@ import com.unascribed.lanthanoid.network.BeamParticleHandler;
 import com.unascribed.lanthanoid.network.BeamParticleMessage;
 import com.unascribed.lanthanoid.network.ModifyRifleModeHandler;
 import com.unascribed.lanthanoid.network.ModifyRifleModeMessage;
+import com.unascribed.lanthanoid.network.ModifyWaypointListHandler;
+import com.unascribed.lanthanoid.network.ModifyWaypointListMessage;
 import com.unascribed.lanthanoid.network.RifleChargingSoundHandler;
 import com.unascribed.lanthanoid.network.RifleChargingSoundRequest;
 import com.unascribed.lanthanoid.network.SetScopeFactorHandler;
@@ -26,6 +28,7 @@ public class LNetwork {
 		network.registerMessage(SetScopeFactorHandler.class, SetScopeFactorMessage.class, 3, Side.CLIENT);
 		network.registerMessage(SpaceShipCrashHandler.class, SpaceShipCrashMessage.class, 4, Side.CLIENT);
 		network.registerMessage(ToggleRifleBlazeModeHandler.class, ToggleRifleBlazeModeMessage.class, 5, Side.SERVER);
+		network.registerMessage(ModifyWaypointListHandler.class, ModifyWaypointListMessage.class, 6, Side.CLIENT);
 		Lanthanoid.inst.network = network;
 	}
 }

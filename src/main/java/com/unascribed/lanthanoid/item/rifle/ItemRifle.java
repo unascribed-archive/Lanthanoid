@@ -132,7 +132,7 @@ public class ItemRifle extends ItemBase {
 	}
 	
 	public SecondaryMode getSecondaryMode(ItemStack stack) {
-		if (!getCompound(stack).hasKey("mode", 99)) return SecondaryMode.NONE;
+		if (!getCompound(stack).hasKey("mode2", 99)) return SecondaryMode.NONE;
 		SecondaryMode[] val = SecondaryMode.values();
 		return val[getCompound(stack).getInteger("mode2")%val.length];
 	}
@@ -688,9 +688,17 @@ public class ItemRifle extends ItemBase {
 							ItemStack spawn = null;
 							if (b == LBlocks.ore_metal) {
 								if (meta == LBlocks.ore_metal.getMetaForName("oreErbium")) {
-									spawn = LItems.dust.getStackForName("dustErbium");
+									if (fire) {
+										spawn = LItems.ingot.getStackForName("ingotErbium");
+									} else {
+										spawn = LItems.dust.getStackForName("dustErbium");
+									}
 								} else if (meta == LBlocks.ore_metal.getMetaForName("oreGadolinium")) {
-									spawn = LItems.dust.getStackForName("dustGadolinium");
+									if (fire) {
+										spawn = LItems.ingot.getStackForName("ingotGadolinium");
+									} else {
+										spawn = LItems.dust.getStackForName("dustGadolinium");
+									}
 								}
 							}
 							if (spawn != null) {
@@ -703,7 +711,9 @@ public class ItemRifle extends ItemBase {
 								item.posY += (vel.yCoord*0.2);
 								item.posZ += (vel.zCoord*0.2);
 								item.setPosition(item.posX, item.posY, item.posZ);
-								item.setVelocity(vel.xCoord, vel.yCoord, vel.zCoord);
+								item.motionX = vel.xCoord;
+								item.motionY = vel.yCoord;
+								item.motionZ = vel.zCoord;
 								shooter.worldObj.spawnEntityInWorld(item);
 							}
 						}

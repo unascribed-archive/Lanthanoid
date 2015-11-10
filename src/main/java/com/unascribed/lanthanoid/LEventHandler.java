@@ -3,10 +3,14 @@ package com.unascribed.lanthanoid;
 import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.item.rifle.Variant;
 import com.unascribed.lanthanoid.network.BeamParticleMessage;
+import com.unascribed.lanthanoid.network.ModifyWaypointListMessage;
 import com.unascribed.lanthanoid.network.SetScopeFactorMessage;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 import cpw.mods.fml.common.gameevent.TickEvent.PlayerTickEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityFallingBlock;
@@ -20,6 +24,26 @@ public class LEventHandler {
 	@SubscribeEvent
 	public void onConstruct(EntityEvent.EntityConstructing e) {
 		e.entity.registerExtendedProperties("lanthanoid", new LanthanoidProperties());
+	}
+	
+	private int waypointTicks = 0;
+	
+	@SubscribeEvent
+	public void onServerTick(ServerTickEvent e) {
+		if (e.phase == Phase.START) {
+			if (waypointTicks++ % 5 == 0) {
+				Lanthanoid.inst.waypointManager.sendUpdates();
+			}
+		}
+	}
+	
+	@SubscribeEvent
+	public void onPlayerLoggedIn(PlayerLoggedInEvent e) {
+		if (!(e.player instanceof EntityPlayerMP)) return;
+		ModifyWaypointListMessage mwlm = new ModifyWaypointListMessage();
+		mwlm.mode = ModifyWaypointListMessage.Mode.RESET;
+		Lanthanoid.inst.network.sendTo(mwlm, (EntityPlayerMP)e.player);
+		Lanthanoid.inst.waypointManager.sendAll((EntityPlayerMP)e.player);
 	}
 	
 	@SubscribeEvent

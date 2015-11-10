@@ -19,9 +19,33 @@ public class LRecipes {
 		initRifle();
 		initTeleporter();
 		
+		initMachines();
+		
 		initStopgap();
+		
+		GameRegistry.addRecipe(new ShapedOreRecipe(LBlocks.misc.getStackForName("lampThulite"), 
+				"tt",
+				"tt",
+				't', "dustThulite"));
 	}
 	
+	private static void initMachines() {
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LBlocks.machine, 1, 0), 
+				"hph",
+				"hgh",
+				"hhh",
+				'h', "ingotHolmium",
+				'g', "gemRaspite",
+				'p', Items.ender_pearl));
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LBlocks.machine, 1, 1), 
+				"hph",
+				"hgh",
+				"hhh",
+				'h', "ingotHolmium",
+				'g', "gemDiamond",
+				'p', Items.ender_pearl));
+	}
+
 	private static void initStopgap() {
 		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.ingot.getStackForName("ingotDysprosium", 2), 
 				"dbd",

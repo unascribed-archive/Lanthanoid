@@ -3,6 +3,7 @@ package com.unascribed.lanthanoid;
 import org.apache.logging.log4j.Logger;
 
 import com.unascribed.lanthanoid.client.LClientEventHandler;
+import com.unascribed.lanthanoid.client.TextureCompositorImpl.BlockType;
 import com.unascribed.lanthanoid.client.TextureCompositorImpl.ItemType;
 import com.unascribed.lanthanoid.init.LAchievements;
 import com.unascribed.lanthanoid.init.LBlocks;
@@ -10,6 +11,7 @@ import com.unascribed.lanthanoid.init.LCommands;
 import com.unascribed.lanthanoid.init.LConfig;
 import com.unascribed.lanthanoid.init.LGenerator;
 import com.unascribed.lanthanoid.init.LItems;
+import com.unascribed.lanthanoid.init.LMachines;
 import com.unascribed.lanthanoid.init.LMaterials;
 import com.unascribed.lanthanoid.init.LNetwork;
 import com.unascribed.lanthanoid.init.LOres;
@@ -17,6 +19,8 @@ import com.unascribed.lanthanoid.init.LRecipes;
 import com.unascribed.lanthanoid.item.ItemTeleporter;
 import com.unascribed.lanthanoid.proxy.Proxy;
 import com.unascribed.lanthanoid.util.TextureCompositor;
+import com.unascribed.lanthanoid.waypoint.WaypointManager;
+import com.unascribed.lanthanoid.waypoint.WaypointSavedData;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Loader;
@@ -36,6 +40,9 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.WorldProvider;
+import net.minecraft.world.WorldSavedData;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 
 @Mod(
@@ -62,11 +69,14 @@ public class Lanthanoid {
 	};
 	
 	public SimpleNetworkWrapper network;
+	public WaypointManager waypointManager = new WaypointManager();
 	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent e) {
-		if (Loader.isModLoaded("journeymap") || Loader.isModLoaded("mapwriter")) {
-			throw new InternalError();
+		if (Loader.isModLoaded("fondue")) {
+			if (Loader.isModLoaded("journeymap") || Loader.isModLoaded("mapwriter")) {
+				throw new InternalError();
+			}
 		}
 		log = e.getModLog();
 		if (Loader.isModLoaded("farrago")) {
@@ -77,11 +87,13 @@ public class Lanthanoid {
 		LConfig.init(e.getSuggestedConfigurationFile());
 		
 		LMaterials.init();
+		LMachines.init();
 		
 		if (compositor != null) {
 			for (String s : ItemTeleporter.flavors) {
 				compositor.addItem("teleporter"+s, LMaterials.colors.get(s), ItemType.TELEPORTER);
 			}
+			compositor.addBlock("lampThulite", LMaterials.colors.get("Thulite"), BlockType.LAMP);
 		}
 		
 		proxy.setup();
@@ -116,6 +128,12 @@ public class Lanthanoid {
 	@EventHandler
 	public void onServerStart(FMLServerStartingEvent e) {
 		LCommands.register(e::registerServerCommand);
+		WorldServer w = DimensionManager.getWorld(0);
+		WaypointSavedData wsd = (WaypointSavedData) w.mapStorage.loadData(WaypointSavedData.class, "lanthanoidWaypoints");
+		if (wsd == null) {
+			w.mapStorage.setData("lanthanoidWaypoints", wsd = new WaypointSavedData("lanthanoidWaypoints"));
+		}
+		waypointManager.setSaveManager(wsd);
 	}
 	
 	@SideOnly(Side.CLIENT)

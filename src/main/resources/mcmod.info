@@ -5,7 +5,7 @@
   "description": "A mod that does a lot of things that make no sense and uses lanthanides as excuses.",
   "version": "${version}",
   "mcversion": "${mcversion}",
-  "url": "https://github.com/unascribed/Lanthanoid",
+  "url": "https://unascribed.com",
   "updateUrl": "",
   "authorList": ["Una"],
   "credits": "See CREDITS file",
