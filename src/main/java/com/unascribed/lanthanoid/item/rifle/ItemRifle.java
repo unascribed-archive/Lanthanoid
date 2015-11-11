@@ -20,6 +20,7 @@ import com.unascribed.lanthanoid.util.LVectors;
 
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraft.block.Block;
+import net.minecraft.client.gui.GuiVideoSettings;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
@@ -31,6 +32,8 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.passive.EntityAnimal;
+import net.minecraft.entity.passive.EntityHorse;
+import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -553,6 +556,12 @@ public class ItemRifle extends ItemBase {
 							Entity nxt = null;
 							for (Entity e : (List<Entity>)world.getEntitiesWithinAABB(EntityLivingBase.class, hit.boundingBox.expand(5, 5, 5))) {
 								if (shot.contains(e)) continue;
+								if (e instanceof EntityTameable) {
+									if (((EntityTameable) e).getOwner() == shooter) continue;
+								}
+								if (e instanceof EntityHorse) {
+									if (shooter.getGameProfile().getId().toString().equals(((EntityHorse) e).func_152119_ch())) continue;
+								}
 								double dist = e.getDistanceSq(end.xCoord, end.yCoord, end.zCoord);
 								if (dist <= minDist) {
 									minDist = dist;
@@ -602,6 +611,12 @@ public class ItemRifle extends ItemBase {
 					EntityLivingBase closest = null;
 					for (EntityLivingBase elb : li) {
 						if (elb == shooter) continue;
+						if (elb instanceof EntityTameable) {
+							if (((EntityTameable) elb).getOwner() == shooter) continue;
+						}
+						if (elb instanceof EntityHorse) {
+							if (shooter.getGameProfile().getId().toString().equals(((EntityHorse) elb).func_152119_ch())) continue;
+						}
 						double distance = elb.getDistanceSq(end.xCoord, end.yCoord, end.zCoord);
 						if (distance < minDistance) {
 							minDistance = distance;
@@ -791,10 +806,15 @@ public class ItemRifle extends ItemBase {
 		float f1;
 
 		Vec3 hit = null;
-		
 		for (i = 0; i < list.size(); ++i) {
 			Entity entity1 = (Entity) list.get(i);
 			if (entity1.canBeCollidedWith() && entity1 != shooter) {
+				if (entity1 instanceof EntityTameable) {
+					if (((EntityTameable) entity1).getOwner() == shooter) continue;
+				}
+				if (entity1 instanceof EntityHorse && shooter instanceof EntityPlayer) {
+					if (((EntityPlayer)shooter).getGameProfile().getId().toString().equals(((EntityHorse) entity1).func_152119_ch())) continue;
+				}
 				f1 = 0.3F;
 				AxisAlignedBB axisalignedbb1 = entity1.boundingBox.expand((double) f1, (double) f1, (double) f1);
 				MovingObjectPosition movingobjectposition1 = axisalignedbb1.calculateIntercept(vec31, vec3);

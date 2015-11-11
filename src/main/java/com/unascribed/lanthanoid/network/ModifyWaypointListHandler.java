@@ -17,7 +17,10 @@ public class ModifyWaypointListHandler implements IMessageHandler<ModifyWaypoint
 	@Override
 	@SideOnly(Side.CLIENT)
 	public IMessage onMessage(ModifyWaypointListMessage message, MessageContext ctx) {
-		if (message.mode == ModifyWaypointListMessage.Mode.PATCH) {
+		if (message.mode == ModifyWaypointListMessage.Mode.PUT) {
+			Lanthanoid.inst.waypointManager.clear();
+		}
+		if (message.mode == ModifyWaypointListMessage.Mode.PATCH || message.mode == ModifyWaypointListMessage.Mode.PUT) {
 			for (Map.Entry<Integer, List<Vec3i>> en : message.remove.entrySet()) {
 				for (Vec3i v : en.getValue()) {
 					Lanthanoid.inst.waypointManager.removeWaypoint(en.getKey(), v.x, v.y, v.z);

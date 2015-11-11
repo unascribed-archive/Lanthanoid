@@ -14,34 +14,40 @@ public class LItems {
 	public static ItemMulti ingot, stick, dust, nugget, gem;
 	public static ItemTeleporter teleporter;
 	public static ItemRifle rifle;
-	public static ItemWreckingBall wrecking_ball;
+	public static ItemWreckingBall ytterbium_wrecking_ball, erbium_wrecking_ball, dysprosium_wrecking_ball;
 	
 	public static void init() {
-		GameRegistry.registerItem(LItems.ingot = new ItemMulti(LArrays.all(LMaterials.metals, "ingot")), "ingot");
-		GameRegistry.registerItem(LItems.stick = new ItemMulti(LArrays.all(LMaterials.metalsPlusVanilla, "stick")), "stick");
-		GameRegistry.registerItem(LItems.nugget = new ItemMulti(LArrays.exclude(LArrays.all(LMaterials.metalsPlusVanilla, "nugget"), "nuggetGold")), "nugget");
-		GameRegistry.registerItem(LItems.dust = new ItemMulti(LArrays.all(LMaterials.gemsAndMetalPlusVanilla, "dust")), "dust");
-		GameRegistry.registerItem(LItems.gem = new ItemMulti(LArrays.all(LMaterials.gems, "gem")), "gem");
+		GameRegistry.registerItem(ingot = new ItemMulti(LArrays.all(LMaterials.metals, "ingot")), "ingot");
+		GameRegistry.registerItem(stick = new ItemMulti(LArrays.all(LMaterials.metalsPlusVanilla, "stick")), "stick");
+		GameRegistry.registerItem(nugget = new ItemMulti(LArrays.exclude(LArrays.all(LMaterials.metalsPlusVanilla, "nugget"), "nuggetGold")), "nugget");
+		GameRegistry.registerItem(dust = new ItemMulti(LArrays.all(LMaterials.gemsAndMetalPlusVanilla, "dust")), "dust");
+		GameRegistry.registerItem(gem = new ItemMulti(LArrays.all(LMaterials.gems, "gem")), "gem");
 		
-		LItems.teleporter = new ItemTeleporter();
+		teleporter = new ItemTeleporter();
 		if (LConfig.item_teleporter) {
-			GameRegistry.registerItem(LItems.teleporter, "teleporter");
+			GameRegistry.registerItem(teleporter, "teleporter");
 		} else {
 			GameRegistry.registerItem(new ItemDisabled().setUnlocalizedName("teleporter"), "teleporter");
 		}
 		
-		LItems.rifle = new ItemRifle();
+		rifle = new ItemRifle();
 		if (LConfig.item_rifle) {
-			GameRegistry.registerItem(LItems.rifle, "rifle");
+			GameRegistry.registerItem(rifle, "rifle");
 		} else {
 			GameRegistry.registerItem(new ItemDisabled().setUnlocalizedName("rifle"), "rifle");
 		}
 		
-		LItems.wrecking_ball = new ItemWreckingBall();
+		ytterbium_wrecking_ball = new ItemWreckingBall(ItemWreckingBall.Material.YTTERBIUM);
+		erbium_wrecking_ball = new ItemWreckingBall(ItemWreckingBall.Material.ERBIUM);
+		dysprosium_wrecking_ball = new ItemWreckingBall(ItemWreckingBall.Material.DYSPROSIUM);
 		if (LConfig.item_wreckingBall) {
-			GameRegistry.registerItem(LItems.wrecking_ball, "wrecking_ball");
+			GameRegistry.registerItem(ytterbium_wrecking_ball, "ytterbium_wrecking_ball");
+			GameRegistry.registerItem(erbium_wrecking_ball, "erbium_wrecking_ball");
+			GameRegistry.registerItem(dysprosium_wrecking_ball, "dysprosium_wrecking_ball");
 		} else {
-			GameRegistry.registerItem(new ItemDisabled().setUnlocalizedName("wrecking_ball"), "wrecking_ball");
+			GameRegistry.registerItem(new ItemDisabled().setUnlocalizedName("ytterbium_wrecking_ball"), "ytterbium_wrecking_ball");
+			GameRegistry.registerItem(new ItemDisabled().setUnlocalizedName("erbium_wrecking_ball"), "erbium_wrecking_ball");
+			GameRegistry.registerItem(new ItemDisabled().setUnlocalizedName("dysprosium_wrecking_ball"), "dysprosium_wrecking_ball");
 		}
 	}
 }

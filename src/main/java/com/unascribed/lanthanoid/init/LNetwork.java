@@ -3,6 +3,8 @@ package com.unascribed.lanthanoid.init;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.network.BeamParticleHandler;
 import com.unascribed.lanthanoid.network.BeamParticleMessage;
+import com.unascribed.lanthanoid.network.ItemBreakHandler;
+import com.unascribed.lanthanoid.network.ItemBreakMessage;
 import com.unascribed.lanthanoid.network.ModifyRifleModeHandler;
 import com.unascribed.lanthanoid.network.ModifyRifleModeMessage;
 import com.unascribed.lanthanoid.network.ModifyWaypointListHandler;
@@ -29,6 +31,7 @@ public class LNetwork {
 		network.registerMessage(SpaceShipCrashHandler.class, SpaceShipCrashMessage.class, 4, Side.CLIENT);
 		network.registerMessage(ToggleRifleBlazeModeHandler.class, ToggleRifleBlazeModeMessage.class, 5, Side.SERVER);
 		network.registerMessage(ModifyWaypointListHandler.class, ModifyWaypointListMessage.class, 6, Side.CLIENT);
+		network.registerMessage(ItemBreakHandler.class, ItemBreakMessage.class, 7, Side.CLIENT);
 		Lanthanoid.inst.network = network;
 	}
 }

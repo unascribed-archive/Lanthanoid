@@ -34,17 +34,20 @@ import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 import cpw.mods.fml.common.gameevent.TickEvent.RenderTickEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.block.BlockLadder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiIngame;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.player.EntityPlayer;
@@ -256,6 +259,7 @@ public class LClientEventHandler {
 			primary.tick();
 			secondary.tick();
 			blazeTicks++;
+			waypointTicks++;
 		}
 	}
 	
@@ -281,20 +285,15 @@ public class LClientEventHandler {
 			GL11.glPushMatrix();
 				String owner = waypoint.ownerName;
 				String name = waypoint.name;
-				double dX = waypoint.x-pX;
-				double dY = waypoint.y-pY;
-				double dZ = waypoint.z-pZ;
+				final double dX = (waypoint.x-pX)+0.5;
+				final double dY = (waypoint.y-pY)+0.5;
+				final double dZ = (waypoint.z-pZ)+0.5;
 	
 				GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
 	
-				double qX = Math.min(100, Math.abs(dX))*Math.signum(dX);
-				double qY = Math.min(100, Math.abs(dY))*Math.signum(dY);
-				double qZ = Math.min(100, Math.abs(dZ))*Math.signum(dZ);
+				final float dist = (float) (MathHelper.sqrt_double((dX * dX) + (dY * dY) + (dZ * dZ)));
 				
-				float rawF = (float) (MathHelper.sqrt_double((dX * dX) + (dY * dY) + (dZ * dZ)));
-				float f = rawF;
-				
-				if (f < 150) {
+				if (dist < 150) {
 					GL11.glEnable(GL11.GL_DEPTH_TEST);
 					
 					Minecraft.getMinecraft().renderEngine.bindTexture(beam);
@@ -309,16 +308,16 @@ public class LClientEventHandler {
 					byte b0 = 1;
 					double d3 = (double) f2 * 0.025D * (1.0D - (double) (b0 & 1) * 2.5D);
 					tess.startDrawingQuads();
-					tess.setColorOpaque_I(waypoint.color);
+					tess.setColorRGBA_I(waypoint.color, 128);
 					double d5 = (double) b0 * 0.2D;
-					double d7 = 0.5D + Math.cos(d3 + 2.356194490192345D) * d5;
-					double d9 = 0.5D + Math.sin(d3 + 2.356194490192345D) * d5;
-					double d11 = 0.5D + Math.cos(d3 + (Math.PI / 4D)) * d5;
-					double d13 = 0.5D + Math.sin(d3 + (Math.PI / 4D)) * d5;
-					double d15 = 0.5D + Math.cos(d3 + 3.9269908169872414D) * d5;
-					double d17 = 0.5D + Math.sin(d3 + 3.9269908169872414D) * d5;
-					double d19 = 0.5D + Math.cos(d3 + 5.497787143782138D) * d5;
-					double d21 = 0.5D + Math.sin(d3 + 5.497787143782138D) * d5;
+					double d7 = Math.cos(d3 + 2.356194490192345D) * d5;
+					double d9 = Math.sin(d3 + 2.356194490192345D) * d5;
+					double d11 = Math.cos(d3 + (Math.PI / 4D)) * d5;
+					double d13 = Math.sin(d3 + (Math.PI / 4D)) * d5;
+					double d15 = Math.cos(d3 + 3.9269908169872414D) * d5;
+					double d17 = Math.sin(d3 + 3.9269908169872414D) * d5;
+					double d19 = Math.cos(d3 + 5.497787143782138D) * d5;
+					double d21 = Math.sin(d3 + 5.497787143782138D) * d5;
 					double d23 = (double) (512.0F * f1);
 					double d25 = 0.0D;
 					double d27 = 1.0D;
@@ -326,22 +325,22 @@ public class LClientEventHandler {
 					double d29 = (double) (512.0F * f1) * (0.5D / d5) + d28;
 					d29 -= (Minecraft.getMinecraft().theWorld.getTotalWorldTime()+partialTicks)/10f;
 					d28 -= (Minecraft.getMinecraft().theWorld.getTotalWorldTime()+partialTicks)/10f;
-					tess.addVertexWithUV(qX+ d7, qY + d23, qZ+ d9, d27, d29);
-					tess.addVertexWithUV(qX+ d7, qY, qZ+ d9, d27, d28);
-					tess.addVertexWithUV(qX+ d11, qY, qZ+ d13, d25, d28);
-					tess.addVertexWithUV(qX+ d11, qY + d23, qZ+ d13, d25, d29);
-					tess.addVertexWithUV(qX+ d19, qY + d23, qZ+ d21, d27, d29);
-					tess.addVertexWithUV(qX+ d19, qY, qZ+ d21, d27, d28);
-					tess.addVertexWithUV(qX+ d15, qY, qZ+ d17, d25, d28);
-					tess.addVertexWithUV(qX+ d15, qY + d23, qZ+ d17, d25, d29);
-					tess.addVertexWithUV(qX+ d11, qY + d23, qZ+ d13, d27, d29);
-					tess.addVertexWithUV(qX+ d11, qY, qZ+ d13, d27, d28);
-					tess.addVertexWithUV(qX+ d19, qY, qZ+ d21, d25, d28);
-					tess.addVertexWithUV(qX+ d19, qY + d23, qZ+ d21, d25, d29);
-					tess.addVertexWithUV(qX+ d15, qY + d23, qZ+ d17, d27, d29);
-					tess.addVertexWithUV(qX+ d15, qY, qZ+ d17, d27, d28);
-					tess.addVertexWithUV(qX+ d7, qY, qZ+ d9, d25, d28);
-					tess.addVertexWithUV(qX+ d7, qY + d23, qZ+ d9, d25, d29);
+					tess.addVertexWithUV(dX+ d7, dY + d23, dZ+ d9, d27, d29);
+					tess.addVertexWithUV(dX+ d7, dY, dZ+ d9, d27, d28);
+					tess.addVertexWithUV(dX+ d11, dY, dZ+ d13, d25, d28);
+					tess.addVertexWithUV(dX+ d11, dY + d23, dZ+ d13, d25, d29);
+					tess.addVertexWithUV(dX+ d19, dY + d23, dZ+ d21, d27, d29);
+					tess.addVertexWithUV(dX+ d19, dY, dZ+ d21, d27, d28);
+					tess.addVertexWithUV(dX+ d15, dY, dZ+ d17, d25, d28);
+					tess.addVertexWithUV(dX+ d15, dY + d23, dZ+ d17, d25, d29);
+					tess.addVertexWithUV(dX+ d11, dY + d23, dZ+ d13, d27, d29);
+					tess.addVertexWithUV(dX+ d11, dY, dZ+ d13, d27, d28);
+					tess.addVertexWithUV(dX+ d19, dY, dZ+ d21, d25, d28);
+					tess.addVertexWithUV(dX+ d19, dY + d23, dZ+ d21, d25, d29);
+					tess.addVertexWithUV(dX+ d15, dY + d23, dZ+ d17, d27, d29);
+					tess.addVertexWithUV(dX+ d15, dY, dZ+ d17, d27, d28);
+					tess.addVertexWithUV(dX+ d7, dY, dZ+ d9, d25, d28);
+					tess.addVertexWithUV(dX+ d7, dY + d23, dZ+ d9, d25, d29);
 					tess.draw();
 					
 					GL11.glEnable(GL11.GL_TEXTURE_2D);
@@ -349,16 +348,15 @@ public class LClientEventHandler {
 					
 				}
 				GL11.glDisable(GL11.GL_DEPTH_TEST);
-				String dist = Integer.toString((int) f);
-				if (f < 10) {
-					f = 10;
-				}
-				if (f > 150) {
-					f = 150-((f-150)/15f);
-				}
-				f *= 0.75f;
-				float f8 = 0.016666668F * f;
-				GL11.glTranslatef((float) qX + 0.5F, (float) qY + 0.5F, (float) qZ + 0.5f);
+				
+				float nX = (float) (dX / dist) * 150;
+				float nY = (float) (dY / dist) * 150;
+				float nZ = (float) (dZ / dist) * 150;
+				
+				String distStr = Integer.toString((int) dist);
+				ScaledResolution res = new ScaledResolution(Minecraft.getMinecraft(), Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
+				float f8 = res.getScaleFactor()/2f;
+				GL11.glTranslatef(nX, nY, nZ);
 				GL11.glNormal3f(0.0F, 1.0F, 0.0F);
 				GL11.glRotatef(-RenderManager.instance.playerViewY, 0.0F, 1.0F, 0.0F);
 				GL11.glRotatef(RenderManager.instance.playerViewX, 1.0F, 0.0F, 0.0F);
@@ -367,18 +365,19 @@ public class LClientEventHandler {
 				OpenGlHelper.glBlendFunc(770, 771, 1, 0);
 				byte b9 = -8;
 	
-				Vec3 vec31 = Vec3.createVectorHelper(qX+0.5,
-						qY+0.5 - player.getEyeHeight(),
-						qZ+0.5);
+				Vec3 vec31 = Vec3.createVectorHelper(dX,
+						dY - player.getEyeHeight(),
+						dZ);
 				double d0 = vec31.lengthVector();
 				vec31 = vec31.normalize();
 				double d1 = vec3.dotProduct(vec31);
 				GL11.glDisable(GL11.GL_TEXTURE_2D);
-				if (d1 > 1.0D - Math.max(0.025D, rawF/1200) / d0) {
+				if (d1 > 1.0D - Math.max(0.025D, dist/1200) / d0) {
+					GL11.glScalef(0.5f, 0.5f, 0.5f);
 					tess.startDrawingQuads();
-					int w = Math.max((fontrenderer.getStringWidth(dist) / 2) + (fontrenderer.getStringWidth(owner) / 2) + 8, fontrenderer.getStringWidth(name));
+					int w = Math.max((fontrenderer.getStringWidth(distStr) / 2) + (fontrenderer.getStringWidth(owner) / 2) + 8, fontrenderer.getStringWidth(name));
 					int j = w / 2;
-					tess.setColorRGBA_I(waypoint.color, 96);
+					tess.setColorRGBA_I(waypoint.color, 128);
 					tess.addVertex((double) (-j - 1), (double) (-1 + b9), 0.0D);
 					tess.addVertex((double) (-j - 1), (double) (14 + b9), 0.0D);
 					tess.addVertex((double) (j + 1), (double) (14 + b9), 0.0D);
@@ -387,15 +386,15 @@ public class LClientEventHandler {
 					GL11.glEnable(GL11.GL_TEXTURE_2D);
 					fontrenderer.drawString(name, -fontrenderer.getStringWidth(name) / 2, b9, -1);
 					GL11.glScalef(0.5f, 0.5f, 0.5f);
-					fontrenderer.drawString(dist+"m", w - fontrenderer.getStringWidth(dist+"m") - 1, (b9 * 2) + 18, -1);
+					fontrenderer.drawString(distStr+"m", w - fontrenderer.getStringWidth(distStr+"m") - 1, (b9 * 2) + 18, -1);
 					fontrenderer.drawString(owner, -w, (b9 * 2) + 18, -1);
 				} else {
 					GL11.glPushMatrix();
 						GL11.glRotatef(45, 0, 0, 1);
 						{
 							tess.startDrawingQuads();
-							tess.setColorRGBA_I(waypoint.color, 32);
-							int w = 5;
+							tess.setColorRGBA_I(waypoint.color, 96);
+							double w = 1.5;
 							tess.addVertex((double) (-w), (double) (-w), 0.0D);
 							tess.addVertex((double) (-w), (double) (w), 0.0D);
 							tess.addVertex((double) (w), (double) (w), 0.0D);
@@ -404,8 +403,8 @@ public class LClientEventHandler {
 						}
 						{
 							tess.startDrawingQuads();
-							tess.setColorRGBA_I(waypoint.color, 64);
-							int w = 4;
+							tess.setColorRGBA_I(waypoint.color, 192);
+							int w = 1;
 							tess.addVertex((double) (-w), (double) (-w), 0.0D);
 							tess.addVertex((double) (-w), (double) (w), 0.0D);
 							tess.addVertex((double) (w), (double) (w), 0.0D);
@@ -414,8 +413,9 @@ public class LClientEventHandler {
 						}
 					GL11.glPopMatrix();
 					GL11.glEnable(GL11.GL_TEXTURE_2D);
-					GL11.glScalef(0.5f, 0.5f, 0.5f);
-					fontrenderer.drawString(dist, -fontrenderer.getStringWidth(dist)/2, -4, -1);
+					GL11.glScalef(0.3f, 0.3f, 0.3f);
+					String firstChar = waypoint.name.substring(0,1);
+					fontrenderer.drawString(firstChar, 1 - fontrenderer.getStringWidth(firstChar)/2, (b9 * 2) + 12, ~waypoint.color);
 				}
 			GL11.glPopMatrix();
 		}
@@ -432,6 +432,7 @@ public class LClientEventHandler {
 			Minecraft mc = Minecraft.getMinecraft();
 			if (scopeFactor > 1) {
 				GL11.glPushMatrix();
+				GL11.glDisable(GL11.GL_LIGHTING);
 				float realWidth = e.resolution.getScaledHeight();
 				GL11.glScalef(realWidth/256, (e.resolution.getScaledHeight())/256f, 1);
 				mc.renderEngine.bindTexture(SCOPE_TEX);
@@ -480,6 +481,20 @@ public class LClientEventHandler {
 		if (e.type == ElementType.ALL) {
 			Minecraft mc = Minecraft.getMinecraft();
 			EntityClientPlayerMP p = mc.thePlayer;
+			GL11.glDisable(GL11.GL_LIGHTING);
+			if (waypointTicks <= 80) {
+				GL11.glEnable(GL11.GL_BLEND);
+				OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+				GL11.glPushMatrix();
+				GL11.glScalef(2f, 2f, 1f);
+				float t = Math.min(waypointTicks, 80)+e.partialTicks;
+				int opacity = (int)(Math.abs(Math.sin((t/80)*Math.PI))*255);
+				if (opacity > 5) {
+					mc.fontRenderer.drawString(waypointName, (e.resolution.getScaledWidth()/4)-(mc.fontRenderer.getStringWidth(waypointName)/2), 4, waypointColor | (opacity << 24), false);
+				}
+				GL11.glPopMatrix();
+				GL11.glDisable(GL11.GL_BLEND);
+			}
 			if (p.getHeldItem() != null && p.getHeldItem().getItem() == LItems.rifle) {
 				ItemStack stack = p.getHeldItem();
 				
@@ -500,7 +515,6 @@ public class LClientEventHandler {
 					}
 				}
 				GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-				RenderHelper.enableGUIStandardItemLighting();
 				boolean blaze = LItems.rifle.isBlazeEnabled(stack);
 				if (lastBlaze != blaze) {
 					blazeTicks = 0;
@@ -543,7 +557,6 @@ public class LClientEventHandler {
 				}
 				primary.render(p, stack, 0, 0, e.partialTicks);
 				secondary.render(p, stack, e.resolution.getScaledWidth(), 0, e.partialTicks);
-				RenderHelper.disableStandardItemLighting();
 				GL11.glDisable(GL12.GL_RESCALE_NORMAL);
 			}
 		}
@@ -662,6 +675,20 @@ public class LClientEventHandler {
 				}
 			}
 			mc.thePlayer.inventory.changeCurrentItem(dWheel);
+		}
+	}
+
+	private String waypointName;
+	private int lastWaypointId = -1;
+	private int waypointTicks;
+	private int waypointColor;
+	
+	public void onNearWaypoint(Waypoint w) {
+		if (lastWaypointId != w.id) {
+			lastWaypointId = w.id;
+			waypointName = w.name;
+			waypointTicks = 0;
+			waypointColor = w.color & 0x00FFFFFF;
 		}
 	}
 }

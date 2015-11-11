@@ -81,6 +81,7 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase placer, ItemStack stack) {
 		if (!world.isRemote && stack.getItemDamage() == 0 || stack.getItemDamage() == 1) {
 			Waypoint waypoint = new Waypoint();
+			waypoint.setId();
 			waypoint.x = x;
 			waypoint.y = y;
 			waypoint.z = z;
@@ -122,12 +123,15 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 			if (w != null) {
 				ItemStack held = player.getHeldItem();
 				if (held != null) {
-					float times = 1;
+					float times = 3;
 					float[] resultColor = new float[] {
 						((w.color>>16)&255)/255f,
 						((w.color>>8)&255)/255f,
 						(w.color&255)/255f,
 					};
+					resultColor[0] *= times;
+					resultColor[1] *= times;
+					resultColor[2] *= times;
 					int[] ids = OreDictionary.getOreIDs(held);
 					boolean use = false;
 					for (int id : ids) {

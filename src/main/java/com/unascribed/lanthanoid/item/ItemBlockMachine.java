@@ -2,7 +2,10 @@ package com.unascribed.lanthanoid.item;
 
 import java.util.List;
 
+import com.unascribed.lanthanoid.init.LAchievements;
+
 import net.minecraft.block.Block;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentTranslation;
@@ -14,6 +17,16 @@ public class ItemBlockMachine extends ItemBlockWithCustomName {
 		super(block);
 	}
 
+	@Override
+	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean held) {
+		if (entity instanceof EntityPlayer) {
+			((EntityPlayer)entity).triggerAchievement(LAchievements.craftWaypoint);
+			if (stack.hasDisplayName()) {
+				((EntityPlayer)entity).triggerAchievement(LAchievements.nameWaypoint);
+			}
+		}
+	}
+	
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List li, boolean advanced) {
 		if (!stack.hasDisplayName()) {

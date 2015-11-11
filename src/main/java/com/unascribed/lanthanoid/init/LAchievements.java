@@ -29,7 +29,15 @@ public class LAchievements {
 							cornerDeflect,
 							fullChain,
 							fullChainKill,
-							snipe
+							snipe,
+							
+							craftWaypoint,
+							nameWaypoint,
+							useWaypoint,
+							usedWaypoint,
+							
+							craftWreckingBall,
+							craftDysWreckingBall
 	;
 	
 	
@@ -63,6 +71,17 @@ public class LAchievements {
 		
 		addAchievement("snipe", -8, 1, LItems.gem.getStackForName("gemRaspite"), scope).setSpecial();
 		
+		
+		
+		addAchievement("craftWaypoint", -1, -2, LBlocks.machine, 0, null);
+		addAchievement("nameWaypoint", -2, -4, LBlocks.machine, 1, craftWaypoint);
+		addAchievement("useWaypoint", 0, -5, LItems.gem, 2, nameWaypoint);
+		addAchievement("usedWaypoint", 1, -3, Items.emerald, craftWaypoint);
+		
+		
+		addAchievement("craftWreckingBall", -1, 2, LItems.ytterbium_wrecking_ball, null);
+		addAchievement("craftDysWreckingBall", -2, 4, LItems.dysprosium_wrecking_ball, craftWreckingBall);
+		
 		for (Achievement a : li) {
 			a.registerStat();
 		}
@@ -70,11 +89,11 @@ public class LAchievements {
 		page = new AchievementPage("Lanthanoid", li.toArray(new Achievement[li.size()]));
 		AchievementPage.registerAchievementPage(LAchievements.page);
 	}
-	/*
+	
 	private static Achievement addAchievement(String name, int x, int y, Block block, int meta, Achievement dependency) {
 		return addAchievement(name, x, y, new ItemStack(block, 1, meta), dependency);
 	}
-	*/
+	
 	private static Achievement addAchievement(String name, int x, int y, Item item, int meta, Achievement dependency) {
 		return addAchievement(name, x, y, new ItemStack(item, 1, meta), dependency);
 	}

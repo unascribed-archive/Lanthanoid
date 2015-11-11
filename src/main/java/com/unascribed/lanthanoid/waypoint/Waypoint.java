@@ -13,6 +13,9 @@ public class Waypoint {
 		PERSONAL,
 		GLOBAL
 	}
+	private static int nextId;
+	
+	public int id;
 	public int x, y, z;
 	public int color;
 	public String name;
@@ -20,6 +23,10 @@ public class Waypoint {
 	public UUID owner;
 	public Type type;
 	
+	
+	public void setId() {
+		id = nextId++;
+	}
 	
 	@Override
 	public String toString() {
@@ -29,6 +36,7 @@ public class Waypoint {
 	
 	
 	public void fromBytes(ByteBuf buf) {
+		id = buf.readInt();
 		x = buf.readInt();
 		y = buf.readUnsignedByte();
 		z = buf.readInt();
@@ -41,6 +49,7 @@ public class Waypoint {
 	}
 	
 	public void toBytes(ByteBuf buf) {
+		buf.writeInt(id);
 		buf.writeInt(x);
 		buf.writeByte(y);
 		buf.writeInt(z);

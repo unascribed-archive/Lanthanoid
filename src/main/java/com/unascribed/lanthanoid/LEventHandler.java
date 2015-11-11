@@ -1,11 +1,18 @@
 package com.unascribed.lanthanoid;
 
+import java.util.List;
+import java.util.UUID;
+
+import com.unascribed.lanthanoid.client.LClientEventHandler;
+import com.unascribed.lanthanoid.init.LAchievements;
+import com.unascribed.lanthanoid.init.LBlocks;
 import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.item.rifle.Variant;
 import com.unascribed.lanthanoid.network.BeamParticleMessage;
-import com.unascribed.lanthanoid.network.ModifyWaypointListMessage;
 import com.unascribed.lanthanoid.network.SetScopeFactorMessage;
+import com.unascribed.lanthanoid.waypoint.Waypoint;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.Phase;
@@ -14,10 +21,16 @@ import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityFallingBlock;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.event.entity.player.AnvilRepairEvent;
+import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 
 public class LEventHandler {
 	
@@ -27,6 +40,13 @@ public class LEventHandler {
 	}
 	
 	private int waypointTicks = 0;
+	
+	@SubscribeEvent
+	public void onDestroy(PlayerDestroyItemEvent e) {
+		if (e.original.getItem() == LItems.erbium_wrecking_ball) {
+			e.entityPlayer.inventory.addItemStackToInventory(LItems.stick.getStackForName("stickHolmium"));
+		}
+	}
 	
 	@SubscribeEvent
 	public void onServerTick(ServerTickEvent e) {
@@ -40,15 +60,29 @@ public class LEventHandler {
 	@SubscribeEvent
 	public void onPlayerLoggedIn(PlayerLoggedInEvent e) {
 		if (!(e.player instanceof EntityPlayerMP)) return;
-		ModifyWaypointListMessage mwlm = new ModifyWaypointListMessage();
-		mwlm.mode = ModifyWaypointListMessage.Mode.RESET;
-		Lanthanoid.inst.network.sendTo(mwlm, (EntityPlayerMP)e.player);
-		Lanthanoid.inst.waypointManager.sendAll((EntityPlayerMP)e.player);
+		Lanthanoid.inst.waypointManager.sendAll((EntityPlayerMP)e.player, false);
 	}
 	
 	@SubscribeEvent
 	public void onPlayerTick(PlayerTickEvent e) {
 		LanthanoidProperties props = (LanthanoidProperties)e.player.getExtendedProperties("lanthanoid");
+		for (Waypoint w : Lanthanoid.inst.waypointManager.allWaypoints(e.player.worldObj)) {
+			double distSq = e.player.getDistanceSq(w.x+0.5, w.y+0.5, w.z+0.5);
+			if (distSq < 20*20) {
+				if (FMLCommonHandler.instance().getEffectiveSide().isClient())
+					LClientEventHandler.inst.onNearWaypoint(w);
+				if (!w.owner.equals(e.player.getGameProfile().getId())) {
+					e.player.triggerAchievement(LAchievements.usedWaypoint);
+					if (FMLCommonHandler.instance().getEffectiveSide().isServer()) {
+						for (EntityPlayer p : (List<EntityPlayer>)MinecraftServer.getServer().getConfigurationManager().playerEntityList) {
+							if (p.getGameProfile().getId().equals(w.owner)) {
+								p.triggerAchievement(LAchievements.useWaypoint);
+							}
+						}
+					}
+				}
+			}
+		}
 		if (props.scopeFactor > 1) {
 			ItemStack held = e.player.getHeldItem();
 			if (held == null || held.getItem() != LItems.rifle || LItems.rifle.getVariant(held) != Variant.ZOOM) {

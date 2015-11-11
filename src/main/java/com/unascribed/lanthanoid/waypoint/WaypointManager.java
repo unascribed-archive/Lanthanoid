@@ -14,6 +14,7 @@ import com.google.common.collect.Maps;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.Vec3i;
 import com.unascribed.lanthanoid.network.ModifyWaypointListMessage;
+import com.unascribed.lanthanoid.network.ModifyWaypointListMessage.Mode;
 import com.unascribed.lanthanoid.util.Functional;
 import com.unascribed.lanthanoid.waypoint.Waypoint.Type;
 
@@ -39,7 +40,6 @@ public class WaypointManager {
 	
 	public void sendUpdates() {
 		for (Map.Entry<Integer, Vec3i> en : pendingRemovals) {
-			System.out.println("removing "+en.getValue());
 			removeWaypoint(en.getKey(), en.getValue().x, en.getValue().y, en.getValue().z);
 		}
 		pendingRemovals.clear();
@@ -59,10 +59,11 @@ public class WaypointManager {
 	
 	
 	
-	public void sendAll(EntityPlayerMP player) {
+	public void sendAll(EntityPlayerMP player, boolean patch) {
 		ModifyWaypointListMessage msg = new ModifyWaypointListMessage();
 		msg.remove = Maps.newHashMap();
 		msg.add = Maps.newHashMap();
+		msg.mode = patch ? Mode.PATCH : Mode.PUT;
 		for (Map.Entry<Integer, Map<Vec3i, Waypoint>> dimEn : waypoints.entrySet()) {
 			List<Waypoint> li = Lists.newArrayList();
 			for (Waypoint w : dimEn.getValue().values()) {
@@ -98,6 +99,7 @@ public class WaypointManager {
 				NBTTagList li = nbt.getTagList(key, NBT.TAG_COMPOUND);
 				for (int i = 0; i < li.tagCount(); i++) {
 					Waypoint w = new Waypoint();
+					w.setId();
 					w.readFromNBT(li.getCompoundTagAt(i));
 					setWaypoint(dimId, w.x, w.y, w.z, w);
 				}

@@ -16,7 +16,8 @@ public class ModifyWaypointListMessage implements IMessage {
 
 	public enum Mode {
 		PATCH,
-		RESET
+		RESET,
+		PUT
 	}
 	
 	public Mode mode = Mode.PATCH;
@@ -32,7 +33,7 @@ public class ModifyWaypointListMessage implements IMessage {
 		remove = Collections.emptyMap();
 		add = Collections.emptyMap();
 		
-		if (mode == Mode.PATCH) {
+		if (mode == Mode.PATCH || mode == Mode.PUT) {
 			int addSize = buf.readUnsignedShort();
 			if (addSize > 0) {
 				Map<Integer, List<Waypoint>> map = Maps.newHashMap();
@@ -52,23 +53,24 @@ public class ModifyWaypointListMessage implements IMessage {
 				}
 				add = map;
 			}
-			
-			int removeSize = buf.readUnsignedShort();
-			if (removeSize > 0) {
-				Map<Integer, List<Vec3i>> map = Maps.newHashMap();
-				List<Integer> dims = Lists.newArrayList();
-				for (int i = 0; i < removeSize; i++) {
-					dims.add((int)buf.readByte());
-				}
-				for (int dim : dims) {
-					List<Vec3i> li = Lists.newArrayList();
-					int size = buf.readUnsignedShort();
-					for (int i = 0; i < size; i++) {
-						li.add(new Vec3i(buf.readInt(), buf.readUnsignedByte(), buf.readInt()));
+			if (mode == Mode.PATCH) {
+				int removeSize = buf.readUnsignedShort();
+				if (removeSize > 0) {
+					Map<Integer, List<Vec3i>> map = Maps.newHashMap();
+					List<Integer> dims = Lists.newArrayList();
+					for (int i = 0; i < removeSize; i++) {
+						dims.add((int)buf.readByte());
 					}
-					map.put(dim, li);
+					for (int dim : dims) {
+						List<Vec3i> li = Lists.newArrayList();
+						int size = buf.readUnsignedShort();
+						for (int i = 0; i < size; i++) {
+							li.add(new Vec3i(buf.readInt(), buf.readUnsignedByte(), buf.readInt()));
+						}
+						map.put(dim, li);
+					}
+					remove = map;
 				}
-				remove = map;
 			}
 		}
 	}

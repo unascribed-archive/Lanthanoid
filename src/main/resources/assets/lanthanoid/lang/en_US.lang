@@ -71,12 +71,10 @@ tile.lamp.name=Thulite Lamp
 tile.raspite_waypoint.name=Personal Waypoint
 tile.diamond_waypoint.name=Global Waypoint
 
-item.wrecking_ball.name=Dysprosium Wrecking Ball
+item.ytterbium_wrecking_ball.name=Ytterbium Wrecking Ball
+item.erbium_wrecking_ball.name=Erbium Wrecking Ball
+item.dysprosium_wrecking_ball.name=Dysprosium Wrecking Ball
 
-item.wrecking_ball.lore=I'M GONNA WRECK IT!
-item.wrecking_ball.help.1=Acts like a pickaxe and shovel, but mines blocks instantly
-item.wrecking_ball.help.2=Only drops 25% of what normally would
-item.wrecking_ball.help.3=Mines a 3x3x3 area, sneak to mine a block at a time instead
 
 item.rifle.name=Lanthanide Rifle
 
@@ -131,6 +129,26 @@ death.attack.telefrag=%1$s was telefragged by %2$s
 death.attack.telefrag.item=%1$s was telefragged by %2$s using %3$s
 
 death.attack.zap=%1$s was electrocuted
+
+
+achievement.craftWaypoint=A Beacon of Hope
+achievement.craftWaypoint.desc=Obtain a Personal or Global waypoint.
+
+achievement.nameWaypoint=Name a Place...
+achievement.nameWaypoint.desc=Rename a waypoint on an anvil.
+
+achievement.useWaypoint=...Save a Life
+achievement.useWaypoint.desc=Have someone arrive at one of your waypoints.
+
+achievement.usedWaypoint=You Have Arrived At Your Destination
+achievement.usedWaypoint.desc=Arrive at someone else's waypoint.
+
+
+achievement.craftWreckingBall=I'M GONNA WRECK IT!
+achievement.craftWreckingBall.desc=Obtain a Wrecking Ball.
+
+achievement.craftDysWreckingBall=Definitely Not Overpowered
+achievement.craftDysWreckingBall.desc=Obtain a Dysprosium Wrecking Ball.
 
 
 achievement.craftRifle=Pew Pew Pew

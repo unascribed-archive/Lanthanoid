@@ -4,6 +4,7 @@ import com.unascribed.lanthanoid.item.ItemTeleporter;
 import com.unascribed.lanthanoid.item.rifle.Variant;
 
 import cpw.mods.fml.common.registry.GameRegistry;
+import net.minecraft.block.BlockGrass;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -28,7 +29,25 @@ public class LRecipes {
 				"tt",
 				't', "dustThulite"));
 		
-		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.wrecking_ball,
+		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.ytterbium_wrecking_ball,
+				", ,",
+				"d,B",
+				"h  ",
+				
+				',', "nuggetYtterbium",
+				'd', "stickYtterbium",
+				'h', "stickHolmium",
+				'B', "blockYtterbium"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.erbium_wrecking_ball,
+				", ,",
+				"d,B",
+				"h  ",
+				
+				',', "nuggetErbium",
+				'd', "stickErbium",
+				'h', "stickHolmium",
+				'B', "blockErbium"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.dysprosium_wrecking_ball,
 				", ,",
 				"d,B",
 				"h  ",

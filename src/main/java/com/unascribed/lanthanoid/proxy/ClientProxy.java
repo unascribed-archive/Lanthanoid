@@ -5,6 +5,7 @@ import com.unascribed.lanthanoid.client.MachineItemRenderer;
 import com.unascribed.lanthanoid.client.RifleItemRenderer;
 import com.unascribed.lanthanoid.client.TextureCompositorImpl;
 import com.unascribed.lanthanoid.client.WaypointTileEntitySpecialRenderer;
+import com.unascribed.lanthanoid.client.WreckingBallItemRenderer;
 import com.unascribed.lanthanoid.init.LBlocks;
 import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.tile.TileEntityWaypoint;
@@ -42,5 +43,8 @@ public class ClientProxy implements Proxy {
 		MinecraftForge.EVENT_BUS.register(ceh);
 		MinecraftForgeClient.registerItemRenderer(LItems.rifle, new RifleItemRenderer());
 		MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(LBlocks.machine), new MachineItemRenderer());
+		MinecraftForgeClient.registerItemRenderer(LItems.ytterbium_wrecking_ball, new WreckingBallItemRenderer());
+		MinecraftForgeClient.registerItemRenderer(LItems.erbium_wrecking_ball, new WreckingBallItemRenderer());
+		MinecraftForgeClient.registerItemRenderer(LItems.dysprosium_wrecking_ball, new WreckingBallItemRenderer());
 	}
 }
