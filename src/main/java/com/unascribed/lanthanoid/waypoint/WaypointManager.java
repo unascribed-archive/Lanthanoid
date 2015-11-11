@@ -23,6 +23,7 @@ import cpw.mods.fml.relauncher.Side;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
 
@@ -49,10 +50,20 @@ public class WaypointManager {
 			return;
 		}
 		if (additions.isEmpty() && removals.isEmpty()) return;
-		ModifyWaypointListMessage mwlm = new ModifyWaypointListMessage();
-		mwlm.add = Maps.newHashMap(additions);
-		mwlm.remove = Maps.newHashMap(removals);
-		Lanthanoid.inst.network.sendToAll(mwlm);
+		Map<Integer, List<Vec3i>> removalsClone = Maps.newHashMap(removals);
+		for (EntityPlayerMP p : (List<EntityPlayerMP>)MinecraftServer.getServer().getConfigurationManager().playerEntityList) {
+			ModifyWaypointListMessage mwlm = new ModifyWaypointListMessage();
+			mwlm.add = Maps.newHashMap();
+			for (Map.Entry<Integer, List<Waypoint>> dimEn : additions.entrySet()) {
+				List<Waypoint> li = Lists.newArrayList();
+				mwlm.add.put(dimEn.getKey(), li);
+				for (Waypoint w : dimEn.getValue()) {
+					if (w.type == Type.GLOBAL || w.owner.equals(p)) li.add(w);
+				}
+			}
+			mwlm.remove = removalsClone;
+			Lanthanoid.inst.network.sendTo(mwlm, p);
+		}
 		additions.clear();
 		removals.clear();
 	}
