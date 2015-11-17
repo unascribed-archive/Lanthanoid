@@ -12,12 +12,14 @@ import net.minecraft.client.particle.EntityEnchantmentTableParticleFX;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnchantmentTable;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.common.util.ForgeDirection;
+import scala.collection.parallel.ParIterableLike.Min;
 
 public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer {
 
@@ -26,7 +28,6 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 		float x = (float)xdouble;
 		float y = (float)ydouble;
 		float z = (float)zdouble;
-		Tessellator tessellator = Tessellator.instance;
 		IIcon glyphs = null;
 		switch (teraw.getBlockMetadata()) {
 			case 3:
@@ -61,7 +62,11 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 		}
 		playerAnim /= 20;
 		
+		float glyphCount = Math.max(1, Math.min(te.milliglyphs, 100000))/100000f;
+		
 		float q = Math.max(0.25f, playerAnim);
+		float q2 = Math.max(0.25f, playerAnim*glyphCount);
+		
 		
 		GL11.glPushMatrix();
 			GL11.glDisable(GL11.GL_LIGHTING);
@@ -79,6 +84,12 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 			}*/
 			
 			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240f, 240f);
+			
+			Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+			
+			float r = q-(playerAnim*glyphCount);
+			float g = q-playerAnim;
+			float b = q2;
 			
 			float t = (te.ticksExisted+partialTicks)+((te.xCoord*31)+(te.yCoord*31)+(te.zCoord*31));
 			GL11.glPushMatrix();
@@ -98,10 +109,10 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 						GL11.glRotatef((sin*4)*playerAnim, 0, 0, 1);
 						GL11.glTranslatef(-0.5f, -0.25f, 0);
 						GL11.glScalef(1, 0.5f, 1);
-						GL11.glColor4f(q, q-playerAnim, q, 0.15f);
+						GL11.glColor4f(r, g, b, 0.15f);
 						drawExtrudedHalfIcon(glyphs, 0.5f);
 						GL11.glTranslatef(0, 0, 0.05f);
-						GL11.glColor4f(q, q-playerAnim, q, 0.5f);
+						GL11.glColor4f(r, g, b, 0.5f);
 						drawExtrudedHalfIcon(glyphs, 0.05f);
 						/*tessellator.startDrawingQuads();
 						tessellator.setColorOpaque_F(q, q-playerAnim, q);
@@ -116,17 +127,30 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 			GL11.glPopMatrix();
 			
 			float sin = (float)(Math.sin(t/20)+1)/4;
-			String str = Integer.toString(te.milliglyphs);
+			String str = (te.milliglyphs/1000)+"."+((te.milliglyphs%1000)/10);
 			FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
 			
-			GL11.glTranslatef((float)x+0.5f, (float)y+1.25f+sin, (float)z+0.5f);
-			GL11.glRotatef(t*4, 0, 1, 0);
-			GL11.glScalef(0.025f, -0.025f, 0.025f);
-			fr.drawString(str, -fr.getStringWidth(str)/2, 0, -1);
+			GL11.glPushMatrix();
+				GL11.glTranslatef((float)x+0.5f, (float)y+1.25f+sin, (float)z+0.5f);
+				GL11.glRotatef(t*4, 0, 1, 0);
+				GL11.glScalef(0.025f, -0.025f, 0.025f);
+				fr.drawString(str, -fr.getStringWidth(str)/2, 0, -1);
+				
+				GL11.glRotatef(180, 0, 1, 0);
+				fr.drawString(str, -fr.getStringWidth(str)/2, 0, -1);
+			GL11.glPopMatrix();
 			
-			GL11.glRotatef(180, 0, 1, 0);
-			fr.drawString(str, -fr.getStringWidth(str)/2, 0, -1);
-			
+			String str2 = "[debug]";
+			GL11.glPushMatrix();
+				GL11.glTranslatef((float)x+0.5f, (float)y+1.4f+sin, (float)z+0.5f);
+				GL11.glRotatef(t*4, 0, 1, 0);
+				GL11.glScalef(0.0125f, -0.0125f, 0.0125f);
+				fr.drawString(str2, -fr.getStringWidth(str2)/2, 0, -1);
+				
+				GL11.glRotatef(180, 0, 1, 0);
+				fr.drawString(str2, -fr.getStringWidth(str2)/2, 0, -1);
+			GL11.glPopMatrix();
+				
 			GL11.glDepthMask(false);
 			GL11.glDisable(GL11.GL_BLEND);
 			GL11.glEnable(GL11.GL_LIGHTING);

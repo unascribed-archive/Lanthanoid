@@ -288,6 +288,12 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 	}
 
 	@Override
+	public boolean onBlockEventReceived(World world, int x, int y, int z, int event, int arg) {
+		if (!world.isRemote) return true;
+		return world.getTileEntity(x, y, z) == null ? false : world.getTileEntity(x, y, z).receiveClientEvent(event, arg);
+	}
+	
+	@Override
 	public void getSubBlocks(Item item, CreativeTabs tab, List li) {
 		for (int i = 0; i < 6; i++) {
 			li.add(new ItemStack(item, 1, i));

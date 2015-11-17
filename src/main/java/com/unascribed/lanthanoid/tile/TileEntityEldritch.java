@@ -1,6 +1,8 @@
 package com.unascribed.lanthanoid.tile;
 
 import com.unascribed.lanthanoid.client.SoundEldritch;
+import com.unascribed.lanthanoid.effect.EntityGlyphFX;
+import com.unascribed.lanthanoid.init.LBlocks;
 import com.unascribed.lanthanoid.util.LVec3;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -8,6 +10,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.EntityEnchantmentTableParticleFX;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -18,6 +21,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
+import net.minecraft.world.WorldServer;
 
 public class TileEntityEldritch extends TileEntity {
 	public int ticksExisted;
@@ -62,8 +66,24 @@ public class TileEntityEldritch extends TileEntity {
 						if (mop != null && mop.typeOfHit == MovingObjectType.BLOCK) {
 							Block hitBlock = worldObj.getBlock(mop.blockX, mop.blockY, mop.blockZ);
 							float power = hitBlock.getEnchantPowerBonus(worldObj, mop.blockX, mop.blockY, mop.blockZ);
-							milliglyphs += (int)(power*1000);
-							markDirty();
+							if (power > 0) {
+								milliglyphs += (int)(power*1000);
+								
+								byte dX = (byte)(mop.blockX-xCoord);
+								byte dY = (byte)(mop.blockY-yCoord);
+								byte dZ = (byte)(mop.blockZ-zCoord);
+								
+								int packed = 0;
+								
+								packed |= (((int)(power*4))&0xFF)<<24;
+								packed |= ((dX&0xFF) << 16);
+								packed |= ((dY&0xFF) << 8);
+								packed |= (dZ&0xFF);
+								
+								worldObj.addBlockEvent(xCoord, yCoord, zCoord, LBlocks.machine, 1, milliglyphs);
+								worldObj.addBlockEvent(xCoord, yCoord, zCoord, LBlocks.machine, 2, packed);
+								markDirty();
+							}
 						}
 					}
 				} else if (getBlockMetadata() == 4) {
@@ -76,16 +96,40 @@ public class TileEntityEldritch extends TileEntity {
 	}
 	
 	@Override
+	public boolean receiveClientEvent(int event, int arg) {
+		if (event == 1) {
+			milliglyphs = arg;
+			return true;
+		} else if (event == 2) {
+			int pow = ((arg>>>24)&0xFF);
+			int x = (byte)((arg>>>16)&0xFF);
+			int y = (byte)((arg>>>8)&0xFF);
+			int z = (byte)(arg&0xFF);
+			if (FMLCommonHandler.instance().getSide().isClient() && FMLCommonHandler.instance().getEffectiveSide().isClient()) {
+				spawnParticle(x, y, z, pow);
+			}
+		}
+		return super.receiveClientEvent(event, arg);
+	}
+	
+	@SideOnly(Side.CLIENT)
+	private void spawnParticle(int x, int y, int z, int pow) {
+		double spread = 0.25;
+		for (int i = 0; i < pow*10; i++) {
+			EntityGlyphFX fx = new EntityGlyphFX(worldObj, xCoord+0.5, yCoord+2, zCoord+0.5, x+(worldObj.rand.nextGaussian()*spread), y+(worldObj.rand.nextGaussian()*spread)-2, z+(worldObj.rand.nextGaussian()*spread));
+			Minecraft.getMinecraft().effectRenderer.addEffect(fx);
+		}
+	}
+
+	@Override
 	public Packet getDescriptionPacket() {
-		System.out.println("hi");
 		NBTTagCompound comp = new NBTTagCompound();
 		comp.setInteger("MilliGlyphs", milliglyphs);
-		return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, comp);
+		return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 255, comp);
 	}
 	
 	@Override
 	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
-		System.out.println("hello");
 		this.milliglyphs = pkt.func_148857_g().getInteger("MilliGlyphs");
 	}
 	
