@@ -19,7 +19,7 @@ public class SoundEldritch extends MovingSound {
 		this.yPosF = te.yCoord+0.5f;
 		this.zPosF = te.zCoord+0.5f;
 		this.field_147663_c = (te.playerAnim/40f)+0.5f;
-		this.volume = te.playerAnim/10f;
+		this.volume = te.playerAnim/20f;
 		this.repeat = true;
 	}
 
@@ -33,7 +33,7 @@ public class SoundEldritch extends MovingSound {
 		this.yPosF = te.yCoord+0.5f;
 		this.zPosF = te.zCoord+0.5f;
 		this.field_147663_c = (te.playerAnim/40f)+0.5f;
-		this.volume = te.playerAnim/10f;
+		this.volume = te.playerAnim/20f;
 	}
 	
 	public void stop() {

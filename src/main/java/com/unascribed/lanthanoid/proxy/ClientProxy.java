@@ -15,6 +15,7 @@ import com.unascribed.lanthanoid.util.TextureCompositor;
 
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
+import net.minecraft.block.BlockChest;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.SimpleReloadableResourceManager;
 import net.minecraft.item.Item;

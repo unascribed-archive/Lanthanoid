@@ -10,7 +10,6 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.EntityEnchantmentTableParticleFX;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -21,7 +20,6 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
-import net.minecraft.world.WorldServer;
 
 public class TileEntityEldritch extends TileEntity {
 	public int ticksExisted;
@@ -29,6 +27,7 @@ public class TileEntityEldritch extends TileEntity {
 	public boolean playersNearby;
 	
 	public int milliglyphs;
+	public int bookCount;
 	
 	@SideOnly(Side.CLIENT)
 	private SoundEldritch sound;
@@ -52,9 +51,14 @@ public class TileEntityEldritch extends TileEntity {
 				updateSound();
 			}
 			if (!getWorldObj().isRemote) {
+				if (milliglyphs > getMaxMilliglyphs()) {
+					milliglyphs = getMaxMilliglyphs();
+					syncMilliglyphs();
+					markDirty();
+				}
 				if (getBlockMetadata() == 3) {
 					// Collector
-					if (ticksExisted % 10 == 0) {
+					if (milliglyphs < getMaxMilliglyphs() && ticksExisted % 10 == 0) {
 						LVec3 end = new LVec3(worldObj.rand.nextGaussian(), worldObj.rand.nextGaussian(), worldObj.rand.nextGaussian());
 						end.normalize();
 						double sX = xCoord+0.5+end.xCoord;
@@ -69,19 +73,8 @@ public class TileEntityEldritch extends TileEntity {
 							if (power > 0) {
 								milliglyphs += (int)(power*1000);
 								
-								byte dX = (byte)(mop.blockX-xCoord);
-								byte dY = (byte)(mop.blockY-yCoord);
-								byte dZ = (byte)(mop.blockZ-zCoord);
-								
-								int packed = 0;
-								
-								packed |= (((int)(power*4))&0xFF)<<24;
-								packed |= ((dX&0xFF) << 16);
-								packed |= ((dY&0xFF) << 8);
-								packed |= (dZ&0xFF);
-								
-								worldObj.addBlockEvent(xCoord, yCoord, zCoord, LBlocks.machine, 1, milliglyphs);
-								worldObj.addBlockEvent(xCoord, yCoord, zCoord, LBlocks.machine, 2, packed);
+								spawnParticles(mop.blockX, mop.blockY, mop.blockZ, power);
+								syncMilliglyphs();
 								markDirty();
 							}
 						}
@@ -93,6 +86,33 @@ public class TileEntityEldritch extends TileEntity {
 				}
 			}
 		}
+	}
+	
+	public int getMaxMilliglyphs() {
+		return 100000+(bookCount*20000);
+	}
+
+	private void spawnParticles(int blockX, int blockY, int blockZ, float power) {
+		byte dX = (byte)(blockX-xCoord);
+		byte dY = (byte)(blockY-yCoord);
+		byte dZ = (byte)(blockZ-zCoord);
+		
+		int packed = 0;
+		
+		packed |= (((int)(power*4))&0xFF)<<24;
+		packed |= ((dX&0xFF) << 16);
+		packed |= ((dY&0xFF) << 8);
+		packed |= (dZ&0xFF);
+		
+		worldObj.addBlockEvent(xCoord, yCoord, zCoord, LBlocks.machine, 2, packed);
+	}
+
+	public void syncMilliglyphs() {
+		worldObj.addBlockEvent(xCoord, yCoord, zCoord, LBlocks.machine, 1, milliglyphs);
+	}
+	
+	public void syncBooks() {
+		worldObj.addBlockEvent(xCoord, yCoord, zCoord, LBlocks.machine, 3, bookCount);
 	}
 	
 	@Override
@@ -108,6 +128,10 @@ public class TileEntityEldritch extends TileEntity {
 			if (FMLCommonHandler.instance().getSide().isClient() && FMLCommonHandler.instance().getEffectiveSide().isClient()) {
 				spawnParticle(x, y, z, pow);
 			}
+			return true;
+		} else if (event == 3) {
+			bookCount = arg;
+			return true;
 		}
 		return super.receiveClientEvent(event, arg);
 	}
@@ -125,24 +149,28 @@ public class TileEntityEldritch extends TileEntity {
 	public Packet getDescriptionPacket() {
 		NBTTagCompound comp = new NBTTagCompound();
 		comp.setInteger("MilliGlyphs", milliglyphs);
+		comp.setInteger("Books", bookCount);
 		return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 255, comp);
 	}
 	
 	@Override
 	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
 		this.milliglyphs = pkt.func_148857_g().getInteger("MilliGlyphs");
+		this.bookCount = pkt.func_148857_g().getInteger("Books");
 	}
 	
 	@Override
 	public void readFromNBT(NBTTagCompound tag) {
 		super.readFromNBT(tag);
 		milliglyphs = tag.getInteger("MilliGlyphs");
+		bookCount = tag.getInteger("Books");
 	}
 	
 	@Override
 	public void writeToNBT(NBTTagCompound tag) {
 		super.writeToNBT(tag);
 		tag.setInteger("MilliGlyphs", milliglyphs);
+		tag.setInteger("Books", bookCount);
 	}
 	
 	@SideOnly(Side.CLIENT)
