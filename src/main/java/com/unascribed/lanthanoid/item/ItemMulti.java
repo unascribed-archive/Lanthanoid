@@ -25,6 +25,10 @@ public class ItemMulti extends ItemBase {
 		icons = new IIcon[names.length];
 	}
 	
+	public boolean hasName(String name) {
+		return helper.hasName(name);
+	}
+	
 	public int getMetaForName(String name) {
 		return helper.getMetaForName(name);
 	}

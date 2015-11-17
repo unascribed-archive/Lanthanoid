@@ -1,5 +1,6 @@
 package com.unascribed.lanthanoid.client;
 
+import java.awt.Color;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -16,6 +17,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.unascribed.lanthanoid.Lanthanoid;
+import com.unascribed.lanthanoid.init.LBlocks;
 import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.item.rifle.ItemRifle;
 import com.unascribed.lanthanoid.item.rifle.Mode;
@@ -24,6 +26,7 @@ import com.unascribed.lanthanoid.item.rifle.SecondaryMode;
 import com.unascribed.lanthanoid.network.ModifyRifleModeMessage;
 import com.unascribed.lanthanoid.network.ToggleRifleBlazeModeMessage;
 import com.unascribed.lanthanoid.waypoint.Waypoint;
+import com.unascribed.lanthanoid.waypoint.Waypoint.Type;
 
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -34,6 +37,7 @@ import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 import cpw.mods.fml.common.gameevent.TickEvent.RenderTickEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockLadder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
@@ -55,6 +59,8 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.util.Vec3;
@@ -272,7 +278,7 @@ public class LClientEventHandler {
 		double pX = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
 		double pY = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
 		double pZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
-		float f1 = 1;
+		float f1 = 1.0f;
 		FontRenderer fontrenderer = Minecraft.getMinecraft().fontRenderer;
 		Tessellator tess = Tessellator.instance;
 		
@@ -281,145 +287,194 @@ public class LClientEventHandler {
 		GL11.glDepthMask(false);
 		GL11.glEnable(GL11.GL_BLEND);
 		Vec3 vec3 = player.getLook(1.0F).normalize();
+		boolean rcg = player.getEquipmentInSlot(4) != null && player.getEquipmentInSlot(4).getItem() == LItems.glasses;
 		for (Waypoint waypoint : Lanthanoid.inst.waypointManager.allWaypoints(Minecraft.getMinecraft().theWorld)) {
-			GL11.glPushMatrix();
-				String owner = waypoint.ownerName;
-				String name = waypoint.name;
-				final double dX = (waypoint.x-pX)+0.5;
-				final double dY = (waypoint.y-pY)+0.5;
-				final double dZ = (waypoint.z-pZ)+0.5;
-	
-				GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
-	
-				final float dist = (float) (MathHelper.sqrt_double((dX * dX) + (dY * dY) + (dZ * dZ)));
-				
-				if (dist < 150) {
-					GL11.glEnable(GL11.GL_DEPTH_TEST);
-					
-					Minecraft.getMinecraft().renderEngine.bindTexture(beam);
-					GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, 10497.0F);
-					GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, 10497.0F);
-					GL11.glDisable(GL11.GL_LIGHTING);
-					GL11.glEnable(GL11.GL_BLEND);
-					GL11.glDepthMask(true);
-					OpenGlHelper.glBlendFunc(770, 1, 1, 0);
-					float f2 = 0;
-					float f3 = -f2 * 0.2F - (float) MathHelper.floor_float(-f2 * 0.1F);
-					byte b0 = 1;
-					double d3 = (double) f2 * 0.025D * (1.0D - (double) (b0 & 1) * 2.5D);
-					tess.startDrawingQuads();
-					tess.setColorRGBA_I(waypoint.color, 128);
-					double d5 = (double) b0 * 0.2D;
-					double d7 = Math.cos(d3 + 2.356194490192345D) * d5;
-					double d9 = Math.sin(d3 + 2.356194490192345D) * d5;
-					double d11 = Math.cos(d3 + (Math.PI / 4D)) * d5;
-					double d13 = Math.sin(d3 + (Math.PI / 4D)) * d5;
-					double d15 = Math.cos(d3 + 3.9269908169872414D) * d5;
-					double d17 = Math.sin(d3 + 3.9269908169872414D) * d5;
-					double d19 = Math.cos(d3 + 5.497787143782138D) * d5;
-					double d21 = Math.sin(d3 + 5.497787143782138D) * d5;
-					double d23 = (double) (512.0F * f1);
-					double d25 = 0.0D;
-					double d27 = 1.0D;
-					double d28 = (double) (-1.0F + f3);
-					double d29 = (double) (512.0F * f1) * (0.5D / d5) + d28;
-					d29 -= (Minecraft.getMinecraft().theWorld.getTotalWorldTime()+partialTicks)/10f;
-					d28 -= (Minecraft.getMinecraft().theWorld.getTotalWorldTime()+partialTicks)/10f;
-					tess.addVertexWithUV(dX+ d7, dY + d23, dZ+ d9, d27, d29);
-					tess.addVertexWithUV(dX+ d7, dY, dZ+ d9, d27, d28);
-					tess.addVertexWithUV(dX+ d11, dY, dZ+ d13, d25, d28);
-					tess.addVertexWithUV(dX+ d11, dY + d23, dZ+ d13, d25, d29);
-					tess.addVertexWithUV(dX+ d19, dY + d23, dZ+ d21, d27, d29);
-					tess.addVertexWithUV(dX+ d19, dY, dZ+ d21, d27, d28);
-					tess.addVertexWithUV(dX+ d15, dY, dZ+ d17, d25, d28);
-					tess.addVertexWithUV(dX+ d15, dY + d23, dZ+ d17, d25, d29);
-					tess.addVertexWithUV(dX+ d11, dY + d23, dZ+ d13, d27, d29);
-					tess.addVertexWithUV(dX+ d11, dY, dZ+ d13, d27, d28);
-					tess.addVertexWithUV(dX+ d19, dY, dZ+ d21, d25, d28);
-					tess.addVertexWithUV(dX+ d19, dY + d23, dZ+ d21, d25, d29);
-					tess.addVertexWithUV(dX+ d15, dY + d23, dZ+ d17, d27, d29);
-					tess.addVertexWithUV(dX+ d15, dY, dZ+ d17, d27, d28);
-					tess.addVertexWithUV(dX+ d7, dY, dZ+ d9, d25, d28);
-					tess.addVertexWithUV(dX+ d7, dY + d23, dZ+ d9, d25, d29);
-					tess.draw();
-					
-					GL11.glEnable(GL11.GL_TEXTURE_2D);
-					GL11.glDepthMask(true);
-					
-				}
-				GL11.glDisable(GL11.GL_DEPTH_TEST);
-				
-				float nX = (float) (dX / dist) * 150;
-				float nY = (float) (dY / dist) * 150;
-				float nZ = (float) (dZ / dist) * 150;
-				
-				String distStr = Integer.toString((int) dist);
-				ScaledResolution res = new ScaledResolution(Minecraft.getMinecraft(), Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
-				float f8 = res.getScaleFactor()/2f;
-				GL11.glTranslatef(nX, nY, nZ);
-				GL11.glNormal3f(0.0F, 1.0F, 0.0F);
-				GL11.glRotatef(-RenderManager.instance.playerViewY, 0.0F, 1.0F, 0.0F);
-				GL11.glRotatef(RenderManager.instance.playerViewX, 1.0F, 0.0F, 0.0F);
-				GL11.glScalef(-f1, -f1, f1);
-				GL11.glScalef(f8, f8, f8);
-				OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-				byte b9 = -8;
-	
-				Vec3 vec31 = Vec3.createVectorHelper(dX,
-						dY - player.getEyeHeight(),
-						dZ);
-				double d0 = vec31.lengthVector();
-				vec31 = vec31.normalize();
-				double d1 = vec3.dotProduct(vec31);
+			GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
+			final double dX = (waypoint.x-pX)+0.5;
+			final double dY = (waypoint.y-pY)+0.5;
+			final double dZ = (waypoint.z-pZ)+0.5;
+			if (rcg) {
 				GL11.glDisable(GL11.GL_TEXTURE_2D);
-				if (d1 > 1.0D - Math.max(0.025D, dist/1200) / d0) {
-					GL11.glScalef(0.5f, 0.5f, 0.5f);
-					tess.startDrawingQuads();
-					int w = Math.max((fontrenderer.getStringWidth(distStr) / 2) + (fontrenderer.getStringWidth(owner) / 2) + 8, fontrenderer.getStringWidth(name));
-					int j = w / 2;
-					tess.setColorRGBA_I(waypoint.color, 128);
-					tess.addVertex((double) (-j - 1), (double) (-1 + b9), 0.0D);
-					tess.addVertex((double) (-j - 1), (double) (14 + b9), 0.0D);
-					tess.addVertex((double) (j + 1), (double) (14 + b9), 0.0D);
-					tess.addVertex((double) (j + 1), (double) (-1 + b9), 0.0D);
+				GL11.glDisable(GL11.GL_CULL_FACE);
+				for (int q = 0; q < 16; q++) {
+					float tickPos = (((player.ticksExisted+e.partialTicks+waypoint.id*31+q*2)/40f)%2)-1;
+					float planeY = tickPos * waypoint.nameDistance;
+					float r = MathHelper.cos(tickPos*(RingRenderer.TAUf/4f)) * waypoint.nameDistance;
+					GL11.glDisable(GL11.GL_DEPTH_TEST);
+					OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+					tess.startDrawing(GL11.GL_POLYGON);
+					tess.setColorRGBA_I(waypoint.color, 32);
+					for (int i = 0; i < 20; i++) {
+						double cX = MathHelper.sin((i/20f)*RingRenderer.TAUf) * r;
+						double cZ = MathHelper.cos((i/20f)*RingRenderer.TAUf) * r;
+						tess.addVertex(dX+cX, dY+planeY, dZ+cZ);
+					}
 					tess.draw();
-					GL11.glEnable(GL11.GL_TEXTURE_2D);
-					fontrenderer.drawString(name, -fontrenderer.getStringWidth(name) / 2, b9, -1);
-					GL11.glScalef(0.5f, 0.5f, 0.5f);
-					fontrenderer.drawString(distStr+"m", w - fontrenderer.getStringWidth(distStr+"m") - 1, (b9 * 2) + 18, -1);
-					fontrenderer.drawString(owner, -w, (b9 * 2) + 18, -1);
-				} else {
-					GL11.glPushMatrix();
-						GL11.glRotatef(45, 0, 0, 1);
-						{
-							tess.startDrawingQuads();
-							tess.setColorRGBA_I(waypoint.color, 96);
-							double w = 1.5;
-							tess.addVertex((double) (-w), (double) (-w), 0.0D);
-							tess.addVertex((double) (-w), (double) (w), 0.0D);
-							tess.addVertex((double) (w), (double) (w), 0.0D);
-							tess.addVertex((double) (w), (double) (-w), 0.0D);
-							tess.draw();
-						}
-						{
-							tess.startDrawingQuads();
-							tess.setColorRGBA_I(waypoint.color, 192);
-							int w = 1;
-							tess.addVertex((double) (-w), (double) (-w), 0.0D);
-							tess.addVertex((double) (-w), (double) (w), 0.0D);
-							tess.addVertex((double) (w), (double) (w), 0.0D);
-							tess.addVertex((double) (w), (double) (-w), 0.0D);
-							tess.draw();
-						}
-					GL11.glPopMatrix();
-					GL11.glEnable(GL11.GL_TEXTURE_2D);
-					GL11.glScalef(0.3f, 0.3f, 0.3f);
-					String firstChar = waypoint.name.substring(0,1);
-					fontrenderer.drawString(firstChar, 1 - fontrenderer.getStringWidth(firstChar)/2, (b9 * 2) + 12, ~waypoint.color);
+					OpenGlHelper.glBlendFunc(770, 1, 1, 0);
+					GL11.glEnable(GL11.GL_DEPTH_TEST);
+					tess.startDrawing(GL11.GL_POLYGON);
+					tess.setColorRGBA_I(waypoint.color, 255);
+					for (int i = 0; i < 20; i++) {
+						double cX = MathHelper.sin((i/20f)*RingRenderer.TAUf) * r;
+						double cZ = MathHelper.cos((i/20f)*RingRenderer.TAUf) * r;
+						tess.addVertex(dX+cX, dY+planeY, dZ+cZ);
+					}
+					tess.draw();
 				}
-			GL11.glPopMatrix();
+				GL11.glEnable(GL11.GL_CULL_FACE);
+				GL11.glEnable(GL11.GL_TEXTURE_2D);
+			}
+			if (waypoint.type != Type.MARKER) {
+				GL11.glPushMatrix();
+					String owner = waypoint.ownerName;
+					String name = waypoint.name;
+		
+					final float dist = (float) (MathHelper.sqrt_double((dX * dX) + (dY * dY) + (dZ * dZ)));
+					
+					if (dist < 150) {
+						GL11.glEnable(GL11.GL_DEPTH_TEST);
+						
+						Minecraft.getMinecraft().renderEngine.bindTexture(beam);
+						GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, 10497.0F);
+						GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, 10497.0F);
+						GL11.glDisable(GL11.GL_LIGHTING);
+						GL11.glEnable(GL11.GL_BLEND);
+						GL11.glDepthMask(true);
+						OpenGlHelper.glBlendFunc(770, 1, 1, 0);
+						float f2 = 0;
+						float f3 = -f2 * 0.2F - (float) MathHelper.floor_float(-f2 * 0.1F);
+						byte b0 = 1;
+						double d3 = (double) f2 * 0.025D * (1.0D - (double) (b0 & 1) * 2.5D);
+						tess.startDrawingQuads();
+						tess.setColorRGBA_I(waypoint.color, 128);
+						double d5 = (double) b0 * 0.2D;
+						double d7 = Math.cos(d3 + 2.356194490192345D) * d5;
+						double d9 = Math.sin(d3 + 2.356194490192345D) * d5;
+						double d11 = Math.cos(d3 + (Math.PI / 4D)) * d5;
+						double d13 = Math.sin(d3 + (Math.PI / 4D)) * d5;
+						double d15 = Math.cos(d3 + 3.9269908169872414D) * d5;
+						double d17 = Math.sin(d3 + 3.9269908169872414D) * d5;
+						double d19 = Math.cos(d3 + 5.497787143782138D) * d5;
+						double d21 = Math.sin(d3 + 5.497787143782138D) * d5;
+						double d23 = (double) (512.0F * f1);
+						double d25 = 0.0D;
+						double d27 = 1.0D;
+						double d28 = (double) (-1.0F + f3);
+						double d29 = (double) (512.0F * f1) * (0.5D / d5) + d28;
+						d29 -= (Minecraft.getMinecraft().theWorld.getTotalWorldTime()+partialTicks)/10f;
+						d28 -= (Minecraft.getMinecraft().theWorld.getTotalWorldTime()+partialTicks)/10f;
+						tess.addVertexWithUV(dX+ d7, dY + d23, dZ+ d9, d27, d29);
+						tess.addVertexWithUV(dX+ d7, dY, dZ+ d9, d27, d28);
+						tess.addVertexWithUV(dX+ d11, dY, dZ+ d13, d25, d28);
+						tess.addVertexWithUV(dX+ d11, dY + d23, dZ+ d13, d25, d29);
+						tess.addVertexWithUV(dX+ d19, dY + d23, dZ+ d21, d27, d29);
+						tess.addVertexWithUV(dX+ d19, dY, dZ+ d21, d27, d28);
+						tess.addVertexWithUV(dX+ d15, dY, dZ+ d17, d25, d28);
+						tess.addVertexWithUV(dX+ d15, dY + d23, dZ+ d17, d25, d29);
+						tess.addVertexWithUV(dX+ d11, dY + d23, dZ+ d13, d27, d29);
+						tess.addVertexWithUV(dX+ d11, dY, dZ+ d13, d27, d28);
+						tess.addVertexWithUV(dX+ d19, dY, dZ+ d21, d25, d28);
+						tess.addVertexWithUV(dX+ d19, dY + d23, dZ+ d21, d25, d29);
+						tess.addVertexWithUV(dX+ d15, dY + d23, dZ+ d17, d27, d29);
+						tess.addVertexWithUV(dX+ d15, dY, dZ+ d17, d27, d28);
+						tess.addVertexWithUV(dX+ d7, dY, dZ+ d9, d25, d28);
+						tess.addVertexWithUV(dX+ d7, dY + d23, dZ+ d9, d25, d29);
+						tess.draw();
+						
+						GL11.glEnable(GL11.GL_TEXTURE_2D);
+						GL11.glDepthMask(true);
+						
+					}
+					
+					GL11.glDisable(GL11.GL_DEPTH_TEST);
+					
+					float nX = (float) (dX / dist) * 150;
+					float nY = (float) (dY / dist) * 150;
+					float nZ = (float) (dZ / dist) * 150;
+					
+					String distStr = Integer.toString((int) dist);
+					ScaledResolution res = new ScaledResolution(Minecraft.getMinecraft(), Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
+					float f8 = res.getScaleFactor()/2f;
+					GL11.glTranslatef(nX, nY, nZ);
+					GL11.glNormal3f(0.0F, 1.0F, 0.0F);
+					GL11.glRotatef(-RenderManager.instance.playerViewY, 0.0F, 1.0F, 0.0F);
+					GL11.glRotatef(RenderManager.instance.playerViewX, 1.0F, 0.0F, 0.0F);
+					GL11.glScalef(-f1, -f1, f1);
+					GL11.glScalef(f8, f8, f8);
+					OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+					byte b9 = -8;
+		
+					Vec3 vec31 = Vec3.createVectorHelper(dX,
+							dY - player.getEyeHeight(),
+							dZ);
+					double d0 = vec31.lengthVector();
+					vec31 = vec31.normalize();
+					double d1 = vec3.dotProduct(vec31);
+					GL11.glDisable(GL11.GL_TEXTURE_2D);
+					if (d1 > 1.0D - Math.max(0.025D, dist/1200) / d0) {
+						GL11.glScalef(0.5f, 0.5f, 0.5f);
+						tess.startDrawingQuads();
+						int w = Math.max((fontrenderer.getStringWidth(distStr) / 2) + (fontrenderer.getStringWidth(owner) / 2) + 8, fontrenderer.getStringWidth(name));
+						int j = w / 2;
+						tess.setColorRGBA_I(waypoint.color, 128);
+						tess.addVertex((double) (-j - 1), (double) (-1 + b9), 0.0D);
+						tess.addVertex((double) (-j - 1), (double) (14 + b9), 0.0D);
+						tess.addVertex((double) (j + 1), (double) (14 + b9), 0.0D);
+						tess.addVertex((double) (j + 1), (double) (-1 + b9), 0.0D);
+						tess.draw();
+						GL11.glEnable(GL11.GL_TEXTURE_2D);
+						fontrenderer.drawString(name, -fontrenderer.getStringWidth(name) / 2, b9, -1);
+						GL11.glScalef(0.5f, 0.5f, 0.5f);
+						fontrenderer.drawString(distStr+"m", w - fontrenderer.getStringWidth(distStr+"m") - 1, (b9 * 2) + 18, -1);
+						fontrenderer.drawString(owner, -w, (b9 * 2) + 18, -1);
+					} else {
+						GL11.glPushMatrix();
+							GL11.glRotatef(45, 0, 0, 1);
+							{
+								tess.startDrawing(waypoint.type.isGlobal() ? GL11.GL_QUADS : GL11.GL_POLYGON);
+								tess.setColorRGBA_I(waypoint.color, 96);
+								double w = 1.5;
+								if (!waypoint.type.isGlobal()) {
+									for (int i = 0; i < 20; i++) {
+										double cX = MathHelper.sin((i/20f)*RingRenderer.TAUf) * w;
+										double cY = MathHelper.cos((i/20f)*RingRenderer.TAUf) * w;
+										tess.addVertex(cX, cY, 0);
+									}
+								} else {
+									tess.addVertex((double) (-w), (double) (-w), 0.0D);
+									tess.addVertex((double) (-w), (double) (w), 0.0D);
+									tess.addVertex((double) (w), (double) (w), 0.0D);
+									tess.addVertex((double) (w), (double) (-w), 0.0D);
+								}
+								tess.draw();
+							}
+							{
+								tess.startDrawing(waypoint.type.isGlobal() ? GL11.GL_QUADS : GL11.GL_POLYGON);
+								tess.setColorRGBA_I(waypoint.color, 192);
+								int w = 1;
+								if (!waypoint.type.isGlobal()) {
+									for (int i = 0; i < 20; i++) {
+										double cX = MathHelper.sin((i/20f)*RingRenderer.TAUf) * w;
+										double cY = MathHelper.cos((i/20f)*RingRenderer.TAUf) * w;
+										tess.addVertex(cX, cY, 0);
+									}
+								} else {
+									tess.addVertex((double) (-w), (double) (-w), 0.0D);
+									tess.addVertex((double) (-w), (double) (w), 0.0D);
+									tess.addVertex((double) (w), (double) (w), 0.0D);
+									tess.addVertex((double) (w), (double) (-w), 0.0D);
+								}
+								tess.draw();
+							}
+						GL11.glPopMatrix();
+						GL11.glEnable(GL11.GL_TEXTURE_2D);
+						GL11.glScalef(0.3f, 0.3f, 0.3f);
+						String firstChar = waypoint.name.substring(0,1);
+						fontrenderer.drawString(firstChar, 1 - fontrenderer.getStringWidth(firstChar)/2, (b9 * 2) + 12, ~waypoint.color);
+					}
+				GL11.glPopMatrix();
+			}
 		}
-		GL11.glEnable(GL11.GL_LIGHTING);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glDisable(GL11.GL_BLEND);
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -465,6 +520,13 @@ public class LClientEventHandler {
 				GL11.glPopMatrix();
 				mc.renderEngine.bindTexture(WIDGITS);
 			}
+			if (mc.thePlayer.getEquipmentInSlot(4) != null && mc.thePlayer.getEquipmentInSlot(4).getItem() == LItems.glasses) {
+				int color = 0x22FF9797;
+				GL11.glPushMatrix();
+				GL11.glTranslatef(0, 0, -300);
+				Gui.drawRect(0, 0, e.resolution.getScaledWidth(), e.resolution.getScaledHeight(), color);
+				GL11.glPopMatrix();
+			}
 		} else if (e.type == ElementType.CROSSHAIRS) {
 			if (scopeFactor != 1) {
 				e.setCanceled(true);
@@ -482,6 +544,16 @@ public class LClientEventHandler {
 			Minecraft mc = Minecraft.getMinecraft();
 			EntityClientPlayerMP p = mc.thePlayer;
 			GL11.glDisable(GL11.GL_LIGHTING);
+			if (p.getHeldItem() != null && p.getHeldItem().getItem() == LItems.spanner) {
+				MovingObjectPosition mop = p.rayTrace(8, e.partialTicks);
+				if (mop != null && mop.typeOfHit == MovingObjectType.BLOCK) {
+					Waypoint w = Lanthanoid.inst.waypointManager.getWaypoint(mc.theWorld, mop.blockX, mop.blockY, mop.blockZ);
+					if (w != null) {
+						String str = Integer.toString(w.nameDistance);
+						mc.fontRenderer.drawStringWithShadow(str, ((e.resolution.getScaledWidth()/2)-(mc.fontRenderer.getStringWidth(str)/2))-10, (e.resolution.getScaledHeight()/2)-10, -1);
+					}
+				}
+			}
 			if (waypointTicks <= 80) {
 				GL11.glEnable(GL11.GL_BLEND);
 				OpenGlHelper.glBlendFunc(770, 771, 1, 0);
@@ -684,7 +756,13 @@ public class LClientEventHandler {
 	private int waypointColor;
 	
 	public void onNearWaypoint(Waypoint w) {
-		if (lastWaypointId != w.id) {
+		if (w == null && lastWaypointId != -1) {
+			lastWaypointId = -1;
+			waypointColor = 0x00FFFFFF;
+			waypointTicks = 0;
+			waypointName = StatCollector.translateToLocal("ui.wilderness");
+		}
+		if (w != null && lastWaypointId != w.id) {
 			lastWaypointId = w.id;
 			waypointName = w.name;
 			waypointTicks = 0;

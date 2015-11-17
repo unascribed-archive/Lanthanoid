@@ -27,8 +27,8 @@ public class BeamParticleHandler implements IMessageHandler<BeamParticleMessage,
 			// Minimal
 			stepSize = 2.5;
 		}
-		float r = ((msg.color >> 16)&0xFF)/255f;
-		float g = ((msg.color >> 8)&0xFF)/255f;
+		float r = ((msg.color>>16)&0xFF)/255f;
+		float g = ((msg.color>>8 )&0xFF)/255f;
 		float b = (msg.color&0xFF)/255f;
 		double steps = (int)(LVectors.distance(msg.startX, msg.startY, msg.startZ, msg.endX, msg.endY, msg.endZ)/stepSize);
 		for (int i = 0; i < steps; i++) {

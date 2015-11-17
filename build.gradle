@@ -22,7 +22,7 @@ apply plugin: 'me.tatarka.retrolambda'
 
 group = "com.unascribed.lanthanoid"
 archivesBaseName = "Lanthanoid"
-version = "0.3.1"
+version = "0.4"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8

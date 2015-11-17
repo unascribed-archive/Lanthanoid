@@ -4,6 +4,7 @@ import com.unascribed.lanthanoid.item.ItemTeleporter;
 import com.unascribed.lanthanoid.item.rifle.Variant;
 
 import cpw.mods.fml.common.registry.GameRegistry;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockGrass;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -24,10 +25,26 @@ public class LRecipes {
 		
 		initStopgap();
 		
+		initRoseColored();
+		
+		for (String s : LMaterials.metals) {
+			GameRegistry.addSmelting(LItems.dust.getStackForName("dust"+s), LItems.ingot.getStackForName("ingot"+s), 0);
+		}
+		for (String s : LMaterials.gems) {
+			GameRegistry.addSmelting(LItems.dust.getStackForName("dust"+s), LItems.ingot.getStackForName("gem"+s), 0);
+		}
+		GameRegistry.addSmelting(LItems.dust.getStackForName("dustIron"), new ItemStack(Items.iron_ingot), 0);
+		GameRegistry.addSmelting(LItems.dust.getStackForName("dustGold"), new ItemStack(Items.gold_ingot), 0);
+		GameRegistry.addSmelting(LItems.dust.getStackForName("dustDiamond"), new ItemStack(Items.diamond), 0);
+		GameRegistry.addSmelting(LItems.dust.getStackForName("dustEmerald"), new ItemStack(Items.emerald), 0);
+		
 		GameRegistry.addRecipe(new ShapedOreRecipe(LBlocks.misc.getStackForName("lampThulite"), 
 				"tt",
 				"tt",
 				't', "dustThulite"));
+		
+		GameRegistry.addRecipe(new ShapelessOreRecipe(LItems.dust.getStackForName("dustYttriumBariumCopperOxide", 3), 
+				"dustYttrium", "dustBarium", "dustBarium", "dustCopper", "dustCopper", "dustCopper", Items.water_bucket));
 		
 		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.ytterbium_wrecking_ball,
 				", ,",
@@ -58,6 +75,40 @@ public class LRecipes {
 				'B', "blockDysprosium"));
 	}
 	
+	private static void initRoseColored() {
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.glasses, 1, 0), 
+				"/r",
+				"r ",
+				'r', "gemThulite",
+				'/', "stickBarium"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.glasses, 1, 1), 
+				"//",
+				"rr",
+				'r', "gemThulite",
+				'/', "stickBarium"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.glasses, 1, 2), 
+				" /",
+				"rr",
+				'r', "gemThulite",
+				'/', "stickBarium"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.glasses, 1, 3), 
+				" r",
+				"r/",
+				'r', "gemThulite",
+				'/', "stickBarium"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.glasses, 1, 4), 
+				"/r",
+				"rr",
+				'r', "gemThulite",
+				'/', "stickBarium"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.spanner,
+				" r ",
+				" /r",
+				"/  ",
+				'r', "gemThulite",
+				'/', "stickBarium"));
+	}
+
 	private static void initMachines() {
 		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LBlocks.machine, 1, 0), 
 				"hph",
@@ -73,6 +124,31 @@ public class LRecipes {
 				'h', "ingotHolmium",
 				'g', "gemDiamond",
 				'p', Items.ender_pearl));
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LBlocks.machine, 1, 2), 
+				"y y",
+				"ygy",
+				"yyy",
+				'y', "ingotYttrium",
+				'g', "gemDiaspore"));
+		
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LBlocks.machine, 1, 3), 
+				"yyy",
+				"yny",
+				"yyy",
+				'y', "ingotYttriumBariumCopperOxide",
+				'n', "ingotNeodymium"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LBlocks.machine, 1, 4), 
+				"yyy",
+				"yny",
+				"yyy",
+				'y', "ingotYttriumBariumCopperOxide",
+				'n', "ingotYtterbium"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LBlocks.machine, 1, 5), 
+				"yyy",
+				"yny",
+				"yyy",
+				'y', "ingotYttriumBariumCopperOxide",
+				'n', "ingotPraseodymium"));
 	}
 
 	private static void initStopgap() {
@@ -121,8 +197,10 @@ public class LRecipes {
 
 	public static void initStorage() {
 		for (String s : LMaterials.metals) {
-			GameRegistry.addSmelting(new ItemStack(LBlocks.ore_metal, 1, LBlocks.ore_metal.getMetaForName("ore"+s)),
-					LItems.ingot.getStackForName("ingot"+s), 1.0f);
+			if (LMaterials.hasOre.contains(s)) {
+				GameRegistry.addSmelting(new ItemStack(LBlocks.ore_metal, 1, LBlocks.ore_metal.getMetaForName("ore"+s)),
+						LItems.ingot.getStackForName("ingot"+s), 1.0f);
+			}
 			GameRegistry.addRecipe(new ShapelessOreRecipe(LItems.nugget.getStackForName("nugget"+s, 9),
 					"ingot"+s));
 			GameRegistry.addRecipe(new ShapelessOreRecipe(LItems.ingot.getStackForName("ingot"+s),
@@ -130,7 +208,7 @@ public class LRecipes {
 					"nugget"+s, "nugget"+s, "nugget"+s,
 					"nugget"+s, "nugget"+s, "nugget"+s));
 			
-			GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(LBlocks.storage, 1, LBlocks.storage.getMetaForName("block"+s)),
+			GameRegistry.addRecipe(new ShapelessOreRecipe(getStorageBlock(s),
 					"ingot"+s, "ingot"+s, "ingot"+s,
 					"ingot"+s, "ingot"+s, "ingot"+s,
 					"ingot"+s, "ingot"+s, "ingot"+s));
@@ -138,7 +216,7 @@ public class LRecipes {
 					"block"+s));
 		}
 		for (String s : LMaterials.gems) {	
-			GameRegistry.addRecipe(new ShapelessOreRecipe(new ItemStack(LBlocks.storage, 1, LBlocks.storage.getMetaForName("block"+s)),
+			GameRegistry.addRecipe(new ShapelessOreRecipe(getStorageBlock(s),
 					"gem"+s, "gem"+s, "gem"+s,
 					"gem"+s, "gem"+s, "gem"+s,
 					"gem"+s, "gem"+s, "gem"+s));
@@ -152,9 +230,13 @@ public class LRecipes {
 				"nuggetIron", "nuggetIron", "nuggetIron"));
 	}
 
+	private static ItemStack getStorageBlock(String s) {
+		return LBlocks.storage.hasName("block"+s) ? LBlocks.storage.getStackForName("block"+s) : LBlocks.storageβ.getStackForName("block"+s);
+	}
+
 	public static void initPlating() {
 		for (String s : LMaterials.metalsPlusVanilla) {
-			GameRegistry.addRecipe(new ShapedOreRecipe(LBlocks.weak_plating.getStackForName("plating"+s, 8),
+			GameRegistry.addRecipe(new ShapedOreRecipe(LBlocks.weak_plating.getStackForName("weakplating"+s, 8),
 					"iii",
 					"iIi",
 					"iii",

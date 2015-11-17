@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.MathHelper;
 import net.minecraftforge.client.IItemRenderer;
 
 public class MachineItemRenderer implements IItemRenderer {
@@ -42,36 +43,55 @@ public class MachineItemRenderer implements IItemRenderer {
 		if (item.hasTagCompound() && item.getTagCompound().hasKey("Color", 99)) {
 			color = item.getTagCompound().getInteger("Color");
 		}
-		
-		Tessellator tess = Tessellator.instance;
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		GL11.glDisable(GL11.GL_DEPTH_TEST);
-		GL11.glEnable(GL11.GL_BLEND);
-		OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-		GL11.glPushMatrix();
-			GL11.glTranslatef(4f, 4f, 0f);
-			GL11.glRotatef(45, 0, 0, 1);
-			{
-				tess.startDrawingQuads();
-				tess.setColorRGBA_I(color, 128);
-				int w = 3;
-				tess.addVertex((double) (-w), (double) (-w), 0.0D);
-				tess.addVertex((double) (-w), (double) (w), 0.0D);
-				tess.addVertex((double) (w), (double) (w), 0.0D);
-				tess.addVertex((double) (w), (double) (-w), 0.0D);
-				tess.draw();
-			}
-			{
-				tess.startDrawingQuads();
-				tess.setColorRGBA_I(color, 255);
-				int w = 2;
-				tess.addVertex((double) (-w), (double) (-w), 0.0D);
-				tess.addVertex((double) (-w), (double) (w), 0.0D);
-				tess.addVertex((double) (w), (double) (w), 0.0D);
-				tess.addVertex((double) (w), (double) (-w), 0.0D);
-				tess.draw();
-			}
-		GL11.glPopMatrix();
+			
+		if (item.getItemDamage() == 0 || item.getItemDamage() == 1) {
+			Tessellator tess = Tessellator.instance;
+			GL11.glDisable(GL11.GL_TEXTURE_2D);
+			GL11.glDisable(GL11.GL_DEPTH_TEST);
+			GL11.glEnable(GL11.GL_BLEND);
+			OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+			boolean global = (item.getItemDamage() == 1);
+			GL11.glPushMatrix();
+				GL11.glTranslatef(4f, 4f, 0f);
+				GL11.glRotatef(45, 0, 0, 1);
+				{
+					tess.startDrawing(global ? GL11.GL_QUADS : GL11.GL_POLYGON);
+					tess.setColorRGBA_I(color, 96);
+					double w = 3;
+					if (!global) {
+						for (int i = 0; i < 20; i++) {
+							double cX = MathHelper.sin((i/20f)*RingRenderer.TAUf) * w;
+							double cY = MathHelper.cos((i/20f)*RingRenderer.TAUf) * w;
+							tess.addVertex(cX, cY, 0);
+						}
+					} else {
+						tess.addVertex((double) (-w), (double) (-w), 0.0D);
+						tess.addVertex((double) (-w), (double) (w), 0.0D);
+						tess.addVertex((double) (w), (double) (w), 0.0D);
+						tess.addVertex((double) (w), (double) (-w), 0.0D);
+					}
+					tess.draw();
+				}
+				{
+					tess.startDrawing(global ? GL11.GL_QUADS : GL11.GL_POLYGON);
+					tess.setColorRGBA_I(color, 192);
+					double w = 2;
+					if (!global) {
+						for (int i = 0; i < 20; i++) {
+							double cX = MathHelper.sin((i/20f)*RingRenderer.TAUf) * w;
+							double cY = MathHelper.cos((i/20f)*RingRenderer.TAUf) * w;
+							tess.addVertex(cX, cY, 0);
+						}
+					} else {
+						tess.addVertex((double) (-w), (double) (-w), 0.0D);
+						tess.addVertex((double) (-w), (double) (w), 0.0D);
+						tess.addVertex((double) (w), (double) (w), 0.0D);
+						tess.addVertex((double) (w), (double) (-w), 0.0D);
+					}
+					tess.draw();
+				}
+			GL11.glPopMatrix();
+		}
 		GL11.glDisable(GL11.GL_BLEND);
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glEnable(GL11.GL_DEPTH_TEST);

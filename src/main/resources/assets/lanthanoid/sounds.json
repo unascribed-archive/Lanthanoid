@@ -97,5 +97,14 @@
 				"stream": false
 			}
 		]
+	},
+	"pulsating": {
+		"category": "block",
+		"sounds": [
+			{
+				"name": "pulsating",
+				"stream": false
+			}
+		]
 	}
 }

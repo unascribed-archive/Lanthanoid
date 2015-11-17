@@ -15,6 +15,10 @@ public class LOres {
 		LItems.dust.registerOres();
 		LItems.gem.registerOres();
 		
+		for (String gem : LMaterials.gems) {
+			OreDictionary.registerOre("ingot"+gem, LItems.gem.getStackForName("gem"+gem));
+		}
+		
 		OreDictionary.registerOre("lanthanoidPrivate-blockEndMetal", LBlocks.storage.getStackForName("blockErbium"));
 		OreDictionary.registerOre("lanthanoidPrivate-blockEndMetal", LBlocks.storage.getStackForName("blockGadolinium"));
 		

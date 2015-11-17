@@ -1,7 +1,10 @@
 package com.unascribed.lanthanoid.init;
 
+import com.unascribed.lanthanoid.item.ItemBase;
 import com.unascribed.lanthanoid.item.ItemDisabled;
 import com.unascribed.lanthanoid.item.ItemMulti;
+import com.unascribed.lanthanoid.item.ItemSpanner;
+import com.unascribed.lanthanoid.item.ItemGlasses;
 import com.unascribed.lanthanoid.item.ItemTeleporter;
 import com.unascribed.lanthanoid.item.ItemWreckingBall;
 import com.unascribed.lanthanoid.item.rifle.ItemRifle;
@@ -15,6 +18,8 @@ public class LItems {
 	public static ItemTeleporter teleporter;
 	public static ItemRifle rifle;
 	public static ItemWreckingBall ytterbium_wrecking_ball, erbium_wrecking_ball, dysprosium_wrecking_ball;
+	public static ItemGlasses glasses;
+	public static ItemSpanner spanner;
 	
 	public static void init() {
 		GameRegistry.registerItem(ingot = new ItemMulti(LArrays.all(LMaterials.metals, "ingot")), "ingot");
@@ -49,5 +54,11 @@ public class LItems {
 			GameRegistry.registerItem(new ItemDisabled().setUnlocalizedName("erbium_wrecking_ball"), "erbium_wrecking_ball");
 			GameRegistry.registerItem(new ItemDisabled().setUnlocalizedName("dysprosium_wrecking_ball"), "dysprosium_wrecking_ball");
 		}
+		
+		glasses = new ItemGlasses();
+		GameRegistry.registerItem(glasses, "glasses");
+		
+		spanner = new ItemSpanner();
+		GameRegistry.registerItem(spanner, "spanner");
 	}
 }

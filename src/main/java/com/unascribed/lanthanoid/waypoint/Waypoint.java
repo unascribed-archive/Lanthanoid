@@ -11,7 +11,12 @@ import net.minecraft.nbt.NBTTagCompound;
 public class Waypoint {
 	public enum Type {
 		PERSONAL,
-		GLOBAL
+		GLOBAL,
+		MARKER,
+		;
+		public boolean isGlobal() {
+			return this == GLOBAL || this == MARKER;
+		}
 	}
 	private static int nextId;
 	
@@ -22,6 +27,7 @@ public class Waypoint {
 	public String ownerName;
 	public UUID owner;
 	public Type type;
+	public int nameDistance;
 	
 	
 	public void setId() {
@@ -46,6 +52,7 @@ public class Waypoint {
 		Type[] vals = Type.values();
 		type = vals[buf.readUnsignedByte()%vals.length];
 		owner = new UUID(buf.readLong(), buf.readLong());
+		nameDistance = buf.readUnsignedByte()+5;
 	}
 	
 	public void toBytes(ByteBuf buf) {
@@ -59,6 +66,7 @@ public class Waypoint {
 		buf.writeByte(type.ordinal());
 		buf.writeLong(owner.getMostSignificantBits());
 		buf.writeLong(owner.getLeastSignificantBits());
+		buf.writeByte(nameDistance-5);
 	}
 
 	public void writeToNBT(NBTTagCompound nbt) {
@@ -69,6 +77,7 @@ public class Waypoint {
 		nbt.setLong("OwnerUUIDMost", owner.getMostSignificantBits());
 		nbt.setLong("OwnerUUIDLeast", owner.getLeastSignificantBits());
 		nbt.setByte("Type", (byte)type.ordinal());
+		nbt.setInteger("NameDistance", nameDistance);
 	}
 	
 	public void readFromNBT(NBTTagCompound nbt) {
@@ -82,5 +91,10 @@ public class Waypoint {
 		owner = new UUID(nbt.getLong("OwnerUUIDMost"), nbt.getLong("OwnerUUIDLeast"));
 		Type[] vals = Type.values();
 		type = vals[nbt.getByte("Type") % vals.length];
+		if (nbt.hasKey("NameDistance", 99)) {
+			nameDistance = nbt.getInteger("NameDistance");
+		} else {
+			nameDistance = 20;
+		}
 	}
 }

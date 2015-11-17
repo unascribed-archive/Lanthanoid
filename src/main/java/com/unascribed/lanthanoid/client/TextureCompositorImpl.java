@@ -66,7 +66,8 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		WAYPOINT_BOTTOM,
 		WAYPOINT_SIDE,
 		WAYPOINT_SIDE_DIAMOND,
-		WAYPOINT_SIDE_TRIANGLE
+		WAYPOINT_SIDE_TRIANGLE,
+		WAYPOINT_SIDE_CIRCLE,
 		;
 		public String prefix() { return "blocks/"; }
 	}
@@ -98,7 +99,8 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		GRAVEL("minecraft", "textures/blocks/gravel.png"),
 		OBSIDIAN("minecraft", "textures/blocks/obsidian.png"),
 		COBBLESTONE("minecraft", "textures/blocks/cobblestone.png"),
-		WAYPOINT_SIDE("lanthanoid_compositor", "textures/blocks/machineWaypointSide.png"),
+		WAYPOINT_SIDE_HOLMIUM("lanthanoid_compositor", "textures/blocks/machineWaypointSideHolmium.png"),
+		WAYPOINT_SIDE_YTTRIUM("lanthanoid_compositor", "textures/blocks/machineWaypointSideYttrium.png"),
 		;
 		public final ResourceLocation loc;
 		BlockBackdrop() {
@@ -356,6 +358,7 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		loadSingleStep(BlockType.WAYPOINT_SIDE);
 		loadTwoStepBevel(BlockType.WAYPOINT_SIDE_DIAMOND);
 		loadTwoStepBevel(BlockType.WAYPOINT_SIDE_TRIANGLE);
+		loadTwoStepBevel(BlockType.WAYPOINT_SIDE_CIRCLE);
 		
 		loadTwoStepGlint(ItemType.WAFER);
 		loadTwoStepGlint(ItemType.INGOT);

@@ -17,12 +17,19 @@ public class LMachines {
 			compositor.addBlock("machineCombustorFrontIdle", 0xFFFFFF, BlockType.MACHINE_COMBUSTOR_IDLE, BlockBackdrop.COBBLESTONE);
 			
 			int holmium = LMaterials.colors.get("Holmium");
+			int yttrium = LMaterials.colors.get("Yttrium");
 			
-			compositor.addBlock("machineWaypointTop", holmium, BlockType.WAYPOINT_TOP, BlockBackdrop.NONE);
-			compositor.addBlock("machineWaypointBottom", holmium, BlockType.WAYPOINT_BOTTOM, BlockBackdrop.NONE);
-			compositor.addBlock("machineWaypointSide", holmium, BlockType.WAYPOINT_SIDE, BlockBackdrop.NONE);
-			compositor.addBlock("machineWaypointSideDiamond", LMaterials.colors.get("Diamond"), BlockType.WAYPOINT_SIDE_DIAMOND, BlockBackdrop.WAYPOINT_SIDE);
-			compositor.addBlock("machineWaypointSideRaspite", LMaterials.colors.get("Raspite"), BlockType.WAYPOINT_SIDE_TRIANGLE, BlockBackdrop.WAYPOINT_SIDE);
+			compositor.addBlock("machineWaypointTopHolmium", holmium, BlockType.WAYPOINT_TOP, BlockBackdrop.NONE);
+			compositor.addBlock("machineWaypointBottomHolmium", holmium, BlockType.WAYPOINT_BOTTOM, BlockBackdrop.NONE);
+			compositor.addBlock("machineWaypointSideHolmium", holmium, BlockType.WAYPOINT_SIDE, BlockBackdrop.NONE);
+			
+			compositor.addBlock("machineWaypointTopYttrium", yttrium, BlockType.WAYPOINT_TOP, BlockBackdrop.NONE);
+			compositor.addBlock("machineWaypointBottomYttrium", yttrium, BlockType.WAYPOINT_BOTTOM, BlockBackdrop.NONE);
+			compositor.addBlock("machineWaypointSideYttrium", yttrium, BlockType.WAYPOINT_SIDE, BlockBackdrop.NONE);
+			
+			compositor.addBlock("machineWaypointSideDiamond", LMaterials.colors.get("Diamond"), BlockType.WAYPOINT_SIDE_DIAMOND, BlockBackdrop.WAYPOINT_SIDE_HOLMIUM);
+			compositor.addBlock("machineWaypointSideRaspite", LMaterials.colors.get("Raspite"), BlockType.WAYPOINT_SIDE_TRIANGLE, BlockBackdrop.WAYPOINT_SIDE_HOLMIUM);
+			compositor.addBlock("machineWaypointSideDiaspore", LMaterials.colors.get("Diaspore"), BlockType.WAYPOINT_SIDE_CIRCLE, BlockBackdrop.WAYPOINT_SIDE_YTTRIUM);
 		}
 	}
 }

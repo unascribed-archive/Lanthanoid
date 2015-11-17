@@ -19,7 +19,7 @@ public class ItemBlockMachine extends ItemBlockWithCustomName {
 
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean held) {
-		if (entity instanceof EntityPlayer) {
+		if (entity instanceof EntityPlayer && (stack.getItemDamage() == 0 || stack.getItemDamage() == 1 || stack.getItemDamage() == 2)) {
 			((EntityPlayer)entity).triggerAchievement(LAchievements.craftWaypoint);
 			if (stack.hasDisplayName()) {
 				((EntityPlayer)entity).triggerAchievement(LAchievements.nameWaypoint);
@@ -29,25 +29,29 @@ public class ItemBlockMachine extends ItemBlockWithCustomName {
 	
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List li, boolean advanced) {
-		if (!stack.hasDisplayName()) {
-			li.add(StatCollector.translateToLocal("ui.waypoint_hint"));
-		}
-		if (advanced) {
-			int color = -1;
-			if (stack.hasTagCompound() && stack.getTagCompound().hasKey("Color", 99)) {
-				color = stack.getTagCompound().getInteger("Color");
+		if (stack.getItemDamage() == 0 || stack.getItemDamage() == 1 || stack.getItemDamage() == 2) {
+			if (!stack.hasDisplayName()) {
+				li.add(StatCollector.translateToLocal("ui.waypoint_hint"));
 			}
-			li.add("Color: #"+Integer.toHexString(color&0x00FFFFFF).toUpperCase());
+			if (advanced) {
+				int color = -1;
+				if (stack.hasTagCompound() && stack.getTagCompound().hasKey("Color", 99)) {
+					color = stack.getTagCompound().getInteger("Color");
+				}
+				li.add("Color: #"+Integer.toHexString(color&0x00FFFFFF).toUpperCase());
+			}
 		}
 	}
 	
 	@Override
 	public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int metadata) {
-		if (!stack.hasDisplayName()) {
-			if (!world.isRemote) {
-				player.addChatMessage(new ChatComponentTranslation("chat.waypoint_hint"));
+		if (stack.getItemDamage() == 0 || stack.getItemDamage() == 1 || stack.getItemDamage() == 2) {
+			if (!stack.hasDisplayName()) {
+				if (!world.isRemote) {
+					player.addChatMessage(new ChatComponentTranslation("chat.waypoint_hint"));
+				}
+				return false;
 			}
-			return false;
 		}
 		return super.placeBlockAt(stack, player, world, x, y, z, side, hitX, hitY, hitZ, metadata);
 	}

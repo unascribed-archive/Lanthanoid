@@ -21,6 +21,7 @@ public class LMaterials {
 	public static List<String> others = Lists.newArrayList();
 	public static List<String> gemsAndMetal = Lists.newArrayList();
 	public static List<String> gemsAndMetalPlusVanilla = Lists.newArrayList("Gold", "Iron", "Diamond", "Emerald");
+	public static List<String> hasOre = Lists.newArrayList("Coal", "Lapis", "Redstone", "Quartz", "Gold", "Iron", "Diamond", "Emerald");
 	
 	public static void init() {
 		initMetals();
@@ -75,6 +76,7 @@ public class LMaterials {
 		// ************************************************************************************************** //
 		// ** NEW ORES, GEM OR METAL, MUST GO HERE, AFTER ALL EXISTING DEFINITIONS, OR METADATA WILL BREAK ** //
 		// ************************************************************************************************** //
+		addIngots("YttriumBariumCopperOxide", 0x111111);
 	}
 
 	private static void initGems() {
@@ -113,6 +115,22 @@ public class LMaterials {
 		addAll("Lutetium", 0xBEE22F, BlockType.TRACE_ORE, BlockBackdrop.STONE, ItemType.INGOT);
 	}
 
+	private static void addIngots(String name, int color) {
+		TextureCompositor compositor = Lanthanoid.inst.compositor;
+		colors.put(name, color);
+		if (compositor != null) {
+			compositor.addItem("ingot"+name, color, ItemType.INGOT);
+			compositor.addItem("stick"+name, color, ItemType.STICK);
+			compositor.addItem("nugget"+name, color, ItemType.NUGGET);
+			compositor.addBlock("block"+name, color, BlockType.METAL_BLOCK);
+			compositor.addBlock("plating"+name, color, BlockType.PLATING);
+			compositor.addBlock("weakplating"+name, color, BlockType.WEAK_PLATING);
+			compositor.addItem("dust"+name, color, ItemType.DUST);
+		}
+		metals.add(name);
+		gemsAndMetal.add(name);
+	}
+	
 	private static void addAll(String name, int color, BlockType blockType, BlockBackdrop backdrop, ItemType itemType) {
 		TextureCompositor compositor = Lanthanoid.inst.compositor;
 		colors.put(name, color);
@@ -132,23 +150,24 @@ public class LMaterials {
 				compositor.addBlock("plating"+name, color, BlockType.PLATING);
 				compositor.addBlock("weakplating"+name, color, BlockType.WEAK_PLATING);
 			}
-			LMaterials.metals.add(name);
-			LMaterials.gemsAndMetal.add(name);
+			metals.add(name);
+			gemsAndMetal.add(name);
 		} else if (blockType == BlockType.GEM_ORE || blockType == BlockType.GEM_SQUARE_ORE || blockType == BlockType.LUMPY_ORE) {
 			if (compositor != null) {
 				compositor.addBlock("block"+name, color, blockType == BlockType.LUMPY_ORE ? BlockType.CRYSTAL : BlockType.GEM_BLOCK);
 			}
-			LMaterials.gems.add(name);
-			LMaterials.gemsAndMetal.add(name);
+			gems.add(name);
+			gemsAndMetal.add(name);
 		} else {
 			if (compositor != null) {
 				compositor.addBlock("block"+name, color, blockType);
 			}
-			LMaterials.others.add(name);
+			others.add(name);
 		}
 		if (compositor != null) {
 			compositor.addItem("dust"+name, color, ItemType.DUST);
 		}
+		hasOre.add(name);
 	}
 
 }

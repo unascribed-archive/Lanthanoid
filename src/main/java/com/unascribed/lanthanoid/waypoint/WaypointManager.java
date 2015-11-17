@@ -20,6 +20,7 @@ import com.unascribed.lanthanoid.waypoint.Waypoint.Type;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
+import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -58,7 +59,7 @@ public class WaypointManager {
 				List<Waypoint> li = Lists.newArrayList();
 				mwlm.add.put(dimEn.getKey(), li);
 				for (Waypoint w : dimEn.getValue()) {
-					if (w.type == Type.GLOBAL || w.owner.equals(p)) li.add(w);
+					if (w.type.isGlobal() || w.owner.equals(p.getGameProfile().getId())) li.add(w);
 				}
 			}
 			mwlm.remove = removalsClone;
@@ -78,8 +79,9 @@ public class WaypointManager {
 		for (Map.Entry<Integer, Map<Vec3i, Waypoint>> dimEn : waypoints.entrySet()) {
 			List<Waypoint> li = Lists.newArrayList();
 			for (Waypoint w : dimEn.getValue().values()) {
-				if (w.type == Type.PERSONAL && !player.getGameProfile().getId().equals(w.owner)) continue;
-				li.add(w);
+				if (w.type.isGlobal() || !player.getGameProfile().getId().equals(w.owner)) {
+					li.add(w);
+				}
 			}
 			msg.add.put(dimEn.getKey(), li);
 		}

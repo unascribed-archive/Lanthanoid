@@ -58,6 +58,10 @@ public class MultiHelper {
 		return sb.toString();
 	}
 
+	public boolean hasName(String name) {
+		return reverseNames.containsKey(name);
+	}
+	
 	public int getMetaForName(String name) {
 		return reverseNames.get(name);
 	}

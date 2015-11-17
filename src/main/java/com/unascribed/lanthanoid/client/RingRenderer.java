@@ -35,8 +35,8 @@ public class RingRenderer {
 			"="
 		};
 	
-	private static final double TAU = Math.PI*2;
-	private static final float TAUf = (float)TAU;
+	public static final double TAU = Math.PI*2;
+	public static final float TAUf = (float)TAU;
 	
 	private final Mode[] values;
 	private final Function<ItemStack, ? extends Mode> modeGetter;

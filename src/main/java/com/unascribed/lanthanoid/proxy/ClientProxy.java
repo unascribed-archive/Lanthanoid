@@ -1,5 +1,6 @@
 package com.unascribed.lanthanoid.proxy;
 
+import com.unascribed.lanthanoid.client.EldritchTileEntitySpecialRenderer;
 import com.unascribed.lanthanoid.client.LClientEventHandler;
 import com.unascribed.lanthanoid.client.MachineItemRenderer;
 import com.unascribed.lanthanoid.client.RifleItemRenderer;
@@ -8,6 +9,7 @@ import com.unascribed.lanthanoid.client.WaypointTileEntitySpecialRenderer;
 import com.unascribed.lanthanoid.client.WreckingBallItemRenderer;
 import com.unascribed.lanthanoid.init.LBlocks;
 import com.unascribed.lanthanoid.init.LItems;
+import com.unascribed.lanthanoid.tile.TileEntityEldritch;
 import com.unascribed.lanthanoid.tile.TileEntityWaypoint;
 import com.unascribed.lanthanoid.util.TextureCompositor;
 
@@ -37,6 +39,7 @@ public class ClientProxy implements Proxy {
 	@Override
 	public void init() {
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityWaypoint.class, new WaypointTileEntitySpecialRenderer());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityEldritch.class, new EldritchTileEntitySpecialRenderer());
 		LClientEventHandler ceh = new LClientEventHandler();
 		ceh.init();
 		FMLCommonHandler.instance().bus().register(ceh);

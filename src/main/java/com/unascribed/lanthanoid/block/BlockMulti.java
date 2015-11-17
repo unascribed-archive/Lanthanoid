@@ -40,6 +40,10 @@ public class BlockMulti extends BlockBase implements NameDelegate {
 		setStepSound(defaultTemplate.stepSound);
 	}
 	
+	public boolean hasName(String name) {
+		return helper.hasName(name);
+	}
+	
 	public int getMetaForName(String name) {
 		return helper.getMetaForName(name);
 	}

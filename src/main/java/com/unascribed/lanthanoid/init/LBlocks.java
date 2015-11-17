@@ -8,6 +8,7 @@ import com.unascribed.lanthanoid.block.BlockMulti;
 import com.unascribed.lanthanoid.block.BlockTechnical;
 import com.unascribed.lanthanoid.item.ItemBlockMachine;
 import com.unascribed.lanthanoid.item.ItemBlockWithCustomName;
+import com.unascribed.lanthanoid.tile.TileEntityEldritch;
 import com.unascribed.lanthanoid.tile.TileEntityWaypoint;
 import com.unascribed.lanthanoid.util.LArrays;
 
@@ -19,10 +20,11 @@ import net.minecraft.item.Item;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import scala.actors.threadpool.Arrays;
 
 public class LBlocks {
 
-	public static BlockMulti ore_metal, ore_gem, ore_other, storage, weak_plating, plating;
+	public static BlockMulti ore_metal, ore_gem, ore_other, storage, weak_plating, plating, storageβ;
 	public static BlockTechnical technical;
 	public static BlockEnergizedLutetium energized_lutetium;
 	public static BlockMulti misc;
@@ -33,7 +35,9 @@ public class LBlocks {
 				Material.rock,
 				Blocks.stone,
 				
-				LArrays.all(LMaterials.metals, "ore"))
+				LArrays.all(LMaterials.metals, "ore")) {
+			public float getBlockHardness(World worldIn, int x, int y, int z) { return super.getBlockHardness(worldIn, x, y, z)*1.5f; }
+		}
 				.setTemplate("oreYtterbium", Blocks.netherrack)
 				.setTemplate("orePraseodymium", Blocks.gravel)
 				.setTemplate("oreNeodymium", Blocks.nether_brick)
@@ -60,19 +64,44 @@ public class LBlocks {
 			public int getExpDrop(IBlockAccess world, int metadata, int fortune) {
 				return MathHelper.getRandomIntegerInRange(rand, 3, 7);
 			}
+			public float getBlockHardness(World worldIn, int x, int y, int z) { return super.getBlockHardness(worldIn, x, y, z)*1.5f; }
 		}, ItemBlockWithCustomName.class, "ore_gem");
 		GameRegistry.registerBlock(ore_other = new BlockMulti(
 				Material.rock,
 				Blocks.stone,
 				
-				LArrays.all(LMaterials.others, "ore")), ItemBlockWithCustomName.class, "ore_other");
+				LArrays.all(LMaterials.others, "ore")) {
+			public float getBlockHardness(World worldIn, int x, int y, int z) { return super.getBlockHardness(worldIn, x, y, z)*1.5f; }
+		}, ItemBlockWithCustomName.class, "ore_other");
 		
 		GameRegistry.registerBlock(storage = new BlockMulti(
 				Material.iron,
 				Blocks.iron_block,
 				
-				LArrays.exclude(LArrays.all(LMaterials.gemsAndMetal, "block"), "blockRosasite")
+				"blockCopper",
+				"blockYttrium",
+				"blockBarium",
+				"blockYtterbium",
+				"blockNeodymium",
+				"blockPraseodymium",
+				"blockHolmium",
+				"blockErbium",
+				"blockGadolinium",
+				"blockDysprosium",
+				"blockCerium",
+				"blockLutetium",
+				"blockActinolite",
+				"blockDiaspore",
+				"blockThulite",
+				"blockRaspite"
 				), ItemBlockWithCustomName.class, "storage");
+		GameRegistry.registerBlock(storageβ = new BlockMulti(
+				Material.iron,
+				Blocks.iron_block,
+				
+				"blockRosasite",
+				"blockYttriumBariumCopperOxide"
+				), ItemBlockWithCustomName.class, "storageβ");
 		
 		GameRegistry.registerBlock(weak_plating = new BlockMulti(
 				Material.iron,
@@ -112,6 +141,7 @@ public class LBlocks {
 		
 		GameRegistry.registerBlock(machine = new BlockMachine(), ItemBlockMachine.class, "machine");
 		GameRegistry.registerTileEntity(TileEntityWaypoint.class, "lanthanoid:waypoint");
+		GameRegistry.registerTileEntity(TileEntityEldritch.class, "lanthanoid:eldritch");
 	}
 
 }

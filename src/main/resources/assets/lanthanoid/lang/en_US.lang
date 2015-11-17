@@ -8,6 +8,7 @@ ui.help_hint=Hold %s for help
 ui.no_ammo_hint=No ammunition
 chat.waypoint_hint=Name this waypoint on an anvil, first.
 ui.waypoint_hint=Must be named on an anvil before use
+ui.wilderness=Wilderness
 
 material.copper=Copper
 material.yttrium=Yttrium
@@ -33,6 +34,8 @@ material.raspite=Raspite
 material.rosasite=Rosasite
 
 material.gypsum=Gypsum
+
+material.yttriumbariumcopperoxide=Yttrium-Barium-Copper Oxide
 
 
 command.lanspike.start=Generating %s block long spike
@@ -68,12 +71,38 @@ tile.plating.template=%s Armor Plating
 tile.weakplating.template=Weak %s Armor Plating
 tile.energized_lutetium.name=Energized Lutetium
 tile.lamp.name=Thulite Lamp
-tile.raspite_waypoint.name=Personal Waypoint
-tile.diamond_waypoint.name=Global Waypoint
+tile.machine.0.name=Personal Waypoint
+tile.machine.1.name=Global Waypoint
+tile.machine.2.name=Place Marker
+tile.machine.3.name=Eldritch Collector
+tile.machine.4.name=Eldritch Distributor
+tile.machine.5.name=Eldritch Inductor
+
 
 item.ytterbium_wrecking_ball.name=Ytterbium Wrecking Ball
 item.erbium_wrecking_ball.name=Erbium Wrecking Ball
 item.dysprosium_wrecking_ball.name=Dysprosium Wrecking Ball
+
+
+item.rcg_glasses.name=Rose-Colored Glasses
+item.rcg_glasses.design=Designed for Steve-like 2x1 eyes
+
+item.rcg_bifocals.name=Rose-Colored Bifocals
+item.rcg_bifocals.design=Designed for 2x2 eyes
+
+item.rcg_spectacles.name=Rose-Colored Spectacles
+item.rcg_spectacles.design=Designed for 1x2 eyes
+
+item.rcg_goggles.name=Rose-Colored Goggles
+item.rcg_goggles.design=Works with most eyes
+
+item.rcg_visor.name=Rose-Colored Visor
+item.rcg_visor.design=Designed for Robocop
+
+item.rose_colored_spanner.name=Rose-Colored Spanner
+item.rose_colored_spanner.lore=Happy little nuts and bolts...
+item.rose_colored_spanner.help.1=Right-click a waypoint to increase it's name range
+item.rose_colored_spanner.help.2=Sneak-right-click a waypoint to decrease it's name range
 
 
 item.rifle.name=Lanthanide Rifle
