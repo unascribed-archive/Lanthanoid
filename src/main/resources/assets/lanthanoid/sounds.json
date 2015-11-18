@@ -106,5 +106,18 @@
 				"stream": false
 			}
 		]
+	},
+	"launch": {
+		"category": "block",
+		"sounds": [
+			{
+				"name": "launch1",
+				"stream": false
+			},
+			{
+				"name": "launch2",
+				"stream": false
+			}
+		]
 	}
 }

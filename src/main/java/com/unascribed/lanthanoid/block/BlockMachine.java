@@ -29,12 +29,14 @@ import net.minecraft.client.particle.EntityReddustFX;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.passive.EntitySheep;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.RecipesArmorDyes;
 import net.minecraft.nbt.NBTTagCompound;
@@ -53,7 +55,7 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 	private IIcon[] tops = new IIcon[16];
 	private IIcon[] sides = new IIcon[16];
 
-	public IIcon collectorGlyphs, distributorGlyphs, chargerGlyphs, coil;
+	public IIcon collectorGlyphs, distributorGlyphs, chargerGlyphs, coil, faithPlateGlyphs;
 
 	private Random rand = new Random();
 
@@ -100,6 +102,8 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 			return 0xFFAA00;
 		if (meta == 5)
 			return 0x00FF00;
+		if (meta == 6)
+			return 0xFFFFFF;
 		return super.getRenderColor(meta);
 	}
 
@@ -115,12 +119,12 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 
 	@Override
 	public boolean hasTileEntity(int metadata) {
-		return metadata >= 0 && metadata <= 5;
+		return metadata >= 0 && metadata <= 6;
 	}
 
 	@Override
 	public TileEntity createTileEntity(World world, int metadata) {
-		return (metadata >= 0 && metadata <= 2) ? new TileEntityWaypoint() : (metadata >= 3 && metadata <= 5) ? new TileEntityEldritch() : null;
+		return (metadata >= 0 && metadata <= 2) ? new TileEntityWaypoint() : (metadata >= 3 && metadata <= 6) ? new TileEntityEldritch() : null;
 	}
 
 	@Override
@@ -219,10 +223,10 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 				} else if (player.getHeldItem() != null && player.getHeldItem().getItem() == Items.book) {
 					if (te.bookCount < 5) {
 						if (!world.isRemote) {
-							te.bookCount++;
 							if (!player.capabilities.isCreativeMode) {
 								player.getHeldItem().stackSize--;
 							}
+							te.bookCount++;
 							te.syncBooks();
 							te.markDirty();
 						}
@@ -230,10 +234,34 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 					}
 				}
 			}
+		} else if (meta == 6) {
+			if (player.getHeldItem() != null && !(player.getHeldItem().getItem() instanceof ItemBlock)) {
+				if (!world.isRemote) {
+					ItemStack stack = player.getHeldItem();
+					EntityItem ent = new EntityItem(world, x + 0.5, y + 1.2, z + 0.5, stack);
+					ent.motionY = -0.5;
+					world.spawnEntityInWorld(ent);
+					player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
+				}
+				return true;
+			}
 		}
 		return false;
 	}
-
+	
+	@Override
+	public void onFallenUpon(World world, int x, int y, int z, Entity entity, float fallDistance) {
+		if (world.getBlockMetadata(x, y, z) == 6) {
+			TileEntity teRaw = world.getTileEntity(x, y, z);
+			if (teRaw instanceof TileEntityEldritch) {
+				TileEntityEldritch te = (TileEntityEldritch) teRaw;
+				if (te.bounceTicks > 20) {
+					entity.fallDistance = 0;
+				}
+			}
+		}
+	}
+	
 	@Override
 	public void breakBlock(World world, int x, int y, int z, Block block, int meta) {
 		if (meta == 3 || meta == 4) {
@@ -244,7 +272,6 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 				float f1 = rand.nextFloat() * 0.8F + 0.1F;
 				for (int i = 0; i < te.bookCount; i++) {
 					float f2 = rand.nextFloat() * 0.8F + 0.1F;
-					System.out.println("A");
 					EntityItem ent = new EntityItem(world, x + f, y + f1, z + f2, new ItemStack(Items.book));
 					float f3 = 0.05F;
 					ent.motionX = (double) ((float) rand.nextGaussian() * f3);
@@ -290,6 +317,7 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 		IIcon charger = register.registerIcon("lanthanoid:eldritch_charger");
 		IIcon distributor = register.registerIcon("lanthanoid:eldritch_distributor");
 		IIcon collector = register.registerIcon("lanthanoid:eldritch_collector");
+		IIcon faith_plate = register.registerIcon("lanthanoid:eldritch_faith");
 
 		IIcon error = register.registerIcon("lanthanoid:error");
 
@@ -304,18 +332,20 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 		sides[1] = diamondSide;
 		sides[2] = diasporeSide;
 
-		for (int i = 3; i <= 5; i++) {
+		for (int i = 3; i <= 6; i++) {
 			bottoms[i] = tops[i] = eldritch;
 		}
 		tops[5] = charger;
 		sides[3] = collector;
 		sides[4] = distributor;
 		sides[5] = eldritch;
+		sides[6] = faith_plate;
 
 		collectorGlyphs = register.registerIcon("lanthanoid:eldritch_glyph_take");
 		distributorGlyphs = register.registerIcon("lanthanoid:eldritch_glyph_give");
 		chargerGlyphs = register.registerIcon("lanthanoid:eldritch_glyph_charge");
 		coil = register.registerIcon("lanthanoid:eldritch_charger_coil");
+		faithPlateGlyphs = register.registerIcon("lanthanoid:eldritch_glyph_jump");
 	}
 
 	@Override
@@ -327,7 +357,7 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 
 	@Override
 	public void getSubBlocks(Item item, CreativeTabs tab, List li) {
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < 7; i++) {
 			li.add(new ItemStack(item, 1, i));
 		}
 	}

@@ -1,5 +1,7 @@
 package com.unascribed.lanthanoid.client;
 
+import org.lwjgl.opengl.GL11;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.model.ModelBase;
@@ -22,10 +24,14 @@ public class ModelSimpleBook extends ModelBase {
 
 	public void render(Entity p_78088_1_, float p_78088_2_, float p_78088_3_, float p_78088_4_, float p_78088_5_, float p_78088_6_, float p_78088_7_) {
 		this.setRotationAngles(p_78088_2_, p_78088_3_, p_78088_4_, p_78088_5_, p_78088_6_, p_78088_7_, p_78088_1_);
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		GL11.glColor3f(0.8f, 0.8f, 0.8f);
+		this.pages.render(p_78088_7_);
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL11.glColor3f(1, 1, 1);
 		this.coverRight.render(p_78088_7_);
 		this.coverLeft.render(p_78088_7_);
 		this.bookSpine.render(p_78088_7_);
-		this.pages.render(p_78088_7_);
 	}
 
 	public void setRotationAngles(float p_78087_1_, float p_78087_2_, float p_78087_3_, float p_78087_4_, float p_78087_5_, float p_78087_6_, Entity p_78087_7_) {

@@ -12,6 +12,10 @@ import com.unascribed.lanthanoid.util.LArrays;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.enchantment.EnchantmentDurability;
+import net.minecraft.item.Item.ToolMaterial;
+import net.minecraft.item.ItemArmor.ArmorMaterial;
+import net.minecraftforge.client.EnumHelperClient;
+import net.minecraftforge.common.util.EnumHelper;
 
 public class LItems {
 	public static ItemMulti ingot, stick, dust, nugget, gem;
@@ -60,5 +64,8 @@ public class LItems {
 		
 		spanner = new ItemSpanner();
 		GameRegistry.registerItem(spanner, "spanner");
+		
+		ToolMaterial eldritchTool = EnumHelper.addToolMaterial("ELDRITCH", 3, 1561, 9.0F, 3.0F, 24);
+		ArmorMaterial eldritchArmor = EnumHelper.addArmorMaterial("ELDRITCH", 33, new int[]{3, 8, 6, 3}, 24);
 	}
 }
