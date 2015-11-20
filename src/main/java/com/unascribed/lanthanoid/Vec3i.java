@@ -12,6 +12,7 @@ public final class Vec3i {
 		this.z = z;
 	}
 	
+	@Override
 	public Vec3i clone() {
 		return new Vec3i(x, y, z);
 	}

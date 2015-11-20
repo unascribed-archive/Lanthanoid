@@ -36,7 +36,7 @@ public class SoundEldritch extends MovingSound {
 		float player = te.playerAnim/40f;
 		float pitch = 0.5f;
 		pitch += player;
-		float glyphs = (te.milliglyphs/(float)te.getMaxMilliglyphs());
+		float glyphs = (te.getMilliglyphs()/(float)te.getMaxMilliglyphs());
 		if (glyphs >= 1) {
 			pitch *= 1.75f;
 		} else {

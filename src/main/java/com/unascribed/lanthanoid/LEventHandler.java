@@ -1,11 +1,8 @@
 package com.unascribed.lanthanoid;
 
 import java.util.List;
-import java.util.UUID;
-
 import com.unascribed.lanthanoid.client.LClientEventHandler;
 import com.unascribed.lanthanoid.init.LAchievements;
-import com.unascribed.lanthanoid.init.LBlocks;
 import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.item.rifle.Variant;
 import com.unascribed.lanthanoid.network.BeamParticleMessage;
@@ -23,13 +20,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityFallingBlock;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.event.entity.player.AnvilRepairEvent;
 import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 
 public class LEventHandler {
@@ -59,7 +53,9 @@ public class LEventHandler {
 	
 	@SubscribeEvent
 	public void onPlayerLoggedIn(PlayerLoggedInEvent e) {
-		if (!(e.player instanceof EntityPlayerMP)) return;
+		if (!(e.player instanceof EntityPlayerMP)) {
+			return;
+		}
 		Lanthanoid.inst.waypointManager.sendAll((EntityPlayerMP)e.player, false);
 	}
 	

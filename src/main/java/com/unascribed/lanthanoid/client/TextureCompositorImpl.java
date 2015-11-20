@@ -69,6 +69,7 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		WAYPOINT_SIDE_TRIANGLE,
 		WAYPOINT_SIDE_CIRCLE,
 		;
+		@Override
 		public String prefix() { return "blocks/"; }
 	}
 	
@@ -87,6 +88,7 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		RIFLE,
 		RAIL,
 		;
+		@Override
 		public String prefix() { return "items/"; }
 	}
 	
@@ -283,7 +285,9 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 	}
 
 	private BufferedImage buffer(Image img) {
-		if (img instanceof BufferedImage) return ((BufferedImage)img);
+		if (img instanceof BufferedImage) {
+			return ((BufferedImage)img);
+		}
 		BufferedImage out = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_4BYTE_ABGR);
 		Graphics2D g2d = out.createGraphics();
 		g2d.drawImage(img, 0, 0, img.getWidth(null), img.getHeight(null), null);
@@ -302,7 +306,9 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 	private void loadBackdrops() throws IOException {
 		backdrops.clear();
 		for (BlockBackdrop b : BlockBackdrop.values()) {
-			if (b.loc == null) continue;
+			if (b.loc == null) {
+				continue;
+			}
 			backdrops.put(b, new LazyReference<>(() -> {
 				try {
 					return cropToWidth(readImage(b.loc).get());
@@ -512,6 +518,7 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		return "Lanthanoid Texture Compositor";
 	}
 
+	@Override
 	public InputStream getInputStream(ResourceLocation loc) throws IOException {
 		return this.getInputStreamByName(locationToName(loc));
 	}
@@ -520,6 +527,7 @@ public class TextureCompositorImpl implements IResourcePack, TextureCompositor {
 		return "assets/"+loc.getResourceDomain()+"/"+loc.getResourcePath();
 	}
 
+	@Override
 	public boolean resourceExists(ResourceLocation loc) {
 		return this.hasResourceName(locationToName(loc));
 	}

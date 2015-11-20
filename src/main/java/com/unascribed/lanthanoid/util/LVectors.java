@@ -8,7 +8,7 @@ public class LVectors {
 		double dX = x2 - x1;
 		double dY = y2 - y1;
 		double dZ = z2 - z1;
-		return (double) MathHelper.sqrt_double(dX * dX + dY * dY + dZ * dZ);
+		return MathHelper.sqrt_double(dX * dX + dY * dY + dZ * dZ);
 	}
 
 	public static double[] interpolate(double x1, double y1, double z1, double x2, double y2, double z2, double factor) {

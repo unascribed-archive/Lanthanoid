@@ -1,11 +1,19 @@
 package com.unascribed.lanthanoid.item;
 
-import net.minecraft.item.ItemPickaxe;
+import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
 
-public class ItemEldritchPickaxe extends ItemPickaxe {
+import net.minecraft.item.ItemPickaxe;
+import net.minecraft.item.ItemStack;
+
+public class ItemEldritchPickaxe extends ItemPickaxe implements IGlyphHolderItem {
 
 	protected ItemEldritchPickaxe(ToolMaterial mat) {
 		super(mat);
 	}
 
+	@Override
+	public int getMaxMilliglyphs(ItemStack stack) {
+		return 200;
+	}
+	
 }

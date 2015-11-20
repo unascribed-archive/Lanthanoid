@@ -110,19 +110,26 @@ public class ItemWreckingBall extends ItemBase {
 	
 	@Override
 	public boolean onEntitySwing(EntityLivingBase entityLiving, ItemStack stack) {
-		if (entityLiving.getHeldItem().hasTagCompound() && entityLiving.getHeldItem().getTagCompound().getInteger("cooldown") > 0)
+		if (entityLiving.getHeldItem().hasTagCompound() && entityLiving.getHeldItem().getTagCompound().getInteger("cooldown") > 0) {
 			return true;
-		if (entityLiving.worldObj.isRemote) return false;
-		if (!(entityLiving instanceof EntityPlayerMP)) return false;
+		}
+		if (entityLiving.worldObj.isRemote) {
+			return false;
+		}
+		if (!(entityLiving instanceof EntityPlayerMP)) {
+			return false;
+		}
 		EntityPlayerMP player = (EntityPlayerMP)entityLiving;
 		MovingObjectPosition mop = getMovingObjectPositionFromPlayer(player.worldObj, player, false);
 		if (mop != null && mop.typeOfHit == MovingObjectType.BLOCK) {
-			IntSupplier gauss = () -> (int)Math.round((itemRand.nextFloat()*radius)*(itemRand.nextBoolean() ? -1 : 1));
+			IntSupplier gauss = () -> Math.round((itemRand.nextFloat()*radius)*(itemRand.nextBoolean() ? -1 : 1));
 			for (int i = 0; i < breaksPerSwing; i++) {
 				int x = gauss.get()+mop.blockX;
 				int y = gauss.get()+mop.blockY;
 				int z = gauss.get()+mop.blockZ;
-				if (x == mop.blockX && y == mop.blockY && z == mop.blockZ) continue;
+				if (x == mop.blockX && y == mop.blockY && z == mop.blockZ) {
+					continue;
+				}
 				Block block = player.worldObj.getBlock(x, y, z);
 				World world = entityLiving.worldObj;
 				if (block == Blocks.stone) {
@@ -180,7 +187,9 @@ public class ItemWreckingBall extends ItemBase {
 	
 	@Override
 	public boolean onBlockDestroyed(ItemStack stack, World world, Block block, int x, int y, int z, EntityLivingBase destroyer) {
-		if (!(destroyer instanceof EntityPlayerMP)) return false;
+		if (!(destroyer instanceof EntityPlayerMP)) {
+			return false;
+		}
 		harvest(((EntityPlayerMP)destroyer), world, x, y, z, itemRand.nextInt(4) == 0, false);
 		/*if (breaking) return false;
 		if (!(destroyer instanceof EntityPlayerMP)) return false;
@@ -243,8 +252,9 @@ public class ItemWreckingBall extends ItemBase {
 			} else if (block == Blocks.gravel) {
 				block = Blocks.sand;
 			}
-			if (block.getBlockHardness(world, x, y, z) < 0)
+			if (block.getBlockHardness(world, x, y, z) < 0) {
 				return false;
+			}
 			if (particles) {
 				world.playAuxSFX(2001, x, y, z, Block.getIdFromBlock(block) + (world.getBlockMetadata(x, y, z) << 12));
 			}

@@ -8,7 +8,10 @@ import com.unascribed.lanthanoid.block.BlockMulti;
 import com.unascribed.lanthanoid.block.BlockTechnical;
 import com.unascribed.lanthanoid.item.ItemBlockMachine;
 import com.unascribed.lanthanoid.item.ItemBlockWithCustomName;
-import com.unascribed.lanthanoid.tile.TileEntityEldritch;
+import com.unascribed.lanthanoid.tile.TileEntityEldritchCollector;
+import com.unascribed.lanthanoid.tile.TileEntityEldritchDistributor;
+import com.unascribed.lanthanoid.tile.TileEntityEldritchFaithPlate;
+import com.unascribed.lanthanoid.tile.TileEntityEldritchInductor;
 import com.unascribed.lanthanoid.tile.TileEntityWaypoint;
 import com.unascribed.lanthanoid.util.LArrays;
 
@@ -35,6 +38,7 @@ public class LBlocks {
 				Blocks.stone,
 				
 				LArrays.all(LMaterials.metals, "ore")) {
+			@Override
 			public float getBlockHardness(World worldIn, int x, int y, int z) { return super.getBlockHardness(worldIn, x, y, z)*1.5f; }
 		}
 				.setTemplate("oreYtterbium", Blocks.netherrack)
@@ -50,12 +54,16 @@ public class LBlocks {
 			@Override
 			public int damageDropped(int meta) {
 				String name = helper.getNameForMeta(meta);
-				if (name == null) return 3000+meta;
+				if (name == null) {
+					return 3000+meta;
+				}
 				return LItems.gem.getMetaForName(name.replaceFirst("ore", "gem"));
 			}
 			@Override
 			public int quantityDroppedWithBonus(int bonus, Random random) {
-				if (bonus <= 0) return 1;
+				if (bonus <= 0) {
+					return 1;
+				}
 				return Math.max(1, random.nextInt(bonus + 2)+1);
 			}
 			private Random rand = new Random();
@@ -63,6 +71,7 @@ public class LBlocks {
 			public int getExpDrop(IBlockAccess world, int metadata, int fortune) {
 				return MathHelper.getRandomIntegerInRange(rand, 3, 7);
 			}
+			@Override
 			public float getBlockHardness(World worldIn, int x, int y, int z) { return super.getBlockHardness(worldIn, x, y, z)*1.5f; }
 		}, ItemBlockWithCustomName.class, "ore_gem");
 		GameRegistry.registerBlock(ore_other = new BlockMulti(
@@ -70,6 +79,7 @@ public class LBlocks {
 				Blocks.stone,
 				
 				LArrays.all(LMaterials.others, "ore")) {
+			@Override
 			public float getBlockHardness(World worldIn, int x, int y, int z) { return super.getBlockHardness(worldIn, x, y, z)*1.5f; }
 		}, ItemBlockWithCustomName.class, "ore_other");
 		
@@ -140,7 +150,10 @@ public class LBlocks {
 		
 		GameRegistry.registerBlock(machine = new BlockMachine(), ItemBlockMachine.class, "machine");
 		GameRegistry.registerTileEntity(TileEntityWaypoint.class, "lanthanoid:waypoint");
-		GameRegistry.registerTileEntity(TileEntityEldritch.class, "lanthanoid:eldritch");
+		GameRegistry.registerTileEntity(TileEntityEldritchFaithPlate.class, "lanthanoid:eldritch_faith_plate");
+		GameRegistry.registerTileEntity(TileEntityEldritchCollector.class, "lanthanoid:eldritch_collector");
+		GameRegistry.registerTileEntity(TileEntityEldritchDistributor.class, "lanthanoid:eldritch_distributor");
+		GameRegistry.registerTileEntity(TileEntityEldritchInductor.class, "lanthanoid:eldritch_inductor");
 	}
 
 }

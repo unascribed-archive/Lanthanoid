@@ -84,7 +84,9 @@ public class LConfig {
 	private static void loadConfig(File file) throws Exception {
 		config = ConfigFactory.parseFile(file);
 		for (Field f : LConfig.class.getDeclaredFields()) {
-			if (Modifier.isTransient(f.getModifiers())) continue;
+			if (Modifier.isTransient(f.getModifiers())) {
+				continue;
+			}
 			String path = f.getName().replace('_', '.');
 			if (!config.hasPath(path) || "unchanged".equals(config.getString(path))) {
 				Lanthanoid.log.info("Ignoring missing or unchanged config value {}", path);
@@ -143,7 +145,9 @@ public class LConfig {
 		Map<String, Object> builder = Maps.newLinkedHashMap();
 		Field[] fields = LConfig.class.getDeclaredFields();
 		for (Field f : fields) {
-			if (Modifier.isTransient(f.getModifiers())) continue;
+			if (Modifier.isTransient(f.getModifiers())) {
+				continue;
+			}
 			String[] parts = f.getName().split("_");
 			Comment ann = f.getAnnotation(Comment.class);
 			List<String> comments = Lists.newArrayList();

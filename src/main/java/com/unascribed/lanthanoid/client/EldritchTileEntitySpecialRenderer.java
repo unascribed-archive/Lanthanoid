@@ -5,6 +5,8 @@ import org.lwjgl.opengl.GL11;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.init.LBlocks;
 import com.unascribed.lanthanoid.tile.TileEntityEldritch;
+import com.unascribed.lanthanoid.tile.TileEntityEldritchFaithPlate;
+import com.unascribed.lanthanoid.tile.TileEntityEldritchWithBooks;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -13,13 +15,11 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererPiston;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
 
 public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer {
 
@@ -115,7 +115,7 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 			
 			int j = brightness % 65536;
 			int k = brightness / 65536;
-			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)j / 1.0F, (float)k / 1.0F);
+			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, j / 1.0F, k / 1.0F);
 			
 			boolean moveX = false;
 			int moveY = 0;
@@ -182,59 +182,68 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 		}
 		playerAnim /= 20;
 		
-		float glyphCount = Math.max(1, Math.min(te.milliglyphs, te.getMaxMilliglyphs()))/(float)te.getMaxMilliglyphs();
+		float glyphCount = Math.max(1, Math.min(te.getMilliglyphs(), te.getMaxMilliglyphs()))/(float)te.getMaxMilliglyphs();
 		int brightness = te.getWorldObj().getLightBrightnessForSkyBlocks(te.xCoord, te.yCoord, te.zCoord, 0);
 		float t = (te.ticksExisted+partialTicks)+((te.xCoord*31)+(te.yCoord*31)+(te.zCoord*31));
 		
-		renderEldritchBlock(x, y, z, partialTicks, playerAnim, glyphCount, te.bookCount, glyphs,
+		int books = 0;
+		
+		if (te instanceof TileEntityEldritchWithBooks) {
+			books = ((TileEntityEldritchWithBooks) te).getBookCount();
+		}
+		
+		renderEldritchBlock(x, y, z, partialTicks, playerAnim, glyphCount, books, glyphs,
 				brightness, t,
 				te.hashCode(), false, te.getBlockMetadata() == 4 && te.getWorldObj().getBlockPowerInput(te.xCoord, te.yCoord, te.zCoord) > 0);
 		
-		String str = (te.milliglyphs/1000)+"."+((te.milliglyphs%1000)/10);
-		FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
-		
-		GL11.glPushMatrix();
-			GL11.glTranslatef((float)x+0.5f, (float)y+1.85f, (float)z+0.5f);
-			GL11.glRotatef(t*4, 0, 1, 0);
-			GL11.glScalef(0.025f, -0.025f, 0.025f);
-			fr.drawString(str, -fr.getStringWidth(str)/2, 0, -1);
+		if (Minecraft.getMinecraft().gameSettings.showDebugInfo && Minecraft.getMinecraft().thePlayer.capabilities.isCreativeMode) {
+			String str = (te.getMilliglyphs()/1000)+"."+((te.getMilliglyphs()%1000)/10);
+			FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
 			
-			GL11.glRotatef(180, 0, 1, 0);
-			fr.drawString(str, -fr.getStringWidth(str)/2, 0, -1);
-		GL11.glPopMatrix();
-		
-		String str2 = "[debug]";
-		GL11.glPushMatrix();
-			GL11.glTranslatef((float)x+0.5f, (float)y+2.0f, (float)z+0.5f);
-			GL11.glRotatef(t*4, 0, 1, 0);
-			GL11.glScalef(0.0125f, -0.0125f, 0.0125f);
-			fr.drawString(str2, -fr.getStringWidth(str2)/2, 0, -1);
+			GL11.glPushMatrix();
+				GL11.glTranslatef(x+0.5f, y+1.85f, z+0.5f);
+				GL11.glRotatef(t*4, 0, 1, 0);
+				GL11.glScalef(0.025f, -0.025f, 0.025f);
+				fr.drawString(str, -fr.getStringWidth(str)/2, 0, -1);
+				
+				GL11.glRotatef(180, 0, 1, 0);
+				fr.drawString(str, -fr.getStringWidth(str)/2, 0, -1);
+			GL11.glPopMatrix();
 			
-			GL11.glRotatef(180, 0, 1, 0);
-			fr.drawString(str2, -fr.getStringWidth(str2)/2, 0, -1);
-		GL11.glPopMatrix();
-		
-		String str3 = "(max: "+(te.getMaxMilliglyphs()/1000)+"."+((te.getMaxMilliglyphs()%1000)/10)+")";
-		GL11.glPushMatrix();
-			GL11.glTranslatef((float)x+0.5f, (float)y+1.6f, (float)z+0.5f);
-			GL11.glRotatef(t*4, 0, 1, 0);
-			GL11.glScalef(0.0125f, -0.0125f, 0.0125f);
-			fr.drawString(str3, -fr.getStringWidth(str3)/2, 0, -1);
+			String str2 = "[debug]";
+			GL11.glPushMatrix();
+				GL11.glTranslatef(x+0.5f, y+2.0f, z+0.5f);
+				GL11.glRotatef(t*4, 0, 1, 0);
+				GL11.glScalef(0.0125f, -0.0125f, 0.0125f);
+				fr.drawString(str2, -fr.getStringWidth(str2)/2, 0, -1);
+				
+				GL11.glRotatef(180, 0, 1, 0);
+				fr.drawString(str2, -fr.getStringWidth(str2)/2, 0, -1);
+			GL11.glPopMatrix();
 			
-			GL11.glRotatef(180, 0, 1, 0);
-			fr.drawString(str3, -fr.getStringWidth(str3)/2, 0, -1);
-		GL11.glPopMatrix();
+			String str3 = "(max: "+(te.getMaxMilliglyphs()/1000)+"."+((te.getMaxMilliglyphs()%1000)/10)+")";
+			GL11.glPushMatrix();
+				GL11.glTranslatef(x+0.5f, y+1.6f, z+0.5f);
+				GL11.glRotatef(t*4, 0, 1, 0);
+				GL11.glScalef(0.0125f, -0.0125f, 0.0125f);
+				fr.drawString(str3, -fr.getStringWidth(str3)/2, 0, -1);
+				
+				GL11.glRotatef(180, 0, 1, 0);
+				fr.drawString(str3, -fr.getStringWidth(str3)/2, 0, -1);
+			GL11.glPopMatrix();
+		}
 		
-		if (teraw.blockMetadata == 6) {
+		if (teraw instanceof TileEntityEldritchFaithPlate) {
+			TileEntityEldritchFaithPlate tefp = (TileEntityEldritchFaithPlate) teraw;
 			GL11.glPushMatrix();
 				Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
 				int j = brightness % 65536;
 				int k = brightness / 65536;
-				OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)j / 1.0F, (float)k / 1.0F);
+				OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, j / 1.0F, k / 1.0F);
 				Tessellator tess = Tessellator.instance;
 				RenderBlocks rb = RenderBlocks.getInstance();
 				rb.blockAccess = te.getWorldObj();
-				float ofs = (Math.abs(MathHelper.sin((Math.min(10, te.bounceAnimTicks+6+partialTicks)/10f)*(float)Math.PI))/2);
+				float ofs = (Math.abs(MathHelper.sin((Math.min(10, tefp.bounceAnimTicks+6+partialTicks)/10f)*(float)Math.PI))/2);
 				GL11.glTranslatef(x-te.xCoord, y+ofs-te.yCoord+0.025f, z-te.zCoord);
 				GL11.glDisable(GL11.GL_LIGHTING);
 				tess.startDrawingQuads();
@@ -254,12 +263,16 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 
 	
 	public static void drawExtrudedHalfIcon(IIcon icon, float thickness) {
-		if (icon == null) return;
+		if (icon == null) {
+			return;
+		}
 		ItemRenderer.renderItemIn2D(Tessellator.instance, icon.getMinU(), icon.getMinV(), icon.getMaxU(), icon.getMinV()+((icon.getMaxV()-icon.getMinV())/2), icon.getIconWidth(), icon.getIconHeight()/2, thickness);
 	}
 	
 	public static void drawExtrudedIcon(IIcon icon, float thickness) {
-		if (icon == null) return;
+		if (icon == null) {
+			return;
+		}
 		ItemRenderer.renderItemIn2D(Tessellator.instance, icon.getMinU(), icon.getMinV(), icon.getMaxU(), icon.getMaxV(), icon.getIconWidth(), icon.getIconHeight(), thickness);
 	}
 

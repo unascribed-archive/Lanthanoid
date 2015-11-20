@@ -3,51 +3,41 @@ package com.unascribed.lanthanoid.block;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.unascribed.lanthanoid.Lanthanoid;
-import com.unascribed.lanthanoid.init.LItems;
-import com.unascribed.lanthanoid.proxy.ClientProxy;
-import com.unascribed.lanthanoid.tile.TileEntityEldritch;
+import com.unascribed.lanthanoid.tile.IActivatable;
+import com.unascribed.lanthanoid.tile.IBreakable;
+import com.unascribed.lanthanoid.tile.IFallable;
+import com.unascribed.lanthanoid.tile.TileEntityEldritchCollector;
+import com.unascribed.lanthanoid.tile.TileEntityEldritchDistributor;
+import com.unascribed.lanthanoid.tile.TileEntityEldritchFaithPlate;
+import com.unascribed.lanthanoid.tile.TileEntityEldritchInductor;
 import com.unascribed.lanthanoid.tile.TileEntityWaypoint;
 import com.unascribed.lanthanoid.util.NameDelegate;
 import com.unascribed.lanthanoid.waypoint.Waypoint;
 import com.unascribed.lanthanoid.waypoint.Waypoint.Type;
 
-import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockFurnace;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EntityReddustFX;
 import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.command.ICommandSender;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.passive.EntitySheep;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.RecipesArmorDyes;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.oredict.OreDictionary;
 
 public class BlockMachine extends BlockBase implements NameDelegate {
 
@@ -96,14 +86,18 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 
 	@Override
 	public int getRenderColor(int meta) {
-		if (meta == 3)
+		if (meta == 3) {
 			return 0x00AAFF;
-		if (meta == 4)
+		}
+		if (meta == 4) {
 			return 0xFFAA00;
-		if (meta == 5)
+		}
+		if (meta == 5) {
 			return 0x00FF00;
-		if (meta == 6)
+		}
+		if (meta == 6) {
 			return 0xFFFFFF;
+		}
 		return super.getRenderColor(meta);
 	}
 
@@ -124,7 +118,22 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 
 	@Override
 	public TileEntity createTileEntity(World world, int metadata) {
-		return (metadata >= 0 && metadata <= 2) ? new TileEntityWaypoint() : (metadata >= 3 && metadata <= 6) ? new TileEntityEldritch() : null;
+		switch (metadata) {
+			case 0:
+			case 1:
+			case 2:
+				return new TileEntityWaypoint();
+			case 3:
+				return new TileEntityEldritchCollector();
+			case 4:
+				return new TileEntityEldritchDistributor();
+			case 5:
+				return new TileEntityEldritchInductor();
+			case 6:
+				return new TileEntityEldritchFaithPlate();
+			default:
+				return null;
+		}
 	}
 
 	@Override
@@ -145,146 +154,30 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 		}
 	}
 
-	private static final Map<String, float[]> dyes = ImmutableMap.<String, float[]> builder().put("dyeBlack", new float[] { 0f, 0f, 0f }).put("dyeRed", new float[] { 1f, 0f, 0f }).put("dyeGreen", new float[] { 0f, 1f, 0f }).put("dyeBrown", new float[] { 0.75f, 0.5f, 0f }).put("dyeBlue", new float[] { 0f, 0f, 1f }).put("dyePurple", new float[] { 1f, 0f, 0.5f }).put("dyeCyan", new float[] { 0f, 1f, 1f }).put("dyeLightGray", new float[] { 0.6f, 0.6f, 0.6f }).put("dyeGray", new float[] { 0.35f, 0.35f, 0.35f }).put("dyePink", new float[] { 1f, 0.5f, 0.65f }).put("dyeLime", new float[] { 0.75f, 1f, 0f }).put("dyeYellow", new float[] { 1f, 1f, 0f }).put("dyeLightBlue", new float[] { 0.5f, 0.5f, 1f }).put("dyeMagenta", new float[] { 1f, 0f, 1f }).put("dyeOrange", new float[] { 1f, 0.5f, 0f }).put("dyeWhite", new float[] { 1f, 1f, 1f }).build();
-
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float subX, float subY, float subZ) {
-		int meta = world.getBlockMetadata(x, y, z);
-		if (meta == 0 || meta == 1 || meta == 2) {
-			Waypoint w = Lanthanoid.inst.waypointManager.getWaypoint(world, x, y, z);
-			if (w != null) {
-				ItemStack held = player.getHeldItem();
-				if (held != null) {
-					if (held.getItem() == LItems.spanner) {
-						if (player.isSneaking()) {
-							w.nameDistance = Math.max(w.nameDistance - 5, 5);
-						} else {
-							w.nameDistance = Math.min(w.nameDistance + 5, 260);
-						}
-						Lanthanoid.inst.waypointManager.setWaypoint(world, x, y, z, w);
-						return true;
-					} else {
-						float times = 3;
-						float[] resultColor = new float[] { ((w.color >> 16) & 255) / 255f, ((w.color >> 8) & 255) / 255f, (w.color & 255) / 255f, };
-						resultColor[0] *= times;
-						resultColor[1] *= times;
-						resultColor[2] *= times;
-						int[] ids = OreDictionary.getOreIDs(held);
-						boolean use = false;
-						for (int id : ids) {
-							String name = OreDictionary.getOreName(id);
-							if (dyes.containsKey(name)) {
-								float[] color = dyes.get(name);
-								resultColor[0] += color[0];
-								resultColor[1] += color[1];
-								resultColor[2] += color[2];
-								times++;
-								use = true;
-							}
-						}
-						if (use) {
-							resultColor[0] /= times;
-							resultColor[1] /= times;
-							resultColor[2] /= times;
-							int packed = 0;
-							packed |= (((int) ((resultColor[0] * 255)) & 255) << 16);
-							packed |= (((int) ((resultColor[1] * 255)) & 255) << 8);
-							packed |= ((int) ((resultColor[2] * 255)) & 255);
-							if (packed == w.color) {
-								return false;
-							}
-							if (!player.capabilities.isCreativeMode) {
-								held.stackSize--;
-							}
-							w.color = packed;
-							Lanthanoid.inst.waypointManager.setWaypoint(world, x, y, z, w);
-							return true;
-						}
-					}
-				}
-			}
-		} else if (meta == 3 || meta == 4) {
-			TileEntity teRaw = world.getTileEntity(x, y, z);
-			if (teRaw instanceof TileEntityEldritch) {
-				TileEntityEldritch te = (TileEntityEldritch) teRaw;
-
-				if (player.isSneaking()) {
-					if (te.bookCount > 0) {
-						if (!world.isRemote) {
-							te.bookCount--;
-							if (world.getGameRules().getGameRuleBooleanValue("doTileDrops")) {
-								player.entityDropItem(new ItemStack(Items.book), 0.5f);
-							}
-							te.syncBooks();
-							te.markDirty();
-						}
-						return true;
-					}
-				} else if (player.getHeldItem() != null && player.getHeldItem().getItem() == Items.book) {
-					if (te.bookCount < 5) {
-						if (!world.isRemote) {
-							if (!player.capabilities.isCreativeMode) {
-								player.getHeldItem().stackSize--;
-							}
-							te.bookCount++;
-							te.syncBooks();
-							te.markDirty();
-						}
-						return true;
-					}
-				}
-			}
-		} else if (meta == 6) {
-			if (player.getHeldItem() != null && !(player.getHeldItem().getItem() instanceof ItemBlock)) {
-				if (!world.isRemote) {
-					ItemStack stack = player.getHeldItem();
-					EntityItem ent = new EntityItem(world, x + 0.5, y + 1.2, z + 0.5, stack);
-					ent.motionY = -0.5;
-					world.spawnEntityInWorld(ent);
-					player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
-				}
-				return true;
-			}
+		TileEntity te = world.getTileEntity(x, y, z);
+		if (te instanceof IActivatable) {
+			return ((IActivatable)te).onBlockActivated(world, x, y, z, player, side, subX, subY, subZ);
 		}
 		return false;
 	}
 	
 	@Override
 	public void onFallenUpon(World world, int x, int y, int z, Entity entity, float fallDistance) {
-		if (world.getBlockMetadata(x, y, z) == 6) {
-			TileEntity teRaw = world.getTileEntity(x, y, z);
-			if (teRaw instanceof TileEntityEldritch) {
-				TileEntityEldritch te = (TileEntityEldritch) teRaw;
-				if (te.bounceTicks > 20) {
-					entity.fallDistance = 0;
-				}
-			}
+		TileEntity te = world.getTileEntity(x, y, z);
+		if (te instanceof IFallable) {
+			((IFallable)te).onFallenUpon(world, x, y, z, entity, fallDistance);
 		}
 	}
 	
 	@Override
 	public void breakBlock(World world, int x, int y, int z, Block block, int meta) {
-		if (meta == 3 || meta == 4) {
-			TileEntity teRaw = world.getTileEntity(x, y, z);
-			if (teRaw instanceof TileEntityEldritch && world.getGameRules().getGameRuleBooleanValue("doTileDrops")) {
-				TileEntityEldritch te = (TileEntityEldritch) teRaw;
-				float f = rand.nextFloat() * 0.8F + 0.1F;
-				float f1 = rand.nextFloat() * 0.8F + 0.1F;
-				for (int i = 0; i < te.bookCount; i++) {
-					float f2 = rand.nextFloat() * 0.8F + 0.1F;
-					EntityItem ent = new EntityItem(world, x + f, y + f1, z + f2, new ItemStack(Items.book));
-					float f3 = 0.05F;
-					ent.motionX = (double) ((float) rand.nextGaussian() * f3);
-					ent.motionY = (double) ((float) rand.nextGaussian() * f3 + 0.2F);
-					ent.motionZ = (double) ((float) rand.nextGaussian() * f3);
-					world.spawnEntityInWorld(ent);
-				}
-			}
+		TileEntity teRaw = world.getTileEntity(x, y, z);
+		if (teRaw instanceof IBreakable) {
+			((IBreakable)teRaw).breakBlock(world, x, y, z);
 		}
 		super.breakBlock(world, x, y, z, block, meta);
-		if (!world.isRemote && FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
-			Lanthanoid.inst.waypointManager.removeWaypointLater(world, x, y, z);
-		}
 	}
 
 	@Override
@@ -350,8 +243,9 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 
 	@Override
 	public boolean onBlockEventReceived(World world, int x, int y, int z, int event, int arg) {
-		if (!world.isRemote)
+		if (!world.isRemote) {
 			return true;
+		}
 		return world.getTileEntity(x, y, z) == null ? false : world.getTileEntity(x, y, z).receiveClientEvent(event, arg);
 	}
 

@@ -87,10 +87,10 @@ public class MachineItemRenderer implements IItemRenderer {
 								tess.addVertex(cX, cY, 0);
 							}
 						} else {
-							tess.addVertex((double) (-w), (double) (-w), 0.0D);
-							tess.addVertex((double) (-w), (double) (w), 0.0D);
-							tess.addVertex((double) (w), (double) (w), 0.0D);
-							tess.addVertex((double) (w), (double) (-w), 0.0D);
+							tess.addVertex((-w), (-w), 0.0D);
+							tess.addVertex((-w), (w), 0.0D);
+							tess.addVertex((w), (w), 0.0D);
+							tess.addVertex((w), (-w), 0.0D);
 						}
 						tess.draw();
 					}
@@ -105,10 +105,10 @@ public class MachineItemRenderer implements IItemRenderer {
 								tess.addVertex(cX, cY, 0);
 							}
 						} else {
-							tess.addVertex((double) (-w), (double) (-w), 0.0D);
-							tess.addVertex((double) (-w), (double) (w), 0.0D);
-							tess.addVertex((double) (w), (double) (w), 0.0D);
-							tess.addVertex((double) (w), (double) (-w), 0.0D);
+							tess.addVertex((-w), (-w), 0.0D);
+							tess.addVertex((-w), (w), 0.0D);
+							tess.addVertex((w), (w), 0.0D);
+							tess.addVertex((w), (-w), 0.0D);
 						}
 						tess.draw();
 					}

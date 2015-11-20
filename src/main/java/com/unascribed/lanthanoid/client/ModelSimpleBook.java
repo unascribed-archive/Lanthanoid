@@ -22,6 +22,7 @@ public class ModelSimpleBook extends ModelBase {
 		this.bookSpine.rotateAngleY = ((float) Math.PI / 2F);
 	}
 
+	@Override
 	public void render(Entity p_78088_1_, float p_78088_2_, float p_78088_3_, float p_78088_4_, float p_78088_5_, float p_78088_6_, float p_78088_7_) {
 		this.setRotationAngles(p_78088_2_, p_78088_3_, p_78088_4_, p_78088_5_, p_78088_6_, p_78088_7_, p_78088_1_);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
@@ -34,6 +35,7 @@ public class ModelSimpleBook extends ModelBase {
 		this.bookSpine.render(p_78088_7_);
 	}
 
+	@Override
 	public void setRotationAngles(float p_78087_1_, float p_78087_2_, float p_78087_3_, float p_78087_4_, float p_78087_5_, float p_78087_6_, Entity p_78087_7_) {
 		float f6 = (MathHelper.sin(p_78087_1_ * 0.02F) * 0.1F + 1.25F) * p_78087_4_;
 		this.coverRight.rotateAngleY = (float) Math.PI + f6;

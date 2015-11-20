@@ -79,7 +79,9 @@ public class BlockMulti extends BlockBase implements NameDelegate {
 				break;
 			}
 		}
-		if (idx == -1) throw new IllegalArgumentException("No such name '"+name+"'");
+		if (idx == -1) {
+			throw new IllegalArgumentException("No such name '"+name+"'");
+		}
 		templates[idx] = template;
 		return this;
 	}
@@ -87,33 +89,43 @@ public class BlockMulti extends BlockBase implements NameDelegate {
 	@Override
 	public float getExplosionResistance(Entity par1Entity, World world, int x, int y, int z, double explosionX, double explosionY, double explosionZ) {
 		int meta = world.getBlockMetadata(x, y, z);
-		if (meta < 0 || meta >= templates.length) return 0;
+		if (meta < 0 || meta >= templates.length) {
+			return 0;
+		}
 		return templates[meta].getExplosionResistance(par1Entity, world, x, y, z, explosionX, explosionY, explosionZ);
 	}
 	
 	@Override
 	public boolean canEntityDestroy(IBlockAccess world, int x, int y, int z, Entity entity) {
 		int meta = world.getBlockMetadata(x, y, z);
-		if (meta < 0 || meta >= templates.length) return true;
+		if (meta < 0 || meta >= templates.length) {
+			return true;
+		}
 		return templates[meta].canEntityDestroy(world, x, y, z, entity);
 	}
 	
 	@Override
 	public String getHarvestTool(int meta) {
-		if (meta < 0 || meta >= templates.length) return null;
+		if (meta < 0 || meta >= templates.length) {
+			return null;
+		}
 		return templates[meta].getHarvestTool(meta);
 	}
 	
 	@Override
 	public int getHarvestLevel(int meta) {
-		if (meta < 0 || meta >= templates.length) return 0;
+		if (meta < 0 || meta >= templates.length) {
+			return 0;
+		}
 		return templates[meta].getHarvestLevel(meta);
 	}
 	
 	@Override
 	public float getBlockHardness(World worldIn, int x, int y, int z) {
 		int meta = worldIn.getBlockMetadata(x, y, z);
-		if (meta < 0 || meta >= templates.length) return 0;
+		if (meta < 0 || meta >= templates.length) {
+			return 0;
+		}
 		return templates[meta].getBlockHardness(worldIn, x, y, z);
 	}
 	
@@ -135,14 +147,18 @@ public class BlockMulti extends BlockBase implements NameDelegate {
 	@Override
 	public int getLightOpacity(IBlockAccess world, int x, int y, int z) {
 		int meta = world.getBlockMetadata(x, y, z);
-		if (meta < 0 || meta >= templates.length) return 0;
+		if (meta < 0 || meta >= templates.length) {
+			return 0;
+		}
 		return templates[meta].getLightOpacity();
 	}
 	
 	@Override
 	public int getLightValue(IBlockAccess world, int x, int y, int z) {
 		int meta = world.getBlockMetadata(x, y, z);
-		if (meta < 0 || meta >= templates.length) return 0;
+		if (meta < 0 || meta >= templates.length) {
+			return 0;
+		}
 		return templates[meta].getLightValue();
 	}
 	

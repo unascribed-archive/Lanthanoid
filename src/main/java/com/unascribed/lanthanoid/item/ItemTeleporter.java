@@ -77,7 +77,9 @@ public class ItemTeleporter extends ItemMulti {
 	}
 	@Override
 	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player) {
-		if (getCompound(stack).getInteger("teleportCooldown") > 0) return stack;
+		if (getCompound(stack).getInteger("teleportCooldown") > 0) {
+			return stack;
+		}
 		if (world instanceof WorldServer) {
 			((WorldServer)world).func_147487_a("reddust", player.posX, player.posY, player.posZ, 200, player.width, player.height, player.width, 10f);
 		}
@@ -126,7 +128,9 @@ public class ItemTeleporter extends ItemMulti {
 		if (!world.isRemote) {
 			boolean first = true;
 			for (EntityLivingBase elb : (List<EntityLivingBase>)world.getEntitiesWithinAABB(EntityLivingBase.class, player.boundingBox)) {
-				if (elb == player) continue;
+				if (elb == player) {
+					continue;
+				}
 				elb.attackEntityFrom(new EntityDamageSource("telefrag", player), 500000);
 				if (first) {
 					player.worldObj.playSoundAtEntity(player, "lanthanoid:telefrag", 1.0f, 2.0f);

@@ -24,7 +24,7 @@ public class EntityRifleShot extends Entity {
         super(world);
         this.shooter = shooter;
         setSize(0.25F, 0.25F);
-        setLocationAndAngles(shooter.posX, shooter.posY + (double)shooter.getEyeHeight(), shooter.posZ, shooter.rotationYaw, shooter.rotationPitch);
+        setLocationAndAngles(shooter.posX, shooter.posY + shooter.getEyeHeight(), shooter.posZ, shooter.rotationYaw, shooter.rotationPitch);
         Vec3 look = shooter.getLookVec();
         setVelocity(look.xCoord*speed, look.yCoord*speed, look.zCoord*speed);
     }

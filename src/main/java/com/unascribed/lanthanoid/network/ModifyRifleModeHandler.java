@@ -30,9 +30,15 @@ public class ModifyRifleModeHandler implements IMessageHandler<ModifyRifleModeMe
 				} else {
 					if ((Math.abs(value) != 1 || value == 0)) {
 						Lanthanoid.log.warn(player.getCommandSenderName()+" sent an illegal value for ModifyRifleMode (message is relative but absolute value is not 1), trying to crash the server?");
-						if (value < 0) value = -1;
-						if (value > 0) value = 1;
-						if (value == 0) return null;
+						if (value < 0) {
+							value = -1;
+						}
+						if (value > 0) {
+							value = 1;
+						}
+						if (value == 0) {
+							return null;
+						}
 					}
 				}
 				LItems.rifle.modifyMode(player, player.getHeldItem(), message.set, value*(message.primary?1:-1), message.primary);

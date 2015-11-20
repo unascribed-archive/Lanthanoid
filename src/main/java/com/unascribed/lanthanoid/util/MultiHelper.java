@@ -52,7 +52,9 @@ public class MultiHelper {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {
 			int c = s.codePointAt(i);
-			if (Character.isUpperCase(c)) break;
+			if (Character.isUpperCase(c)) {
+				break;
+			}
 			sb.appendCodePoint(c);
 		}
 		return sb.toString();
@@ -72,13 +74,17 @@ public class MultiHelper {
 	
 	public String getDisplayNameForMeta(int meta) {
 		String name = getNameForMeta(meta);
-		if (name == null) return StatCollector.translateToLocal(mode+".error");
+		if (name == null) {
+			return StatCollector.translateToLocal(mode+".error");
+		}
 		return StatCollector.translateToLocalFormatted(getUnlocalizedNameForMeta(meta)+".template", StatCollector.translateToLocal("material."+materials.get(name)));
 	}
 	
 	public String getUnlocalizedNameForMeta(int meta) {
 		String name = getNameForMeta(meta);
-		if (name == null) return StatCollector.translateToLocal(mode+".error");
+		if (name == null) {
+			return StatCollector.translateToLocal(mode+".error");
+		}
 		return mode+"."+firstWords.get(name);
 	}
 	

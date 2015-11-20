@@ -146,7 +146,9 @@ public class BlockEnergizedLutetium extends BlockBase {
 		if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
 			bzztToward(world, x, y, z, entity, world.rand);
 		}
-		if (entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.disableDamage) return;
+		if (entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.disableDamage) {
+			return;
+		}
 		if (!entity.isEntityInvulnerable()) {
 			entity.attackEntityFrom(zap, 2);
 		}
@@ -170,7 +172,9 @@ public class BlockEnergizedLutetium extends BlockBase {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void randomDisplayTick(World w, int x, int y, int z, Random r) {
-		if (r.nextInt(24) != 0) return;
+		if (r.nextInt(24) != 0) {
+			return;
+		}
 		bzzt(w, x, y, z, r);
 	}
 	

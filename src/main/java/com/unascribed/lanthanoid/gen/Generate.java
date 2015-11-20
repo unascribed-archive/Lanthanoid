@@ -4,7 +4,6 @@ import com.unascribed.lanthanoid.init.LBlocks;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 public class Generate {
@@ -124,7 +123,9 @@ public class Generate {
 					float dy = posY - yCur;
 					float dz = posZ - zCur;
 					float dist = dx * dx + dy * dy + dz * dz;
-					if (dist > radius * radius) continue;
+					if (dist > radius * radius) {
+						continue;
+					}
 					
 					int xr = Math.round(xCur);
 					int yr = Math.round(yCur);

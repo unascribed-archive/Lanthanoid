@@ -1,6 +1,5 @@
 package com.unascribed.lanthanoid.init;
 
-import com.unascribed.lanthanoid.item.ItemBase;
 import com.unascribed.lanthanoid.item.ItemDisabled;
 import com.unascribed.lanthanoid.item.ItemMulti;
 import com.unascribed.lanthanoid.item.ItemSpanner;
@@ -11,10 +10,8 @@ import com.unascribed.lanthanoid.item.rifle.ItemRifle;
 import com.unascribed.lanthanoid.util.LArrays;
 
 import cpw.mods.fml.common.registry.GameRegistry;
-import net.minecraft.enchantment.EnchantmentDurability;
 import net.minecraft.item.Item.ToolMaterial;
 import net.minecraft.item.ItemArmor.ArmorMaterial;
-import net.minecraftforge.client.EnumHelperClient;
 import net.minecraftforge.common.util.EnumHelper;
 
 public class LItems {

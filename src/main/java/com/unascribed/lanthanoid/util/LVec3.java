@@ -20,6 +20,7 @@ public class LVec3 extends Vec3 {
 	/**
 	 * Sets the x,y,z components of the vector as specified.
 	 */
+	@Override
 	public LVec3 setComponents(double p_72439_1_, double p_72439_3_, double p_72439_5_) {
 		this.xCoord = p_72439_1_;
 		this.yCoord = p_72439_3_;
@@ -42,8 +43,9 @@ public class LVec3 extends Vec3 {
 	/**
 	 * Normalizes the vector to a length of 1 (except if it is the zero vector)
 	 */
+	@Override
 	public LVec3 normalize() {
-		double d0 = (double) MathHelper.sqrt_double(this.xCoord * this.xCoord + this.yCoord * this.yCoord + this.zCoord * this.zCoord);
+		double d0 = MathHelper.sqrt_double(this.xCoord * this.xCoord + this.yCoord * this.yCoord + this.zCoord * this.zCoord);
 		return d0 < 1.0E-4D ? setComponents(0.0D, 0.0D, 0.0D) : setComponents(this.xCoord / d0, this.yCoord / d0, this.zCoord / d0);
 	}
 
@@ -68,6 +70,7 @@ public class LVec3 extends Vec3 {
 	 * Adds the specified x,y,z vector components to this vector and returns the
 	 * resulting vector. Does not change this vector.
 	 */
+	@Override
 	public LVec3 addVector(double p_72441_1_, double p_72441_3_, double p_72441_5_) {
 		/**
 		 * Static method for creating a setComponentsD given the three x,y,z values.
@@ -85,7 +88,7 @@ public class LVec3 extends Vec3 {
 		double d0 = p_72438_1_.xCoord - this.xCoord;
 		double d1 = p_72438_1_.yCoord - this.yCoord;
 		double d2 = p_72438_1_.zCoord - this.zCoord;
-		return (double) MathHelper.sqrt_double(d0 * d0 + d1 * d1 + d2 * d2);
+		return MathHelper.sqrt_double(d0 * d0 + d1 * d1 + d2 * d2);
 	}
 
 	/**
@@ -103,6 +106,7 @@ public class LVec3 extends Vec3 {
 	 * The square of the Euclidean distance between this and the vector of x,y,z
 	 * components passed in.
 	 */
+	@Override
 	public double squareDistanceTo(double p_72445_1_, double p_72445_3_, double p_72445_5_) {
 		double d3 = p_72445_1_ - this.xCoord;
 		double d4 = p_72445_3_ - this.yCoord;
@@ -113,8 +117,9 @@ public class LVec3 extends Vec3 {
 	/**
 	 * Returns the length of the vector.
 	 */
+	@Override
 	public double lengthVector() {
-		return (double) MathHelper.sqrt_double(this.xCoord * this.xCoord + this.yCoord * this.yCoord + this.zCoord * this.zCoord);
+		return MathHelper.sqrt_double(this.xCoord * this.xCoord + this.yCoord * this.yCoord + this.zCoord * this.zCoord);
 	}
 
 	/**
@@ -171,6 +176,7 @@ public class LVec3 extends Vec3 {
 		}
 	}
 
+	@Override
 	public String toString() {
 		return "(" + this.xCoord + ", " + this.yCoord + ", " + this.zCoord + ")";
 	}
@@ -178,35 +184,38 @@ public class LVec3 extends Vec3 {
 	/**
 	 * Rotates the vector around the x axis by the specified angle.
 	 */
+	@Override
 	public void rotateAroundX(float p_72440_1_) {
 		float f1 = MathHelper.cos(p_72440_1_);
 		float f2 = MathHelper.sin(p_72440_1_);
 		double d0 = this.xCoord;
-		double d1 = this.yCoord * (double) f1 + this.zCoord * (double) f2;
-		double d2 = this.zCoord * (double) f1 - this.yCoord * (double) f2;
+		double d1 = this.yCoord * f1 + this.zCoord * f2;
+		double d2 = this.zCoord * f1 - this.yCoord * f2;
 		this.setComponents(d0, d1, d2);
 	}
 
 	/**
 	 * Rotates the vector around the y axis by the specified angle.
 	 */
+	@Override
 	public void rotateAroundY(float p_72442_1_) {
 		float f1 = MathHelper.cos(p_72442_1_);
 		float f2 = MathHelper.sin(p_72442_1_);
-		double d0 = this.xCoord * (double) f1 + this.zCoord * (double) f2;
+		double d0 = this.xCoord * f1 + this.zCoord * f2;
 		double d1 = this.yCoord;
-		double d2 = this.zCoord * (double) f1 - this.xCoord * (double) f2;
+		double d2 = this.zCoord * f1 - this.xCoord * f2;
 		this.setComponents(d0, d1, d2);
 	}
 
 	/**
 	 * Rotates the vector around the z axis by the specified angle.
 	 */
+	@Override
 	public void rotateAroundZ(float p_72446_1_) {
 		float f1 = MathHelper.cos(p_72446_1_);
 		float f2 = MathHelper.sin(p_72446_1_);
-		double d0 = this.xCoord * (double) f1 + this.yCoord * (double) f2;
-		double d1 = this.yCoord * (double) f1 - this.xCoord * (double) f2;
+		double d0 = this.xCoord * f1 + this.yCoord * f2;
+		double d1 = this.yCoord * f1 - this.xCoord * f2;
 		double d2 = this.zCoord;
 		this.setComponents(d0, d1, d2);
 	}

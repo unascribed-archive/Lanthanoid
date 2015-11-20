@@ -20,7 +20,6 @@ import com.unascribed.lanthanoid.util.LVectors;
 
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraft.block.Block;
-import net.minecraft.client.gui.GuiVideoSettings;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
@@ -54,7 +53,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.oredict.OreDictionary;
 
 public class ItemRifle extends ItemBase {
 	private IIcon base;
@@ -94,8 +92,12 @@ public class ItemRifle extends ItemBase {
 	
 	@Override
 	public IIcon getIcon(ItemStack stack, int renderPass, EntityPlayer player, ItemStack usingItem, int useRemaining) {
-		if (renderPass == 0) return base;
-		if (renderPass == 1) return variantOverlays[getVariant(stack).ordinal()%variantOverlays.length];
+		if (renderPass == 0) {
+			return base;
+		}
+		if (renderPass == 1) {
+			return variantOverlays[getVariant(stack).ordinal()%variantOverlays.length];
+		}
 		if (useRemaining == 0) {
 			return overlays[0];
 		}
@@ -129,13 +131,17 @@ public class ItemRifle extends ItemBase {
 	}
 	
 	public PrimaryMode getPrimaryMode(ItemStack stack) {
-		if (!getCompound(stack).hasKey("mode", 99)) return PrimaryMode.DAMAGE;
+		if (!getCompound(stack).hasKey("mode", 99)) {
+			return PrimaryMode.DAMAGE;
+		}
 		PrimaryMode[] val = PrimaryMode.values();
 		return val[getCompound(stack).getInteger("mode")%val.length];
 	}
 	
 	public SecondaryMode getSecondaryMode(ItemStack stack) {
-		if (!getCompound(stack).hasKey("mode2", 99)) return SecondaryMode.NONE;
+		if (!getCompound(stack).hasKey("mode2", 99)) {
+			return SecondaryMode.NONE;
+		}
 		SecondaryMode[] val = SecondaryMode.values();
 		return val[getCompound(stack).getInteger("mode2")%val.length];
 	}
@@ -226,10 +232,14 @@ public class ItemRifle extends ItemBase {
 		Mode mode;
 		Mode[] vals = primary ? PrimaryMode.values() : SecondaryMode.values();
 		if (absolute) {
-			if (i == oldMode.ordinal()) return;
+			if (i == oldMode.ordinal()) {
+				return;
+			}
 			mode = vals[i];
 		} else {
-			if (i == 0) return;
+			if (i == 0) {
+				return;
+			}
 			int idx = oldMode.ordinal()+i;
 			if (idx < 0) {
 				idx += vals.length;
@@ -263,12 +273,22 @@ public class ItemRifle extends ItemBase {
 	}
 	
 	public boolean hasAmmoFor(EntityPlayer player, ItemStack stack, Mode mode) {
-		if (player.capabilities.isCreativeMode) return true;
-		if (mode == getPrimaryMode(stack) && getBufferedPrimaryShots(stack) > 0) return true;
-		if (mode == getSecondaryMode(stack) && getBufferedSecondaryShots(stack) > 0) return true;
-		if (mode.type == null) return true;
+		if (player.capabilities.isCreativeMode) {
+			return true;
+		}
+		if (mode == getPrimaryMode(stack) && getBufferedPrimaryShots(stack) > 0) {
+			return true;
+		}
+		if (mode == getSecondaryMode(stack) && getBufferedSecondaryShots(stack) > 0) {
+			return true;
+		}
+		if (mode.type == null) {
+			return true;
+		}
 		for (ItemStack is : player.inventory.mainInventory) {
-			if (is == null) continue;
+			if (is == null) {
+				continue;
+			}
 			if (mode.stackMatches(is)) {
 				return true;
 			}
@@ -520,11 +540,15 @@ public class ItemRifle extends ItemBase {
 					AxisAlignedBB aabb = AxisAlignedBB.getBoundingBox(end.xCoord-5, end.yCoord-5, end.zCoord-5,
 							end.xCoord+5, end.yCoord+5, end.zCoord+5);
 					latestAABB = aabb;
-					List<EntityLivingBase> li = (List<EntityLivingBase>)world.getEntitiesWithinAABB(EntityLivingBase.class, aabb);
+					List<EntityLivingBase> li = world.getEntitiesWithinAABB(EntityLivingBase.class, aabb);
 					for (EntityLivingBase elb : li) {
-						if (elb == mop.entityHit) continue;
+						if (elb == mop.entityHit) {
+							continue;
+						}
 						double distance = elb.getDistanceSq(end.xCoord, end.yCoord, end.zCoord);
-						if (distance > 5*5) continue;
+						if (distance > 5*5) {
+							continue;
+						}
 						Vec3 nxtVec = Vec3.createVectorHelper(elb.posX, elb.posY+(elb.height/2), elb.posZ);
 						MovingObjectPosition check = world.rayTraceBlocks(Vec3.createVectorHelper(end.xCoord, end.yCoord, end.zCoord), nxtVec);
 						if (check == null) {
@@ -555,12 +579,18 @@ public class ItemRifle extends ItemBase {
 							double minDist = Double.MAX_VALUE;
 							Entity nxt = null;
 							for (Entity e : (List<Entity>)world.getEntitiesWithinAABB(EntityLivingBase.class, hit.boundingBox.expand(5, 5, 5))) {
-								if (shot.contains(e)) continue;
+								if (shot.contains(e)) {
+									continue;
+								}
 								if (e instanceof EntityTameable) {
-									if (((EntityTameable) e).getOwner() == shooter) continue;
+									if (((EntityTameable) e).getOwner() == shooter) {
+										continue;
+									}
 								}
 								if (e instanceof EntityHorse) {
-									if (shooter.getGameProfile().getId().toString().equals(((EntityHorse) e).func_152119_ch())) continue;
+									if (shooter.getGameProfile().getId().toString().equals(((EntityHorse) e).func_152119_ch())) {
+										continue;
+									}
 								}
 								double dist = e.getDistanceSq(end.xCoord, end.yCoord, end.zCoord);
 								if (dist <= minDist) {
@@ -569,8 +599,12 @@ public class ItemRifle extends ItemBase {
 								}
 							}
 							shot.add(nxt);
-							if (nxt == null) break;
-							if (!(nxt instanceof EntityLivingBase)) continue;
+							if (nxt == null) {
+								break;
+							}
+							if (!(nxt instanceof EntityLivingBase)) {
+								continue;
+							}
 							Vec3 nxtVec = Vec3.createVectorHelper(nxt.posX, nxt.posY+(nxt.height/2), nxt.posZ);
 							MovingObjectPosition check = world.rayTraceBlocks(Vec3.createVectorHelper(hit.posX, hit.posY+hit.height/2, hit.posZ), nxtVec);
 							Vec3 particleVec = check == null ? nxtVec : check.hitVec;
@@ -603,19 +637,25 @@ public class ItemRifle extends ItemBase {
 					AxisAlignedBB aabb = AxisAlignedBB.getBoundingBox(end.xCoord-5, end.yCoord-5, end.zCoord-5,
 							end.xCoord+5, end.yCoord+5, end.zCoord+5);
 					latestAABB = aabb;
-					List<EntityLivingBase> li = (List<EntityLivingBase>)world.getEntitiesWithinAABB(EntityLivingBase.class, aabb);
+					List<EntityLivingBase> li = world.getEntitiesWithinAABB(EntityLivingBase.class, aabb);
 					
 					EntityLivingBase shoot = null;
 					
 					double minDistance = Double.MAX_VALUE;
 					EntityLivingBase closest = null;
 					for (EntityLivingBase elb : li) {
-						if (elb == shooter) continue;
+						if (elb == shooter) {
+							continue;
+						}
 						if (elb instanceof EntityTameable) {
-							if (((EntityTameable) elb).getOwner() == shooter) continue;
+							if (((EntityTameable) elb).getOwner() == shooter) {
+								continue;
+							}
 						}
 						if (elb instanceof EntityHorse) {
-							if (shooter.getGameProfile().getId().toString().equals(((EntityHorse) elb).func_152119_ch())) continue;
+							if (shooter.getGameProfile().getId().toString().equals(((EntityHorse) elb).func_152119_ch())) {
+								continue;
+							}
 						}
 						double distance = elb.getDistanceSq(end.xCoord, end.yCoord, end.zCoord);
 						if (distance < minDistance) {
@@ -752,8 +792,9 @@ public class ItemRifle extends ItemBase {
 			Block block = world.getBlock(x, y, z);
 			int meta = world.getBlockMetadata(x, y, z);
 			System.out.println(block.getBlockHardness(world, x, y, z));
-			if (block.getBlockHardness(world, x, y, z) < 0)
+			if (block.getBlockHardness(world, x, y, z) < 0) {
 				return false;
+			}
 			world.playAuxSFX(2001, x, y, z, Block.getIdFromBlock(block) + (world.getBlockMetadata(x, y, z) << 12));
 			block.onBlockHarvested(world, x, y, z, meta, player);
 			boolean success = block.removedByPlayer(world, player, x, y, z, true);
@@ -810,13 +851,17 @@ public class ItemRifle extends ItemBase {
 			Entity entity1 = (Entity) list.get(i);
 			if (entity1.canBeCollidedWith() && entity1 != shooter) {
 				if (entity1 instanceof EntityTameable) {
-					if (((EntityTameable) entity1).getOwner() == shooter) continue;
+					if (((EntityTameable) entity1).getOwner() == shooter) {
+						continue;
+					}
 				}
 				if (entity1 instanceof EntityHorse && shooter instanceof EntityPlayer) {
-					if (((EntityPlayer)shooter).getGameProfile().getId().toString().equals(((EntityHorse) entity1).func_152119_ch())) continue;
+					if (((EntityPlayer)shooter).getGameProfile().getId().toString().equals(((EntityHorse) entity1).func_152119_ch())) {
+						continue;
+					}
 				}
 				f1 = 0.3F;
-				AxisAlignedBB axisalignedbb1 = entity1.boundingBox.expand((double) f1, (double) f1, (double) f1);
+				AxisAlignedBB axisalignedbb1 = entity1.boundingBox.expand(f1, f1, f1);
 				MovingObjectPosition movingobjectposition1 = axisalignedbb1.calculateIntercept(vec31, vec3);
 
 				if (movingobjectposition1 != null) {
@@ -841,7 +886,9 @@ public class ItemRifle extends ItemBase {
 	
 	@Override
 	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player) {
-		if (getCompound(stack).getInteger("cooldown") > 0) return stack;
+		if (getCompound(stack).getInteger("cooldown") > 0) {
+			return stack;
+		}
 		if (hasAmmoFor(player, stack, getPrimaryMode(stack))) {
 			player.setItemInUse(stack, getMaxItemUseDuration(stack));
 			if (!world.isRemote) {

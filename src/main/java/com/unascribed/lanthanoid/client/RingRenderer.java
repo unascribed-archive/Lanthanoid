@@ -100,7 +100,7 @@ public class RingRenderer {
 				float s = (m.ordinal()-selected.ordinal())+(flipped ? -2 : 2);
 				float anim = 0;
 				if (animTicks < ANIMATION_TIME) {
-					anim = 1-((animTicks+partialTicks)/(float)ANIMATION_TIME);
+					anim = 1-((animTicks+partialTicks)/ANIMATION_TIME);
 				}
 				s += anim*diff;
 				int x = oX;
@@ -131,7 +131,7 @@ public class RingRenderer {
 				if (m.type instanceof ItemStack) {
 					modeStack = (ItemStack)m.type;
 				} else if (m.type instanceof Integer) {
-					modeStack = oreStacks.get((Integer)m.type);
+					modeStack = oreStacks.get(m.type);
 				}
 				if (modeStack != null) {
 					if (m == selected) {

@@ -1,12 +1,9 @@
 package com.unascribed.lanthanoid.client;
 
-import java.awt.Color;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.SystemUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -17,7 +14,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.unascribed.lanthanoid.Lanthanoid;
-import com.unascribed.lanthanoid.init.LBlocks;
 import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.item.rifle.ItemRifle;
 import com.unascribed.lanthanoid.item.rifle.Mode;
@@ -37,23 +33,17 @@ import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 import cpw.mods.fml.common.gameevent.TickEvent.RenderTickEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockLadder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -238,7 +228,9 @@ public class LClientEventHandler {
 				if (ticks % 20 == 0 || oreStacks.isEmpty()) {
 					oreStacks.clear();
 					for (ItemStack is : mc.thePlayer.inventory.mainInventory) {
-						if (is == null) continue;
+						if (is == null) {
+							continue;
+						}
 						int[] ids = OreDictionary.getOreIDs(is);
 						for (int id : ids) {
 							if (PrimaryMode.usedOreIDs.contains(id) || SecondaryMode.usedOreIDs.contains(id) && !oreStacks.containsKey(id)) {
@@ -282,7 +274,9 @@ public class LClientEventHandler {
 		FontRenderer fontrenderer = Minecraft.getMinecraft().fontRenderer;
 		Tessellator tess = Tessellator.instance;
 		
-		if (Lanthanoid.inst.waypointManager.allWaypoints(Minecraft.getMinecraft().theWorld).isEmpty()) return;
+		if (Lanthanoid.inst.waypointManager.allWaypoints(Minecraft.getMinecraft().theWorld).isEmpty()) {
+			return;
+		}
 		GL11.glDisable(GL11.GL_LIGHTING);
 		GL11.glDepthMask(false);
 		GL11.glEnable(GL11.GL_BLEND);
@@ -329,7 +323,7 @@ public class LClientEventHandler {
 					String owner = waypoint.ownerName;
 					String name = waypoint.name;
 		
-					final float dist = (float) (MathHelper.sqrt_double((dX * dX) + (dY * dY) + (dZ * dZ)));
+					final float dist = (MathHelper.sqrt_double((dX * dX) + (dY * dY) + (dZ * dZ)));
 					
 					if (dist < 150) {
 						GL11.glEnable(GL11.GL_DEPTH_TEST);
@@ -342,12 +336,12 @@ public class LClientEventHandler {
 						GL11.glDepthMask(true);
 						OpenGlHelper.glBlendFunc(770, 1, 1, 0);
 						float f2 = 0;
-						float f3 = -f2 * 0.2F - (float) MathHelper.floor_float(-f2 * 0.1F);
+						float f3 = -f2 * 0.2F - MathHelper.floor_float(-f2 * 0.1F);
 						byte b0 = 1;
-						double d3 = (double) f2 * 0.025D * (1.0D - (double) (b0 & 1) * 2.5D);
+						double d3 = f2 * 0.025D * (1.0D - (b0 & 1) * 2.5D);
 						tess.startDrawingQuads();
 						tess.setColorRGBA_I(waypoint.color, 128);
-						double d5 = (double) b0 * 0.2D;
+						double d5 = b0 * 0.2D;
 						double d7 = Math.cos(d3 + 2.356194490192345D) * d5;
 						double d9 = Math.sin(d3 + 2.356194490192345D) * d5;
 						double d11 = Math.cos(d3 + (Math.PI / 4D)) * d5;
@@ -356,11 +350,11 @@ public class LClientEventHandler {
 						double d17 = Math.sin(d3 + 3.9269908169872414D) * d5;
 						double d19 = Math.cos(d3 + 5.497787143782138D) * d5;
 						double d21 = Math.sin(d3 + 5.497787143782138D) * d5;
-						double d23 = (double) (512.0F * f1);
+						double d23 = 512.0F * f1;
 						double d25 = 0.0D;
 						double d27 = 1.0D;
-						double d28 = (double) (-1.0F + f3);
-						double d29 = (double) (512.0F * f1) * (0.5D / d5) + d28;
+						double d28 = -1.0F + f3;
+						double d29 = 512.0F * f1 * (0.5D / d5) + d28;
 						d29 -= (Minecraft.getMinecraft().theWorld.getTotalWorldTime()+partialTicks)/10f;
 						d28 -= (Minecraft.getMinecraft().theWorld.getTotalWorldTime()+partialTicks)/10f;
 						tess.addVertexWithUV(dX+ d7, dY + d23, dZ+ d9, d27, d29);
@@ -417,10 +411,10 @@ public class LClientEventHandler {
 						int w = Math.max((fontrenderer.getStringWidth(distStr) / 2) + (fontrenderer.getStringWidth(owner) / 2) + 8, fontrenderer.getStringWidth(name));
 						int j = w / 2;
 						tess.setColorRGBA_I(waypoint.color, 128);
-						tess.addVertex((double) (-j - 1), (double) (-1 + b9), 0.0D);
-						tess.addVertex((double) (-j - 1), (double) (14 + b9), 0.0D);
-						tess.addVertex((double) (j + 1), (double) (14 + b9), 0.0D);
-						tess.addVertex((double) (j + 1), (double) (-1 + b9), 0.0D);
+						tess.addVertex(-j - 1, -1 + b9, 0.0D);
+						tess.addVertex(-j - 1, 14 + b9, 0.0D);
+						tess.addVertex(j + 1, 14 + b9, 0.0D);
+						tess.addVertex(j + 1, -1 + b9, 0.0D);
 						tess.draw();
 						GL11.glEnable(GL11.GL_TEXTURE_2D);
 						fontrenderer.drawString(name, -fontrenderer.getStringWidth(name) / 2, b9, -1);
@@ -441,10 +435,10 @@ public class LClientEventHandler {
 										tess.addVertex(cX, cY, 0);
 									}
 								} else {
-									tess.addVertex((double) (-w), (double) (-w), 0.0D);
-									tess.addVertex((double) (-w), (double) (w), 0.0D);
-									tess.addVertex((double) (w), (double) (w), 0.0D);
-									tess.addVertex((double) (w), (double) (-w), 0.0D);
+									tess.addVertex((-w), (-w), 0.0D);
+									tess.addVertex((-w), (w), 0.0D);
+									tess.addVertex((w), (w), 0.0D);
+									tess.addVertex((w), (-w), 0.0D);
 								}
 								tess.draw();
 							}
@@ -459,10 +453,10 @@ public class LClientEventHandler {
 										tess.addVertex(cX, cY, 0);
 									}
 								} else {
-									tess.addVertex((double) (-w), (double) (-w), 0.0D);
-									tess.addVertex((double) (-w), (double) (w), 0.0D);
-									tess.addVertex((double) (w), (double) (w), 0.0D);
-									tess.addVertex((double) (w), (double) (-w), 0.0D);
+									tess.addVertex((-w), (-w), 0.0D);
+									tess.addVertex((-w), (w), 0.0D);
+									tess.addVertex((w), (w), 0.0D);
+									tess.addVertex((w), (-w), 0.0D);
 								}
 								tess.draw();
 							}
@@ -576,7 +570,9 @@ public class LClientEventHandler {
 					counts.put(mode, 0);
 				}
 				for (ItemStack is : mc.thePlayer.inventory.mainInventory) {
-					if (is == null) continue;
+					if (is == null) {
+						continue;
+					}
 					for (Mode mode : allVals) {
 						if (mode.stackMatches(is)) {
 							counts.put(mode, counts.get(mode)+is.stackSize);
@@ -594,7 +590,7 @@ public class LClientEventHandler {
 				}
 				GL11.glPushMatrix();
 					GL11.glTranslatef(e.resolution.getScaledWidth()/2, 0, 0);
-					float anim = (blazeTicks < RingRenderer.ANIMATION_TIME ? ((float)blazeTicks+e.partialTicks)/RingRenderer.ANIMATION_TIME : 1);
+					float anim = (blazeTicks < RingRenderer.ANIMATION_TIME ? (blazeTicks+e.partialTicks)/RingRenderer.ANIMATION_TIME : 1);
 					if (blaze) {
 						GL11.glScalef(1f+anim, 1f+anim, 1f);
 					} else {

@@ -12,7 +12,9 @@ public class EntityGlyphFX extends EntityEnchantmentTableParticleFX {
 
 	@Override
 	public void renderParticle(Tessellator p_70539_1_, float p_70539_2_, float p_70539_3_, float p_70539_4_, float p_70539_5_, float p_70539_6_, float p_70539_7_) {
-		if (particleAge < 2) return;
+		if (particleAge < 2) {
+			return;
+		}
 		super.renderParticle(p_70539_1_, p_70539_2_, p_70539_3_, p_70539_4_, p_70539_5_, p_70539_6_, p_70539_7_);
 	}
 	
