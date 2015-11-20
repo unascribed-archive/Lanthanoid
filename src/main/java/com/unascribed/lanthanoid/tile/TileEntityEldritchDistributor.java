@@ -2,6 +2,7 @@ package com.unascribed.lanthanoid.tile;
 
 import java.util.Collection;
 
+import com.unascribed.lanthanoid.glyph.IGlyphHolder;
 import com.unascribed.lanthanoid.util.LVec3;
 
 import net.minecraft.tileentity.TileEntity;
@@ -10,7 +11,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.chunk.Chunk;
 
-public class TileEntityEldritchDistributor extends TileEntityEldritch {
+public class TileEntityEldritchDistributor extends TileEntityEldritchWithBooks {
 
 	@Override
 	protected void doTickLogic() {
@@ -27,9 +28,9 @@ public class TileEntityEldritchDistributor extends TileEntityEldritch {
 			int maxCX = maxX/16;
 			int maxCZ = maxZ/16;
 			
-			TileEntityEldritch max = null;
+			IGlyphHolder max = null;
 			int maxDiff = 0;
-			TileEntityEldritch min = null;
+			IGlyphHolder min = null;
 			int minDiff = 0;
 			
 			boolean drain = worldObj.getBlockPowerInput(xCoord, yCoord, zCoord) > 0;
@@ -41,34 +42,34 @@ public class TileEntityEldritchDistributor extends TileEntityEldritch {
 						if (te.xCoord >= minX && te.xCoord <= maxX
 								&& te.zCoord >= minZ && te.zCoord <= maxZ
 								&& te.yCoord >= minY && te.yCoord <= maxY) {
-							if (te instanceof TileEntityEldritch && te != this) {
-								TileEntityEldritch tee = (TileEntityEldritch) te;
-								LVec3 dir = new LVec3(tee.xCoord - this.xCoord, tee.yCoord - this.yCoord, tee.zCoord - this.zCoord);
+							if (te instanceof IGlyphHolder && te != this) {
+								IGlyphHolder holder = (IGlyphHolder) te;
+								LVec3 dir = new LVec3(te.xCoord - this.xCoord, te.yCoord - this.yCoord, te.zCoord - this.zCoord);
 								dir.normalize();
 								double sX = xCoord+0.5+dir.xCoord;
 								double sY = yCoord+0.5+dir.yCoord;
 								double sZ = zCoord+0.5+dir.zCoord; 
 								MovingObjectPosition mop = worldObj.rayTraceBlocks(
 										Vec3.createVectorHelper(sX, sY, sZ),
-										Vec3.createVectorHelper(tee.xCoord+0.5, tee.yCoord+0.5, tee.zCoord+0.5));
-								if (mop == null || (mop.typeOfHit == MovingObjectType.BLOCK && worldObj.getTileEntity(mop.blockX, mop.blockY, mop.blockZ) == tee)) {
+										Vec3.createVectorHelper(te.xCoord+0.5, te.yCoord+0.5, te.zCoord+0.5));
+								if (mop == null || (mop.typeOfHit == MovingObjectType.BLOCK && worldObj.getTileEntity(mop.blockX, mop.blockY, mop.blockZ) == holder)) {
 									if (drain) {
-										if (tee.canReceiveGlyphs() && tee.getMilliglyphs() < tee.getMaxMilliglyphs()) {
-											if (min == null || tee.getMilliglyphs() < min.getMilliglyphs()) {
-												min = tee;
+										if (holder.canReceiveGlyphs()) {
+											if (min == null || holder.getMilliglyphs() < min.getMilliglyphs()) {
+												min = holder;
 												minDiff = Integer.MAX_VALUE;
 											}
 										}
 									} else {
-										if (tee.getMilliglyphs() > this.getMilliglyphs() && tee.canSendGlyphs()) {
-											if (max == null || tee.getMilliglyphs() > max.getMilliglyphs()) {
-												max = tee;
-												maxDiff = tee.getMilliglyphs()-this.getMilliglyphs();
+										if (holder.getMilliglyphs() > this.getMilliglyphs() && holder.canSendGlyphs()) {
+											if (max == null || holder.getMilliglyphs() > max.getMilliglyphs()) {
+												max = holder;
+												maxDiff = holder.getMilliglyphs()-this.getMilliglyphs();
 											}
-										} else if (tee.getMilliglyphs() < this.getMilliglyphs() && tee.canReceiveGlyphs()) {
-											if (min == null || tee.getMilliglyphs() < min.getMilliglyphs()) {
-												min = tee;
-												minDiff = this.getMilliglyphs()-tee.getMilliglyphs();
+										} else if (holder.getMilliglyphs() < this.getMilliglyphs() && holder.canReceiveGlyphs()) {
+											if (min == null || holder.getMilliglyphs() < min.getMilliglyphs()) {
+												min = holder;
+												minDiff = this.getMilliglyphs()-holder.getMilliglyphs();
 											}
 										}
 									}

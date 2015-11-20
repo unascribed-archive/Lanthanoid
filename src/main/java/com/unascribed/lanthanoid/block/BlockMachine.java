@@ -47,8 +47,6 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 
 	public IIcon collectorGlyphs, distributorGlyphs, chargerGlyphs, coil, faithPlateGlyphs;
 
-	private Random rand = new Random();
-
 	public BlockMachine() {
 		super(Material.iron);
 		setHarvestLevel("pickaxe", 2);

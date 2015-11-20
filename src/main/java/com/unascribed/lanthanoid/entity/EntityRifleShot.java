@@ -10,6 +10,10 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
+@Deprecated
+/**
+ * @deprecated Not used quite yet, will be once Wormhole gets impl'd
+ */
 public class EntityRifleShot extends Entity {
 
 	private static final int MODE_INDEX = 12;

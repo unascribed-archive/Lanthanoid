@@ -19,8 +19,6 @@ import net.minecraft.util.ResourceLocation;
 
 public abstract class TileEntityEldritch extends TileEntity implements IGlyphHolder {
 
-	public static final int LAUNCH_COST = 10000;
-	
 	public int ticksExisted;
 	public int playerAnim;
 	public boolean playersNearby;
@@ -60,12 +58,15 @@ public abstract class TileEntityEldritch extends TileEntity implements IGlyphHol
 		}
 	}
 	
-	protected boolean transferFrom(IGlyphHolder holder, boolean force) {
+	public boolean transferFrom(IGlyphHolder holder, boolean force) {
 		int d;
 		if (force) {
 			d = Math.max(1000, holder.getMilliglyphs()/8);
 		} else {
 			d = (holder.getMilliglyphs()-this.getMilliglyphs())/8;
+			if (d < 1000) {
+				d = (holder.getMilliglyphs()-this.getMilliglyphs())/2;
+			}
 		} 
 		int amt = Math.min(this.getMaxMilliglyphs()-this.getMilliglyphs(), d);
 		if (amt > holder.getMilliglyphs()) {
@@ -190,7 +191,7 @@ public abstract class TileEntityEldritch extends TileEntity implements IGlyphHol
 	@Override
 	public void setMilliglyphs(int milliglyphs) {
 		this.milliglyphs = milliglyphs;
-		if (!worldObj.isRemote) {
+		if (hasWorldObj() && !worldObj.isRemote) {
 			worldObj.addBlockEvent(xCoord, yCoord, zCoord, LBlocks.machine, 1, getMilliglyphs());
 		}
 		markDirty();

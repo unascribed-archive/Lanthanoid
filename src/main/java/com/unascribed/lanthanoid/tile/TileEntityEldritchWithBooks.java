@@ -24,7 +24,7 @@ public abstract class TileEntityEldritchWithBooks extends TileEntityEldritch imp
 
 	public void setBookCount(int bookCount) {
 		this.bookCount = bookCount;
-		if (!worldObj.isRemote) {
+		if (hasWorldObj() && !worldObj.isRemote) {
 			worldObj.addBlockEvent(xCoord, yCoord, zCoord, LBlocks.machine, 3, getBookCount());
 		}
 		markDirty();

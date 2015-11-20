@@ -20,6 +20,8 @@ import net.minecraft.world.World;
 
 public class TileEntityEldritchFaithPlate extends TileEntityEldritch implements IFallable, IActivatable {
 	
+	public static final int LAUNCH_COST = 10000;
+	
 	public int bounceTicks = 40;
 	public int bounceAnimTicks = 40;
 	
@@ -52,6 +54,7 @@ public class TileEntityEldritchFaithPlate extends TileEntityEldritch implements 
 				}
 				AxisAlignedBB box = getBlockType().getCollisionBoundingBoxFromPool(worldObj, xCoord, yCoord, zCoord).offset(0, 1, 0);
 				box.maxY = box.minY+0.01;
+				box = box.contract(0.1, 0, 0.1);
 				for (Entity e : (List<Entity>)worldObj.getEntitiesWithinAABB(Entity.class, box)) {
 					e.motionY = 1;
 					e.fallDistance = 0;

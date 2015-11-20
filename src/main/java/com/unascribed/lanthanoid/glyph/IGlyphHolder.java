@@ -7,4 +7,6 @@ public interface IGlyphHolder {
 	
 	boolean canReceiveGlyphs();
 	boolean canSendGlyphs();
+	
+	boolean transferFrom(IGlyphHolder from, boolean force);
 }
