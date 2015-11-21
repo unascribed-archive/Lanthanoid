@@ -50,7 +50,10 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 				GL11.glPopMatrix();
 			}*/
 			
-			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240f, 240f);
+			int j = brightness % 65536;
+			int k = brightness / 65536;
+			
+			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, j+((240f-j)*playerAnim), k+((240f-k)*playerAnim));
 			
 			Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
 			
@@ -113,8 +116,6 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 			GL11.glColor3f(1, 1, 1);
 			GL11.glDisable(GL11.GL_BLEND);
 			
-			int j = brightness % 65536;
-			int k = brightness / 65536;
 			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, j / 1.0F, k / 1.0F);
 			
 			boolean moveX = false;
@@ -159,10 +160,13 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 			case 6:
 				glyphs = LBlocks.machine.faithPlateGlyphs;
 				break;
+			case 7:
+				glyphs = LBlocks.machine.collectorGlyphs;
+				break;
 		}
 		if (glyphs == null || !(teraw instanceof TileEntityEldritch)) {
 			if (teraw.hasWorldObj()) {
-				Lanthanoid.log.error("WRONG TILE ENTITY AT {}, {}, {} IN {} (Normally, this would have crashed your game. Maybe log spam is worse. Who knows.)", teraw.xCoord, teraw.yCoord, teraw.zCoord, teraw.getWorldObj().provider.getDimensionName());
+				Lanthanoid.log.error("WRONG TILE ENTITY AT {}, {}, {} IN {} (Normally, this would have crashed your game. Maybe log spam is worse. Who knows.)", teraw.xCoord, teraw.yCoord, teraw.zCoord, teraw.getWorld().provider.getDimensionName());
 			}
 			// if there's no world object, it's not worth complaining.
 			// we're stuck in some crappy fakeworld and it's not getting better.
@@ -183,7 +187,7 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 		playerAnim /= 20;
 		
 		float glyphCount = Math.max(1, Math.min(te.getMilliglyphs(), te.getMaxMilliglyphs()))/(float)te.getMaxMilliglyphs();
-		int brightness = te.getWorldObj().getLightBrightnessForSkyBlocks(te.xCoord, te.yCoord, te.zCoord, 0);
+		int brightness = te.getWorld().getLightBrightnessForSkyBlocks(te.xCoord, te.yCoord+1, te.zCoord, 0);
 		float t = (te.ticksExisted+partialTicks)+((te.xCoord*31)+(te.yCoord*31)+(te.zCoord*31));
 		
 		int books = 0;
@@ -194,11 +198,11 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 		
 		renderEldritchBlock(x, y, z, partialTicks, playerAnim, glyphCount, books, glyphs,
 				brightness, t,
-				te.hashCode(), false, te.getBlockMetadata() == 4 && te.getWorldObj().getBlockPowerInput(te.xCoord, te.yCoord, te.zCoord) > 0);
+				te.hashCode(), false, te.getBlockMetadata() == 4 && te.getWorld().getBlockPowerInput(te.xCoord, te.yCoord, te.zCoord) > 0);
 		
 		if (Minecraft.getMinecraft().gameSettings.showDebugInfo && Minecraft.getMinecraft().thePlayer.capabilities.isCreativeMode) {
 			String str = (te.getMilliglyphs()/1000)+"."+((te.getMilliglyphs()%1000)/10);
-			FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
+			FontRenderer fr = Minecraft.getMinecraft().fontRendererObj;
 			
 			GL11.glPushMatrix();
 				GL11.glTranslatef(x+0.5f, y+1.85f, z+0.5f);
@@ -235,6 +239,7 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 		
 		if (teraw instanceof TileEntityEldritchFaithPlate) {
 			TileEntityEldritchFaithPlate tefp = (TileEntityEldritchFaithPlate) teraw;
+			int len = tefp.getAmountStacked();
 			GL11.glPushMatrix();
 				Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
 				int j = brightness % 65536;
@@ -242,13 +247,14 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 				OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, j / 1.0F, k / 1.0F);
 				Tessellator tess = Tessellator.instance;
 				RenderBlocks rb = RenderBlocks.getInstance();
-				rb.blockAccess = te.getWorldObj();
-				float ofs = (Math.abs(MathHelper.sin((Math.min(10, tefp.bounceAnimTicks+6+partialTicks)/10f)*(float)Math.PI))/2);
+				rb.blockAccess = te.getWorld();
+				float q = (10*len);
+				float ofs = (Math.abs(MathHelper.sin((Math.min(q, tefp.bounceAnimTicks+(6*len)+partialTicks)/q)*(float)Math.PI))/2)*len;
 				GL11.glTranslatef(x-te.xCoord, y+ofs-te.yCoord+0.025f, z-te.zCoord);
 				GL11.glDisable(GL11.GL_LIGHTING);
 				tess.startDrawingQuads();
 				rb.setOverrideBlockTexture(LBlocks.machine.getIcon(1, 6));
-				rb.setRenderBounds(6/16f, 0, 6/16f, 10/16f, 15/16f, 10/16f);
+				rb.setRenderBounds(6/16f, (15/16f)-ofs, 6/16f, 10/16f, 15/16f, 10/16f);
 				rb.lockBlockBounds = true;
 				rb.renderBlockAllFaces(LBlocks.machine, te.xCoord, te.yCoord, te.zCoord);
 				rb.lockBlockBounds = false;

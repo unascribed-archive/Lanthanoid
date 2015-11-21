@@ -29,7 +29,7 @@ public class ItemBase extends Item {
 		if (StatCollector.canTranslate(loreKey)) {
 			int code = Minecraft.getMinecraft().gameSettings.keyBindSneak.getKeyCode();
 			if (Keyboard.isKeyDown(code)) {
-				list.addAll(Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(StatCollector.translateToLocal(loreKey), 256));
+				list.addAll(Minecraft.getMinecraft().fontRendererObj.listFormattedStringToWidth(StatCollector.translateToLocal(loreKey), 256));
 				list.add("");
 			} else {
 				list.add(StatCollector.translateToLocalFormatted("ui.lore_hint", "\u00A7e"+GameSettings.getKeyDisplayString(code)+"\u00A77"));
@@ -48,7 +48,7 @@ public class ItemBase extends Item {
 				do {
 					String key = base+".help."+i;
 					list.add("");
-					list.addAll(Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(StatCollector.translateToLocal(key), 256));
+					list.addAll(Minecraft.getMinecraft().fontRendererObj.listFormattedStringToWidth(StatCollector.translateToLocal(key), 256));
 					i++;
 				} while (StatCollector.canTranslate(base+".help."+i));
 			} else {

@@ -46,7 +46,7 @@ public class ItemTeleporter extends ItemMulti {
 	}
 	@Override
 	public double getDurabilityForDisplay(ItemStack stack) {
-		return getCompound(stack).getInteger("teleportCooldown")/(40D+(stack.getItemDamage()*10));
+		return getCompound(stack).getInteger("teleportCooldown")/(40D+(stack.getMetadata()*10));
 	}
 	@Override
 	public boolean getShareTag() {
@@ -69,8 +69,8 @@ public class ItemTeleporter extends ItemMulti {
 	}
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List li, boolean advanced) {
-		int mod = stack.getItemDamage()*2;
-		int coolMod = stack.getItemDamage()*10;
+		int mod = stack.getMetadata()*2;
+		int coolMod = stack.getMetadata()*10;
 		li.add(StatCollector.translateToLocalFormatted("item.teleporter.distance_tooltip", (6+mod)));
 		li.add(StatCollector.translateToLocalFormatted("item.teleporter.cooldown_tooltip", ((40+coolMod)/20)+(coolMod%20 == 0 ? "" : " ½")));
 		super.addInformation(stack, player, li, advanced);
@@ -98,7 +98,7 @@ public class ItemTeleporter extends ItemMulti {
 		}
 		Vec3 pos = Vec3.createVectorHelper(player.posX, player.posY+player.getEyeHeight(), player.posZ);
 		Vec3 look = player.getLookVec();
-		int mod = stack.getItemDamage()*2;
+		int mod = stack.getMetadata()*2;
 		double dist = 6+mod;
 		Vec3 target = pos.addVector(look.xCoord*dist, look.yCoord*dist, look.zCoord*dist);
 		if (world instanceof WorldServer) {
@@ -135,7 +135,7 @@ public class ItemTeleporter extends ItemMulti {
 				if (first) {
 					player.worldObj.playSoundAtEntity(player, "lanthanoid:telefrag", 1.0f, 2.0f);
 					player.triggerAchievement(LAchievements.telefrag);
-					if (stack.getItemDamage() == 7) {
+					if (stack.getMetadata() == 7) {
 						player.triggerAchievement(LAchievements.telesnipe);
 					}
 					first = false;
@@ -153,7 +153,7 @@ public class ItemTeleporter extends ItemMulti {
 		if (world instanceof WorldServer) {
 			((WorldServer)world).func_147487_a("reddust", player.posX, player.posY, player.posZ, 200, player.width, player.height, player.width, 10f);
 		}
-		getCompound(stack).setInteger("teleportCooldown", (40+(stack.getItemDamage()*10)));
+		getCompound(stack).setInteger("teleportCooldown", (40+(stack.getMetadata()*10)));
 		return stack;
 	}
 }

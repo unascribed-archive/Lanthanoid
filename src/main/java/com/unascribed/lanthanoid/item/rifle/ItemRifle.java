@@ -81,7 +81,7 @@ public class ItemRifle extends ItemBase {
 	@Override
 	public Multimap getAttributeModifiers(ItemStack stack) {
 		Multimap multimap = super.getAttributeModifiers(stack);
-		multimap.put(SharedMonsterAttributes.attackDamage.getAttributeUnlocalizedName(), new AttributeModifier(field_111210_e, "Weapon modifier", 4, 0));
+		multimap.put(SharedMonsterAttributes.attackDamage.getAttributeUnlocalizedName(), new AttributeModifier(itemModifierUUID, "Weapon modifier", 4, 0));
 		return multimap;
 	}
 	
@@ -163,13 +163,13 @@ public class ItemRifle extends ItemBase {
 	}
 	
 	public Variant getVariant(ItemStack stack) {
-		int meta = stack.getItemDamage();
+		int meta = stack.getMetadata();
 		Variant[] val = Variant.values();
 		return val[meta%val.length];
 	}
 	
 	public void setVariant(ItemStack stack, Variant variant) {
-		stack.setItemDamage(variant.ordinal());
+		stack.setMetadata(variant.ordinal());
 	}
 
 	@Override
@@ -297,7 +297,7 @@ public class ItemRifle extends ItemBase {
 	}
 	
 	@Override
-	public ItemStack onEaten(ItemStack stack, World world, EntityPlayer player) {
+	public ItemStack onItemUseFinish(ItemStack stack, World world, EntityPlayer player) {
 		if (!world.isRemote) {
 			consume(stack, player, 2);
 		}
@@ -677,8 +677,8 @@ public class ItemRifle extends ItemBase {
 						if (shoot instanceof IMob && shooter instanceof EntityPlayerMP) {
 							EntityPlayerMP mp = (EntityPlayerMP)shooter;
 							// avoid incurring the cost of another raycast if we don't need to
-							if (mp.func_147099_x().canUnlockAchievement(LAchievements.cornerDeflect)
-									&& !mp.func_147099_x().hasAchievementUnlocked(LAchievements.cornerDeflect)) {
+							if (mp.getStatFile().canUnlockAchievement(LAchievements.cornerDeflect)
+									&& !mp.getStatFile().hasAchievementUnlocked(LAchievements.cornerDeflect)) {
 								if (!mp.canEntityBeSeen(shoot)) {
 									mp.triggerAchievement(LAchievements.cornerDeflect);
 								}
@@ -774,7 +774,7 @@ public class ItemRifle extends ItemBase {
 						}
 					} else if (mop.typeOfHit == MovingObjectType.ENTITY) {
 						if (mop.entityHit instanceof EntityAnimal) {
-							((EntityAnimal)mop.entityHit).func_146082_f(shooter);
+							((EntityAnimal)mop.entityHit).setInLove(shooter);
 						}
 					}
 				}
@@ -825,7 +825,7 @@ public class ItemRifle extends ItemBase {
 	private MovingObjectPosition rayTrace(World world, Entity shooter, Vec3 start, Vec3 direction) {
 		Vec3 vec31 = Vec3.createVectorHelper(start.xCoord, start.yCoord, start.zCoord);
 		Vec3 vec3 = Vec3.createVectorHelper(start.xCoord+direction.xCoord, start.yCoord+direction.yCoord, start.zCoord+direction.zCoord);
-		MovingObjectPosition movingobjectposition = world.func_147447_a(vec31, vec3, false, false, false);
+		MovingObjectPosition movingobjectposition = world.rayTraceBlocks(vec31, vec3, false, false, false);
 		vec31 = Vec3.createVectorHelper(start.xCoord, start.yCoord, start.zCoord);
 		vec3 = Vec3.createVectorHelper(start.xCoord+direction.xCoord, start.yCoord+direction.yCoord, start.zCoord+direction.zCoord);
 

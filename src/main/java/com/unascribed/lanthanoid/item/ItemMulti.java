@@ -52,7 +52,7 @@ public class ItemMulti extends ItemBase {
 	
 	@Override
 	public String getUnlocalizedName(ItemStack stack) {
-		return helper.getUnlocalizedNameForMeta(stack.getItemDamage());
+		return helper.getUnlocalizedNameForMeta(stack.getMetadata());
 	}
 	
 	@Override
@@ -72,7 +72,7 @@ public class ItemMulti extends ItemBase {
 	
 	@Override
 	public String getItemStackDisplayName(ItemStack p_77653_1_) {
-		return helper.getDisplayNameForMeta(p_77653_1_.getItemDamage());
+		return helper.getDisplayNameForMeta(p_77653_1_.getMetadata());
 	}
 	
 	@Override

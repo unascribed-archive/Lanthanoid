@@ -41,9 +41,9 @@ public class BlockTechnical extends Block {
 	public boolean isOpaqueCube() {
 		return false;
 	}
-
+	
 	@Override
-	public boolean canCollideCheck(int p_149678_1_, boolean p_149678_2_) {
+	public boolean isCollidable() {
 		return false;
 	}
 

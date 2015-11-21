@@ -77,6 +77,8 @@ tile.machine.2.name=Place Marker
 tile.machine.3.name=Eldritch Collector
 tile.machine.4.name=Eldritch Distributor
 tile.machine.5.name=Eldritch Inductor
+tile.machine.6.name=Eldritch Confidence Plate
+tile.machine.7.name=Eldritch Cheat Device
 
 
 item.ytterbium_wrecking_ball.name=Ytterbium Wrecking Ball

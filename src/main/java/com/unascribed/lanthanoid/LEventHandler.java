@@ -113,7 +113,7 @@ public class LEventHandler {
 			}*/ else {
 				Entity ent = props.grabbedEntity;
 				if (ent instanceof EntityFallingBlock) {
-					((EntityFallingBlock)ent).field_145812_b = 2;
+					((EntityFallingBlock)ent).fallTime = 2;
 				}
 				ent.fallDistance = 0;
 				Vec3 entPos = Vec3.createVectorHelper(ent.posX, ent.posY, ent.posZ);

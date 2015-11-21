@@ -12,6 +12,7 @@ import com.unascribed.lanthanoid.tile.TileEntityEldritchCollector;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchDistributor;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchFaithPlate;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchInductor;
+import com.unascribed.lanthanoid.tile.TileEntityEldritchInfiniteSource;
 import com.unascribed.lanthanoid.tile.TileEntityWaypoint;
 import com.unascribed.lanthanoid.util.LArrays;
 
@@ -138,15 +139,15 @@ public class LBlocks {
 		GameRegistry.registerBlock(technical = new BlockTechnical(), null, "technical");
 		
 		GameRegistry.registerBlock(energized_lutetium = (BlockEnergizedLutetium) new BlockEnergizedLutetium()
-				.setBlockName("energized_lutetium")
-				.setBlockTextureName("lanthanoid:plasma"), "energized_lutetium");
+				.setUnlocalizedName("energized_lutetium")
+				.setTextureName("lanthanoid:plasma"), "energized_lutetium");
 		
 		GameRegistry.registerBlock(misc = (BlockMulti) new BlockMulti(
 				Material.glass,
 				Blocks.glowstone,
 				
 				"lampThulite"
-				).setBlockName("lamp"), "misc");
+				).setUnlocalizedName("lamp"), "misc");
 		
 		GameRegistry.registerBlock(machine = new BlockMachine(), ItemBlockMachine.class, "machine");
 		GameRegistry.registerTileEntity(TileEntityWaypoint.class, "lanthanoid:waypoint");
@@ -154,6 +155,7 @@ public class LBlocks {
 		GameRegistry.registerTileEntity(TileEntityEldritchCollector.class, "lanthanoid:eldritch_collector");
 		GameRegistry.registerTileEntity(TileEntityEldritchDistributor.class, "lanthanoid:eldritch_distributor");
 		GameRegistry.registerTileEntity(TileEntityEldritchInductor.class, "lanthanoid:eldritch_inductor");
+		GameRegistry.registerTileEntity(TileEntityEldritchInfiniteSource.class, "lanthanoid:eldritch_cheat_device");
 	}
 
 }

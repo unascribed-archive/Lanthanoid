@@ -23,10 +23,10 @@ public class TileEntityEldritchDistributor extends TileEntityEldritchWithBooks {
 			int minY = yCoord-12;
 			int maxY = yCoord+12;
 			
-			int minCX = minX/16;
-			int minCZ = minZ/16;
-			int maxCX = maxX/16;
-			int maxCZ = maxZ/16;
+			int minCX = (xCoord/16)-1;
+			int minCZ = (zCoord/16)-1;
+			int maxCX = (xCoord/16)+1;
+			int maxCZ = (zCoord/16)+1;
 			
 			IGlyphHolder max = null;
 			int maxDiff = 0;
@@ -48,28 +48,33 @@ public class TileEntityEldritchDistributor extends TileEntityEldritchWithBooks {
 								dir.normalize();
 								double sX = xCoord+0.5+dir.xCoord;
 								double sY = yCoord+0.5+dir.yCoord;
-								double sZ = zCoord+0.5+dir.zCoord; 
+								double sZ = zCoord+0.5+dir.zCoord;
+								double eX = te.xCoord+0.5;
+								double eY = te.yCoord+0.5;
+								double eZ = te.zCoord+0.5;
 								MovingObjectPosition mop = worldObj.rayTraceBlocks(
 										Vec3.createVectorHelper(sX, sY, sZ),
-										Vec3.createVectorHelper(te.xCoord+0.5, te.yCoord+0.5, te.zCoord+0.5));
-								if (mop == null || (mop.typeOfHit == MovingObjectType.BLOCK && worldObj.getTileEntity(mop.blockX, mop.blockY, mop.blockZ) == holder)) {
-									if (drain) {
-										if (holder.canReceiveGlyphs()) {
-											if (min == null || holder.getMilliglyphs() < min.getMilliglyphs()) {
-												min = holder;
-												minDiff = Integer.MAX_VALUE;
+										Vec3.createVectorHelper(eX, eY, eZ));
+								if (mop != null) {
+									if (mop.typeOfHit == MovingObjectType.BLOCK && worldObj.getTileEntity(mop.blockX, mop.blockY, mop.blockZ) == holder) {
+										if (drain) {
+											if (holder.canReceiveGlyphs()) {
+												if (min == null || holder.getMilliglyphs() < min.getMilliglyphs()) {
+													min = holder;
+													minDiff = Integer.MAX_VALUE;
+												}
 											}
-										}
-									} else {
-										if (holder.getMilliglyphs() > this.getMilliglyphs() && holder.canSendGlyphs()) {
-											if (max == null || holder.getMilliglyphs() > max.getMilliglyphs()) {
-												max = holder;
-												maxDiff = holder.getMilliglyphs()-this.getMilliglyphs();
-											}
-										} else if (holder.getMilliglyphs() < this.getMilliglyphs() && holder.canReceiveGlyphs()) {
-											if (min == null || holder.getMilliglyphs() < min.getMilliglyphs()) {
-												min = holder;
-												minDiff = this.getMilliglyphs()-holder.getMilliglyphs();
+										} else {
+											if (holder.getMilliglyphs() > this.getMilliglyphs() && holder.canSendGlyphs()) {
+												if (max == null || holder.getMilliglyphs() > max.getMilliglyphs()) {
+													max = holder;
+													maxDiff = holder.getMilliglyphs()-this.getMilliglyphs();
+												}
+											} else if (holder.getMilliglyphs() < this.getMilliglyphs() && holder.canReceiveGlyphs()) {
+												if (min == null || holder.getMilliglyphs() < min.getMilliglyphs()) {
+													min = holder;
+													minDiff = this.getMilliglyphs()-holder.getMilliglyphs();
+												}
 											}
 										}
 									}
@@ -90,6 +95,7 @@ public class TileEntityEldritchDistributor extends TileEntityEldritchWithBooks {
 
 	@Override
 	public boolean canReceiveGlyphs() {
+		if (worldObj.getBlockPowerInput(xCoord, yCoord, zCoord) > 0) return false;
 		return getMilliglyphs() < getMaxMilliglyphs();
 	}
 

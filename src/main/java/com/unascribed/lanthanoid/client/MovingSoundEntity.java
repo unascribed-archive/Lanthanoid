@@ -15,7 +15,7 @@ public class MovingSoundEntity extends MovingSound {
 	public MovingSoundEntity(ResourceLocation loc, Entity entity, float pitch) {
 		super(loc);
 		this.entity = entity;
-		this.field_147663_c = pitch;
+		this.pitch = pitch;
 		if (sounds.containsKey(entity)) {
 			sounds.get(entity).stop();
 		}

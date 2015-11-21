@@ -271,7 +271,7 @@ public class LClientEventHandler {
 		double pY = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
 		double pZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
 		float f1 = 1.0f;
-		FontRenderer fontrenderer = Minecraft.getMinecraft().fontRenderer;
+		FontRenderer fontrenderer = Minecraft.getMinecraft().fontRendererObj;
 		Tessellator tess = Tessellator.instance;
 		
 		if (Lanthanoid.inst.waypointManager.allWaypoints(Minecraft.getMinecraft().theWorld).isEmpty()) {
@@ -507,10 +507,10 @@ public class LClientEventHandler {
 				Gui.drawRect((int)Math.floor(realX+realWidth), 0, e.resolution.getScaledWidth(), e.resolution.getScaledHeight(), 0xFF000000);
 				GL11.glPushMatrix();
 				GL11.glScalef(2, 2, 1);
-				boolean oldUnicode = mc.fontRenderer.getUnicodeFlag();
-				mc.fontRenderer.setUnicodeFlag(true);
-				mc.fontRenderer.drawString(scopeFactor+"x", (e.resolution.getScaledWidth()/4)+20, (e.resolution.getScaledHeight()/4)+20, 0xC67226);
-				mc.fontRenderer.setUnicodeFlag(oldUnicode);
+				boolean oldUnicode = mc.fontRendererObj.getUnicodeFlag();
+				mc.fontRendererObj.setUnicodeFlag(true);
+				mc.fontRendererObj.drawString(scopeFactor+"x", (e.resolution.getScaledWidth()/4)+20, (e.resolution.getScaledHeight()/4)+20, 0xC67226);
+				mc.fontRendererObj.setUnicodeFlag(oldUnicode);
 				GL11.glPopMatrix();
 				mc.renderEngine.bindTexture(WIDGITS);
 			}
@@ -544,7 +544,7 @@ public class LClientEventHandler {
 					Waypoint w = Lanthanoid.inst.waypointManager.getWaypoint(mc.theWorld, mop.blockX, mop.blockY, mop.blockZ);
 					if (w != null) {
 						String str = Integer.toString(w.nameDistance);
-						mc.fontRenderer.drawStringWithShadow(str, ((e.resolution.getScaledWidth()/2)-(mc.fontRenderer.getStringWidth(str)/2))-10, (e.resolution.getScaledHeight()/2)-10, -1);
+						mc.fontRendererObj.drawStringWithShadow(str, ((e.resolution.getScaledWidth()/2)-(mc.fontRendererObj.getStringWidth(str)/2))-10, (e.resolution.getScaledHeight()/2)-10, -1);
 					}
 				}
 			}
@@ -556,7 +556,7 @@ public class LClientEventHandler {
 				float t = Math.min(waypointTicks, 80)+e.partialTicks;
 				int opacity = (int)(Math.abs(Math.sin((t/80)*Math.PI))*255);
 				if (opacity > 5) {
-					mc.fontRenderer.drawString(waypointName, (e.resolution.getScaledWidth()/4)-(mc.fontRenderer.getStringWidth(waypointName)/2), 4, waypointColor | (opacity << 24), false);
+					mc.fontRendererObj.drawString(waypointName, (e.resolution.getScaledWidth()/4)-(mc.fontRendererObj.getStringWidth(waypointName)/2), 4, waypointColor | (opacity << 24), false);
 				}
 				GL11.glPopMatrix();
 				GL11.glDisable(GL11.GL_BLEND);
@@ -609,19 +609,19 @@ public class LClientEventHandler {
 					GL11.glPushMatrix();
 						GL11.glTranslatef(0, 2, 0);
 						GL11.glScalef(0.5f, 0.5f, 1f);
-						mc.fontRenderer.drawStringWithShadow("~", 0, 0, -1);
+						mc.fontRendererObj.drawStringWithShadow("~", 0, 0, -1);
 					GL11.glPopMatrix();
 					GL11.glPushMatrix();
 						boolean infinite = mc.thePlayer.capabilities.isCreativeMode;
 						String str = infinite ? "∞" : Integer.toString(blazeCount);
-						GL11.glTranslatef(20-(mc.fontRenderer.getStringWidth(str)), 12, 0);
+						GL11.glTranslatef(20-(mc.fontRendererObj.getStringWidth(str)), 12, 0);
 						GL11.glScalef(0.5f, 0.5f, 1f);
-						mc.fontRenderer.drawStringWithShadow(str, 0, 0, -1);
+						mc.fontRendererObj.drawStringWithShadow(str, 0, 0, -1);
 					GL11.glPopMatrix();
 				GL11.glPopMatrix();
 				if (blaze) {
 					String blz = StatCollector.translateToLocal("mode.blaze.name");
-					mc.fontRenderer.drawStringWithShadow(blz, (e.resolution.getScaledWidth()/2)-(mc.fontRenderer.getStringWidth(blz)/2), (int)(16+(16*anim)), 0xFFAA00);
+					mc.fontRendererObj.drawStringWithShadow(blz, (e.resolution.getScaledWidth()/2)-(mc.fontRendererObj.getStringWidth(blz)/2), (int)(16+(16*anim)), 0xFFAA00);
 				}
 				primary.render(p, stack, 0, 0, e.partialTicks);
 				secondary.render(p, stack, e.resolution.getScaledWidth(), 0, e.partialTicks);

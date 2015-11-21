@@ -27,13 +27,13 @@ public class MachineItemRenderer implements IItemRenderer {
 		return (type == ItemRenderType.ENTITY && (helper == ItemRendererHelper.ENTITY_BOBBING || helper == ItemRendererHelper.ENTITY_ROTATION)) ||
 				(type == ItemRenderType.EQUIPPED && helper == ItemRendererHelper.EQUIPPED_BLOCK) ||
 				(type == ItemRenderType.EQUIPPED_FIRST_PERSON && helper == ItemRendererHelper.EQUIPPED_BLOCK) ||
-				(item.getItemDamage() >= 3 && item.getItemDamage() <= 6 && type == ItemRenderType.INVENTORY && helper == ItemRendererHelper.INVENTORY_BLOCK);
+				(item.getMetadata() >= 3 && item.getMetadata() <= 7 && type == ItemRenderType.INVENTORY && helper == ItemRendererHelper.INVENTORY_BLOCK);
 	}
 
 	@Override
 	public void renderItem(ItemRenderType type, ItemStack item, Object... data) {
 		RenderBlocks rb = (RenderBlocks)data[0];
-		int meta = item.getItemDamage();
+		int meta = item.getMetadata();
 		/*if (type == ItemRenderType.INVENTORY) {
 			float f = 20;
 			GL11.glScalef(f, f, f);
@@ -56,7 +56,7 @@ public class MachineItemRenderer implements IItemRenderer {
 			} else if (type == ItemRenderType.EQUIPPED || type == ItemRenderType.EQUIPPED_FIRST_PERSON) {
 				GL11.glTranslatef(0.45f, 0.525f, 0.5f);
 			}
-			rb.renderBlockAsItem(LBlocks.machine, item.getItemDamage(), 1.0f);
+			rb.renderBlockAsItem(LBlocks.machine, item.getMetadata(), 1.0f);
 		GL11.glPopMatrix();
 		
 		int color = -1;
@@ -72,7 +72,7 @@ public class MachineItemRenderer implements IItemRenderer {
 				GL11.glDisable(GL11.GL_LIGHTING);
 				GL11.glEnable(GL11.GL_BLEND);
 				OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
-				boolean global = (item.getItemDamage() == 1);
+				boolean global = (item.getMetadata() == 1);
 				GL11.glPushMatrix();
 					GL11.glTranslatef(4f, 4f, 0f);
 					GL11.glRotatef(45, 0, 0, 1);
@@ -115,7 +115,7 @@ public class MachineItemRenderer implements IItemRenderer {
 					GL11.glEnable(GL11.GL_DEPTH_TEST);
 				GL11.glPopMatrix();
 			}
-		} else if (meta >= 3 && meta <= 6) {
+		} else if (meta >= 3 && meta <= 7) {
 			GL11.glEnable(GL11.GL_DEPTH_TEST);
 			float partialTicks = Minecraft.getMinecraft().timer.renderPartialTicks;
 			IIcon glyphs = null;
@@ -131,6 +131,9 @@ public class MachineItemRenderer implements IItemRenderer {
 					break;
 				case 6:
 					glyphs = LBlocks.machine.faithPlateGlyphs;
+					break;
+				case 7:
+					glyphs = LBlocks.machine.collectorGlyphs;
 					break;
 			}
 			if (glyphs != null) {

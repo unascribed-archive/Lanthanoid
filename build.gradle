@@ -65,7 +65,8 @@ jar {
 }
 
 minecraft {
-	version = "1.7.10-10.13.2.1307-1.7.10"
+	version = "1.7.10-10.13.2.1342-1.7.10"
+	mappings = "stable_12"
 	runDir = "eclipse"
 	
 	replaceIn "src/main/java/com/unascribed/lanthanoid/Lanthanoid.java"

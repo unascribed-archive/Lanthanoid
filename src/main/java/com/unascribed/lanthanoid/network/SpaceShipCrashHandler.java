@@ -17,7 +17,7 @@ public class SpaceShipCrashHandler implements IMessageHandler<SpaceShipCrashMess
 	@Override
 	@SideOnly(Side.CLIENT)
 	public IMessage onMessage(SpaceShipCrashMessage message, MessageContext ctx) {
-		PositionedSoundRecord s = PositionedSoundRecord.func_147673_a(new ResourceLocation("lanthanoid", "spaceship_crash"));
+		PositionedSoundRecord s = PositionedSoundRecord.createPositionedSoundRecord(new ResourceLocation("lanthanoid", "spaceship_crash"));
 		Minecraft.getMinecraft().getSoundHandler().playSound(s);
 		LClientEventHandler.flashes.add(new SkyFlash(message.type.color));
 		return null;

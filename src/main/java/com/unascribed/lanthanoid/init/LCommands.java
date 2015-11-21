@@ -28,12 +28,12 @@ public class LCommands {
 				Block block = getBlockByText(sender, args[0]);
 				int meta = parseIntBounded(sender, args[1], 0, 15);
 				int length = parseIntBounded(sender, args[2], 1, 150);
-				func_152373_a(sender, this, "command.lanspike.start", length);
+				notifyOperators(sender, this, "command.lanspike.start", length);
 				int changed = Generate.spike(p.worldObj, block, meta,
 						(int)p.posX, (int)p.posY, (int)p.posZ,
 						(float)look.xCoord, (float)look.yCoord, (float)look.zCoord,
 						length);
-				func_152373_a(sender, this, "command.gen.end", changed);
+				notifyOperators(sender, this, "command.gen.end", changed);
 			}
 			
 			@Override
@@ -62,11 +62,11 @@ public class LCommands {
 				Vec3 look = p.getLookVec();
 				Block block = getBlockByText(sender, args[0]);
 				int meta = parseIntBounded(sender, args[1], 0, 15);
-				func_152373_a(sender, this, "command.lannacelle.start");
+				notifyOperators(sender, this, "command.lannacelle.start");
 				int changed = Generate.nacelle(p.worldObj, block, meta,
 						(int)p.posX, (int)p.posY, (int)p.posZ,
 						(float)look.xCoord, (float)look.yCoord, (float)look.zCoord);
-				func_152373_a(sender, this, "command.gen.end", changed);
+				notifyOperators(sender, this, "command.gen.end", changed);
 			}
 			
 			@Override
@@ -93,11 +93,11 @@ public class LCommands {
 				}
 				EntityPlayer p = ((EntityPlayer)sender);
 				Vec3 look = p.getLookVec();
-				func_152373_a(sender, this, "command.lancell.start");
+				notifyOperators(sender, this, "command.lancell.start");
 				int changed = Generate.powerCell(p.worldObj,
 						(int)p.posX, (int)p.posY, (int)p.posZ,
 						(float)look.xCoord, (float)look.yCoord, (float)look.zCoord);
-				func_152373_a(sender, this, "command.gen.end", changed);
+				notifyOperators(sender, this, "command.gen.end", changed);
 			}
 			
 			@Override

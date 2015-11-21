@@ -19,7 +19,7 @@ public class ItemBlockMachine extends ItemBlockWithCustomName {
 
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean held) {
-		if (entity instanceof EntityPlayer && (stack.getItemDamage() == 0 || stack.getItemDamage() == 1 || stack.getItemDamage() == 2)) {
+		if (entity instanceof EntityPlayer && (stack.getMetadata() == 0 || stack.getMetadata() == 1 || stack.getMetadata() == 2)) {
 			((EntityPlayer)entity).triggerAchievement(LAchievements.craftWaypoint);
 			if (stack.hasDisplayName()) {
 				((EntityPlayer)entity).triggerAchievement(LAchievements.nameWaypoint);
@@ -29,7 +29,7 @@ public class ItemBlockMachine extends ItemBlockWithCustomName {
 	
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List li, boolean advanced) {
-		if (stack.getItemDamage() == 0 || stack.getItemDamage() == 1 || stack.getItemDamage() == 2) {
+		if (stack.getMetadata() == 0 || stack.getMetadata() == 1 || stack.getMetadata() == 2) {
 			if (!stack.hasDisplayName()) {
 				li.add(StatCollector.translateToLocal("ui.waypoint_hint"));
 			}
@@ -45,7 +45,7 @@ public class ItemBlockMachine extends ItemBlockWithCustomName {
 	
 	@Override
 	public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int metadata) {
-		if (stack.getItemDamage() == 0 || stack.getItemDamage() == 1 || stack.getItemDamage() == 2) {
+		if (stack.getMetadata() == 0 || stack.getMetadata() == 1 || stack.getMetadata() == 2) {
 			if (!stack.hasDisplayName()) {
 				if (!world.isRemote) {
 					player.addChatMessage(new ChatComponentTranslation("chat.waypoint_hint"));

@@ -12,14 +12,13 @@ import cpw.mods.fml.relauncher.Side;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
 public class TileEntityWaypoint extends TileEntity implements IBreakable, IActivatable {
 	@Override
-	public void breakBlock(World world, int x, int y, int z) {
-		if (!world.isRemote && FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
-			Lanthanoid.inst.waypointManager.removeWaypointLater(world, x, y, z);
+	public void breakBlock() {
+		if (!worldObj.isRemote && FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
+			Lanthanoid.inst.waypointManager.removeWaypointLater(worldObj, xCoord, yCoord, zCoord);
 		}
 	}
 	
@@ -42,8 +41,8 @@ public class TileEntityWaypoint extends TileEntity implements IBreakable, IActiv
 			.put("dyeWhite", new float[] { 1f, 1f, 1f }).build();
 	
 	@Override
-	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float subX, float subY, float subZ) {
-		Waypoint w = Lanthanoid.inst.waypointManager.getWaypoint(world, x, y, z);
+	public boolean onBlockActivated(EntityPlayer player, int side, float subX, float subY, float subZ) {
+		Waypoint w = Lanthanoid.inst.waypointManager.getWaypoint(worldObj, xCoord, yCoord, zCoord);
 		if (w != null) {
 			ItemStack held = player.getHeldItem();
 			if (held != null) {
@@ -53,7 +52,7 @@ public class TileEntityWaypoint extends TileEntity implements IBreakable, IActiv
 					} else {
 						w.nameDistance = Math.min(w.nameDistance + 5, 260);
 					}
-					Lanthanoid.inst.waypointManager.setWaypoint(world, x, y, z, w);
+					Lanthanoid.inst.waypointManager.setWaypoint(worldObj, xCoord, yCoord, zCoord, w);
 					return true;
 				} else {
 					float times = 3;
@@ -89,7 +88,7 @@ public class TileEntityWaypoint extends TileEntity implements IBreakable, IActiv
 							held.stackSize--;
 						}
 						w.color = packed;
-						Lanthanoid.inst.waypointManager.setWaypoint(world, x, y, z, w);
+						Lanthanoid.inst.waypointManager.setWaypoint(worldObj, xCoord, yCoord, zCoord, w);
 						return true;
 					}
 				}

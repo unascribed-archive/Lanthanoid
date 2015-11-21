@@ -62,7 +62,7 @@ public class WreckingBallItemRenderer implements IItemRenderer {
 			GL11.glTranslatef(player.worldObj.rand.nextFloat()*5, player.worldObj.rand.nextFloat(), -player.worldObj.rand.nextFloat()*4);
 			GL11.glRotatef(180f, player.worldObj.rand.nextFloat(), player.worldObj.rand.nextFloat(), player.worldObj.rand.nextFloat());
 		}
-		for (int i = 0; i < item.getItem().getRenderPasses(item.getItemDamage()); i++) {
+		for (int i = 0; i < item.getItem().getRenderPasses(item.getMetadata()); i++) {
 			IIcon icon = item.getItem().getIcon(item, i, player, player.getItemInUse(), player.getItemInUseCount());
 			int color = item.getItem().getColorFromItemStack(item, i);
 			float r = ((color >> 16)&0xFF)/255f;

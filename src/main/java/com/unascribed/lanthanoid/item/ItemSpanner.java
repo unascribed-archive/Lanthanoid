@@ -12,7 +12,7 @@ public class ItemSpanner extends ItemBase {
 	public ItemSpanner() {
 		setTextureName("lanthanoid:spanner");
 		setUnlocalizedName("rose_colored_spanner");
-		setMaxDamage(256);
+		setMaxDurability(256);
 		setMaxStackSize(1);
 	}
 	@Override

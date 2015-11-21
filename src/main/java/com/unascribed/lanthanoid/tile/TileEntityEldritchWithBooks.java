@@ -7,11 +7,22 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
 
 public abstract class TileEntityEldritchWithBooks extends TileEntityEldritch implements IActivatable, IBreakable {
 
 	private int bookCount;
+	
+	@Override
+	public void updateEntity() {
+		int x = xCoord;
+		int y = yCoord+1;
+		int z = zCoord;
+		if (hasWorldObj() && !worldObj.isRemote && worldObj.getBlock(x, y, z) != null && worldObj.getBlock(x, y, z).isOpaqueCube()) {
+			dropBooks(false);
+			setBookCount(0);
+		}
+		super.updateEntity();
+	}
 	
 	@Override
 	public int getMaxMilliglyphs() {
@@ -40,12 +51,12 @@ public abstract class TileEntityEldritchWithBooks extends TileEntityEldritch imp
 	}
 	
 	@Override
-	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float subX, float subY, float subZ) {
+	public boolean onBlockActivated(EntityPlayer player, int side, float subX, float subY, float subZ) {
 		if (player.isSneaking()) {
 			if (getBookCount() > 0) {
-				if (!world.isRemote) {
+				if (!worldObj.isRemote) {
 					setBookCount(getBookCount() - 1);
-					if (world.getGameRules().getGameRuleBooleanValue("doTileDrops")) {
+					if (worldObj.getGameRules().getGameRuleBooleanValue("doTileDrops")) {
 						player.entityDropItem(new ItemStack(Items.book), 0.5f);
 					}
 				}
@@ -53,7 +64,7 @@ public abstract class TileEntityEldritchWithBooks extends TileEntityEldritch imp
 			}
 		} else if (player.getHeldItem() != null && player.getHeldItem().getItem() == Items.book) {
 			if (getBookCount() < 5) {
-				if (!world.isRemote) {
+				if (!worldObj.isRemote) {
 					if (!player.capabilities.isCreativeMode) {
 						player.getHeldItem().stackSize--;
 					}
@@ -66,20 +77,27 @@ public abstract class TileEntityEldritchWithBooks extends TileEntityEldritch imp
 	}
 	
 	@Override
-	public void breakBlock(World world, int x, int y, int z) {
-		float f = world.rand.nextFloat() * 0.8F + 0.1F;
-		float f1 = world.rand.nextFloat() * 0.8F + 0.1F;
-		for (int i = 0; i < getBookCount(); i++) {
-			float f2 = world.rand.nextFloat() * 0.8F + 0.1F;
-			EntityItem ent = new EntityItem(world, x + f, y + f1, z + f2, new ItemStack(Items.book));
-			float f3 = 0.05F;
-			ent.motionX = world.rand.nextGaussian() * f3;
-			ent.motionY = world.rand.nextGaussian() * f3 + 0.2F;
-			ent.motionZ = world.rand.nextGaussian() * f3;
-			world.spawnEntityInWorld(ent);
-		}
+	public void breakBlock() {
+		dropBooks(true);
 	}
 	
+	protected void dropBooks(boolean center) {
+		float f = worldObj.rand.nextFloat() * 0.8F + 0.1F;
+		float f1 = worldObj.rand.nextFloat() * 0.8F + 0.1F;
+		if (!center) {
+			f1 += 0.6f;
+		}
+		for (int i = 0; i < getBookCount(); i++) {
+			float f2 = worldObj.rand.nextFloat() * 0.8F + 0.1F;
+			EntityItem ent = new EntityItem(worldObj, xCoord + f, yCoord + f1, zCoord + f2, new ItemStack(Items.book));
+			float f3 = 0.05F;
+			ent.motionX = worldObj.rand.nextGaussian() * f3;
+			ent.motionY = worldObj.rand.nextGaussian() * f3 + 0.2F;
+			ent.motionZ = worldObj.rand.nextGaussian() * f3;
+			worldObj.spawnEntityInWorld(ent);
+		}
+	}
+
 	@Override
 	public void buildDescriptionPacket(NBTTagCompound nbt) {
 		super.buildDescriptionPacket(nbt);

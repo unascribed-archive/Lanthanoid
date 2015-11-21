@@ -50,7 +50,7 @@ public class ItemWreckingBall extends ItemBase {
 		setUnlocalizedName(material.lowerName+"_wrecking_ball");
 		setFull3D();
 		setTextureName("lanthanoid:"+material.lowerName+"_wrecking_ball");
-		setMaxDamage(material.maxDamage);
+		setMaxDurability(material.maxDamage);
 		radius = material.radius;
 		enchantability = material.enchantability;
 		blocksBeforeCooldown = material.blocksBeforeCooldown;
@@ -60,7 +60,7 @@ public class ItemWreckingBall extends ItemBase {
 	@Override
 	public Multimap getAttributeModifiers(ItemStack stack) {
 		Multimap multimap = super.getAttributeModifiers(stack);
-		multimap.put(SharedMonsterAttributes.attackDamage.getAttributeUnlocalizedName(), new AttributeModifier(field_111210_e, "Weapon modifier", 8, 0));
+		multimap.put(SharedMonsterAttributes.attackDamage.getAttributeUnlocalizedName(), new AttributeModifier(itemModifierUUID, "Weapon modifier", 8, 0));
 		return multimap;
 	}
 	
@@ -155,8 +155,8 @@ public class ItemWreckingBall extends ItemBase {
 				if (stack.stackSize <= 0) {
 					Lanthanoid.inst.network.sendToAllAround(new ItemBreakMessage(player.getEntityId(), stack.copy()), new TargetPoint(player.worldObj.provider.dimensionId, player.posX, player.posY, player.posZ, 64));
 					stack.setTagCompound(null);
-					stack.func_150996_a(LItems.stick);
-					stack.setItemDamage(LItems.stick.getMetaForName("stickHolmium"));
+					stack.setItem(LItems.stick);
+					stack.setMetadata(LItems.stick.getMetaForName("stickHolmium"));
 					stack.stackSize = 1;
 					return false;
 				}

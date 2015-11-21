@@ -116,11 +116,11 @@ public class RingRenderer {
 					String str = StatCollector.translateToLocal("mode."+m.translationKey+".name");
 					int nx;
 					if (flipped) {
-						nx = -(mc.fontRenderer.getStringWidth(str)+12);
+						nx = -(mc.fontRendererObj.getStringWidth(str)+12);
 					} else {
 						nx = 24;
 					}
-					mc.fontRenderer.drawStringWithShadow(str, nx, 8, m.color);
+					mc.fontRendererObj.drawStringWithShadow(str, nx, 8, m.color);
 					d = (1-anim);
 				} else if (m.ordinal() == prevSelected) {
 					d = anim;
@@ -142,24 +142,24 @@ public class RingRenderer {
 					mc.renderEngine.bindTexture(modeStack.getItemSpriteNumber() == 0 ? TextureMap.locationBlocksTexture : TextureMap.locationItemsTexture);
 					itemRenderer.renderIcon(0, 0, modeStack.getIconIndex(), 16, 16);
 				} else {
-					mc.fontRenderer.drawStringWithShadow("/", 4, 4, m.color);
+					mc.fontRendererObj.drawStringWithShadow("/", 4, 4, m.color);
 				}
 				GL11.glScalef(0.5f, 0.5f, 1f);
 				GL11.glTranslatef(0, 0, 100);
-				mc.fontRenderer.drawStringWithShadow(keys[m.ordinal()], 4, 4, -1);
+				mc.fontRendererObj.drawStringWithShadow(keys[m.ordinal()], 4, 4, -1);
 				int count = counts.get(m)*(m.doesBuffer() ? LItems.rifle.getVariant(stack).getAmmoPerDust() : 1);
 				if (m == selected) {
 					count += bufferGetter.apply(stack);
 				}
 				boolean infinite = mc.thePlayer.capabilities.isCreativeMode || m.type == null;
 				String str = infinite ? "∞" : Integer.toString(count);
-				mc.fontRenderer.drawStringWithShadow(str, 30-(mc.fontRenderer.getStringWidth(str)), 20, -1);
+				mc.fontRendererObj.drawStringWithShadow(str, 30-(mc.fontRendererObj.getStringWidth(str)), 20, -1);
 				GL11.glPopMatrix();
 				renderedAnything = true;
 			}
 		}
 		if (!renderedAnything) {
-			mc.fontRenderer.drawStringWithShadow(StatCollector.translateToLocal("ui.no_ammo_hint"), 4, 4, -1);
+			mc.fontRendererObj.drawStringWithShadow(StatCollector.translateToLocal("ui.no_ammo_hint"), 4, 4, -1);
 		} else {
 			GL11.glPushMatrix();
 			GL11.glScalef(1.5f, 1.5f, 0);

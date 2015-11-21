@@ -57,7 +57,7 @@ public class RifleItemRenderer implements IItemRenderer {
 			GL11.glRotatef(-135f, 0, 1, 0);
 			GL11.glRotatef(0f, 0, 0, 1);
 		}
-		for (int i = 0; i < item.getItem().getRenderPasses(item.getItemDamage()); i++) {
+		for (int i = 0; i < item.getItem().getRenderPasses(item.getMetadata()); i++) {
 			IIcon icon = item.getItem().getIcon(item, i, player, player.getItemInUse(), player.getItemInUseCount());
 			int color = item.getItem().getColorFromItemStack(item, i);
 			float r = ((color >> 16)&0xFF)/255f;

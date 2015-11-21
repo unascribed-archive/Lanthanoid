@@ -10,7 +10,7 @@ import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 public class TileEntityEldritchCollector extends TileEntityEldritchWithBooks {
 	@Override
 	protected void doTickLogic() {
-		if (!getWorldObj().isRemote && getMilliglyphs() < getMaxMilliglyphs() && ticksExisted % 40 == 0) {
+		if (!getWorld().isRemote && getMilliglyphs() < getMaxMilliglyphs() && ticksExisted % 40 == 0) {
 			LVec3 end = new LVec3(worldObj.rand.nextGaussian(), worldObj.rand.nextGaussian(), worldObj.rand.nextGaussian());
 			end.normalize();
 			double sX = xCoord+0.5+end.xCoord;

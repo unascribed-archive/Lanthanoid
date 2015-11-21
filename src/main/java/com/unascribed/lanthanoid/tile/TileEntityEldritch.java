@@ -31,7 +31,7 @@ public abstract class TileEntityEldritch extends TileEntity implements IGlyphHol
 	protected abstract void doTickLogic();
 	
 	@Override
-	public final void updateEntity() {
+	public void updateEntity() {
 		ticksExisted++;
 		if (hasWorldObj()) {
 			double d = 2.5;
@@ -49,7 +49,7 @@ public abstract class TileEntityEldritch extends TileEntity implements IGlyphHol
 			if (FMLCommonHandler.instance().getSide().isClient() && FMLCommonHandler.instance().getEffectiveSide().isClient()) {
 				updateSound();
 			}
-			if (!getWorldObj().isRemote) {
+			if (!getWorld().isRemote) {
 				if (getMilliglyphs() > getMaxMilliglyphs()) {
 					setMilliglyphs(getMaxMilliglyphs());
 				}
@@ -148,7 +148,7 @@ public abstract class TileEntityEldritch extends TileEntity implements IGlyphHol
 	
 	@Override
 	public final void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
-		processDescriptionPacket(pkt.func_148857_g());
+		processDescriptionPacket(pkt.getNbtCompound());
 	}
 	
 	@Override

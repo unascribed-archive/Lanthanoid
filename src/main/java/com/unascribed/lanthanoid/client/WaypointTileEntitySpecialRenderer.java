@@ -15,10 +15,10 @@ public class WaypointTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 	@Override
 	public void renderTileEntityAt(TileEntity te, double x, double y, double z, float partialTicks) {
 		Tessellator tessellator = Tessellator.instance;
-		if (!Lanthanoid.inst.waypointManager.hasWaypoint(te.getWorldObj(), te.xCoord, te.yCoord, te.zCoord)) {
+		if (!Lanthanoid.inst.waypointManager.hasWaypoint(te.getWorld(), te.xCoord, te.yCoord, te.zCoord)) {
 			GL11.glPushMatrix();
 			GL11.glDisable(GL11.GL_LIGHTING);
-			float t = (te.getWorldObj().getTotalWorldTime()+partialTicks)+((te.xCoord*31)+(te.yCoord*31)+(te.zCoord*31));
+			float t = (te.getWorld().getTotalWorldTime()+partialTicks)+((te.xCoord*31)+(te.yCoord*31)+(te.zCoord*31));
 			float sin = (float)(Math.sin(t/20)+1)/4;
 			GL11.glTranslatef((float)x+0.5f, (float)y+1.25f+sin, (float)z+0.5f);
 			GL11.glRotatef(t*4, 0, 1, 0);

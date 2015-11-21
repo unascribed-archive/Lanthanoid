@@ -19,14 +19,14 @@ public class SoundEldritch extends MovingSound {
 		this.xPosF = te.xCoord+0.5f;
 		this.yPosF = te.yCoord+0.5f;
 		this.zPosF = te.zCoord+0.5f;
-		this.field_147663_c = (te.playerAnim/40f)+0.5f;
+		this.pitch = (te.playerAnim/40f)+0.5f;
 		this.volume = te.playerAnim/20f;
 		this.repeat = true;
 	}
 
 	@Override
 	public void update() {
-		if (te == null || !te.hasWorldObj() || te.getWorldObj().getBlock(te.xCoord, te.yCoord, te.zCoord) != LBlocks.machine) {
+		if (te == null || !te.hasWorldObj() || te.getWorld().getBlock(te.xCoord, te.yCoord, te.zCoord) != LBlocks.machine) {
 			stop();
 			return;
 		}
@@ -42,7 +42,7 @@ public class SoundEldritch extends MovingSound {
 		} else {
 			pitch += glyphs*player;
 		}
-		this.field_147663_c = pitch;
+		this.pitch = pitch;
 		this.volume = te.playerAnim/120f;
 	}
 	
