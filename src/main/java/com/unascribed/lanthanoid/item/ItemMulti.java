@@ -20,7 +20,8 @@ public class ItemMulti extends ItemBase {
 	protected IIcon[] icons;
 	protected boolean useCompositor = true;
 	
-	public ItemMulti(String... names) {
+	public ItemMulti(CreativeTabs tab, String... names) {
+		super(tab);
 		helper = new MultiHelper("item", names);
 		icons = new IIcon[names.length];
 	}

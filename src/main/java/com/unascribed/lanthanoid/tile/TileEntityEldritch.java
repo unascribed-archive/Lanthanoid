@@ -8,7 +8,10 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
@@ -16,8 +19,9 @@ import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.WorldServer;
 
-public abstract class TileEntityEldritch extends TileEntity implements IGlyphHolder {
+public abstract class TileEntityEldritch extends TileEntity implements IGlyphHolder, IBreakable {
 
 	public int ticksExisted;
 	public int playerAnim;
@@ -32,18 +36,23 @@ public abstract class TileEntityEldritch extends TileEntity implements IGlyphHol
 	
 	@Override
 	public void updateEntity() {
-		ticksExisted++;
 		if (hasWorldObj()) {
-			double d = 2.5;
-			AxisAlignedBB aabb = getBlockType().getCollisionBoundingBoxFromPool(worldObj, xCoord, yCoord, zCoord);
-			playersNearby = !worldObj.getEntitiesWithinAABB(EntityPlayer.class, aabb.expand(d, d, d)).isEmpty();
-			if (playersNearby) {
-				if (playerAnim < 20) {
-					playerAnim++;
-				}
-			} else {
-				if (playerAnim > 0) {
-					playerAnim--;
+			if (ticksExisted == 0) {
+				ticksExisted = worldObj.rand.nextInt(65536);
+			}
+			ticksExisted++;
+			if (worldObj.isRemote) {
+				double d = 2.5;
+				AxisAlignedBB aabb = getBlockType().getCollisionBoundingBoxFromPool(worldObj, xCoord, yCoord, zCoord);
+				playersNearby = !worldObj.getEntitiesWithinAABB(EntityPlayer.class, aabb.expand(d, d, d)).isEmpty();
+				if (playersNearby) {
+					if (playerAnim < 20) {
+						playerAnim++;
+					}
+				} else {
+					if (playerAnim > 0) {
+						playerAnim--;
+					}
 				}
 			}
 			if (FMLCommonHandler.instance().getSide().isClient() && FMLCommonHandler.instance().getEffectiveSide().isClient()) {
@@ -85,6 +94,16 @@ public abstract class TileEntityEldritch extends TileEntity implements IGlyphHol
 	}
 
 	@Override
+	public void breakBlock() {
+		if (getMilliglyphs() > 15000) {
+			worldObj.playSoundEffect(xCoord+0.5, yCoord+0.5, zCoord+0.5, "lanthanoid:waste", 1f, 0.5f);
+			if (worldObj instanceof WorldServer) {
+				((WorldServer)worldObj).func_147487_a("enchantmenttable", xCoord+0.5, yCoord+0.5, zCoord+0.5, getMilliglyphs()/250, 0.25, 0.25, 0.25, 0);
+			}
+		}
+	}
+	
+	@Override
 	public int getMaxMilliglyphs() {
 		return 100000;
 	}
@@ -111,11 +130,11 @@ public abstract class TileEntityEldritch extends TileEntity implements IGlyphHol
 			return true;
 		} else if (event == 2) {
 			int pow = ((arg>>>24)&0xFF);
-			int x = (byte)((arg>>>16)&0xFF);
-			int y = (byte)((arg>>>8)&0xFF);
-			int z = (byte)(arg&0xFF);
+			int x = (byte)((arg>>>16)&0xFF) + xCoord;
+			int y = (byte)((arg>>>8)&0xFF) + yCoord;
+			int z = (byte)(arg&0xFF) + zCoord;
 			if (FMLCommonHandler.instance().getSide().isClient() && FMLCommonHandler.instance().getEffectiveSide().isClient()) {
-				spawnParticle(x, y, z, pow);
+				spawnTransferParticlesClient(x, y, z, pow);
 			}
 			return true;
 		}
@@ -123,10 +142,14 @@ public abstract class TileEntityEldritch extends TileEntity implements IGlyphHol
 	}
 	
 	@SideOnly(Side.CLIENT)
-	private void spawnParticle(int x, int y, int z, int pow) {
-		double spread = 0.25;
-		for (int i = 0; i < (pow == 0 ? 1 : pow*5); i++) {
-			EntityGlyphFX fx = new EntityGlyphFX(worldObj, xCoord+0.5, yCoord+2, zCoord+0.5, x+(worldObj.rand.nextGaussian()*spread), y+(worldObj.rand.nextGaussian()*spread)-2, z+(worldObj.rand.nextGaussian()*spread));
+	private void spawnTransferParticlesClient(int x, int y, int z, int pow) {
+		spawnParticlesClient(x+0.5f, y+0.5f, z+0.5f, xCoord+0.5f, yCoord+0.5f, zCoord+0.5f, 0.25, pow);
+	}
+	
+	@SideOnly(Side.CLIENT)
+	protected void spawnParticlesClient(float sX, float sY, float sZ, float eX, float eY, float eZ, double spread, int pow) {
+		for (int i = 0; i < (pow*1)*(2-Minecraft.getMinecraft().gameSettings.particleSetting); i++) {
+			EntityGlyphFX fx = new EntityGlyphFX(worldObj, eX, eY+1.5, eZ, (sX-eX)+(worldObj.rand.nextGaussian()*spread), (sY-eY)+(worldObj.rand.nextGaussian()*spread)-2, (sZ-eZ)+(worldObj.rand.nextGaussian()*spread));
 			Minecraft.getMinecraft().effectRenderer.addEffect(fx);
 		}
 	}
@@ -180,7 +203,7 @@ public abstract class TileEntityEldritch extends TileEntity implements IGlyphHol
 	
 	@Override
 	public boolean shouldRenderInPass(int pass) {
-		return pass == 1;
+		return pass == 0;
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package com.unascribed.lanthanoid.init;
 
 import java.util.Random;
 
+import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.block.BlockEnergizedLutetium;
 import com.unascribed.lanthanoid.block.BlockMachine;
 import com.unascribed.lanthanoid.block.BlockMulti;
@@ -35,10 +36,11 @@ public class LBlocks {
 	
 	public static void init() {
 		GameRegistry.registerBlock(ore_metal = new BlockMulti(
+				Lanthanoid.inst.creativeTabOres,
 				Material.rock,
 				Blocks.stone,
 				
-				LArrays.all(LMaterials.metals, "ore")) {
+				LArrays.exclude(LArrays.all(LMaterials.metals, "ore"), "oreYttriumBariumCopperOxide")) {
 			@Override
 			public float getBlockHardness(World worldIn, int x, int y, int z) { return super.getBlockHardness(worldIn, x, y, z)*1.5f; }
 		}
@@ -47,7 +49,7 @@ public class LBlocks {
 				.setTemplate("oreNeodymium", Blocks.nether_brick)
 				.setTemplate("oreErbium", Blocks.end_stone)
 				.setTemplate("oreGadolinium", Blocks.end_stone), ItemBlockWithCustomName.class, "ore_metal");
-		GameRegistry.registerBlock(ore_gem = new BlockMulti(Material.rock, Blocks.stone, LArrays.all(LMaterials.gems, "ore")) {
+		GameRegistry.registerBlock(ore_gem = new BlockMulti(Lanthanoid.inst.creativeTabOres, Material.rock, Blocks.stone, LArrays.all(LMaterials.gems, "ore")) {
 			@Override
 			public Item getItemDropped(int p_149650_1_, Random p_149650_2_, int p_149650_3_) {
 				return LItems.gem;
@@ -76,6 +78,7 @@ public class LBlocks {
 			public float getBlockHardness(World worldIn, int x, int y, int z) { return super.getBlockHardness(worldIn, x, y, z)*1.5f; }
 		}, ItemBlockWithCustomName.class, "ore_gem");
 		GameRegistry.registerBlock(ore_other = new BlockMulti(
+				Lanthanoid.inst.creativeTabOres,
 				Material.rock,
 				Blocks.stone,
 				
@@ -85,6 +88,7 @@ public class LBlocks {
 		}, ItemBlockWithCustomName.class, "ore_other");
 		
 		GameRegistry.registerBlock(storage = new BlockMulti(
+				Lanthanoid.inst.creativeTabMaterials,
 				Material.iron,
 				Blocks.iron_block,
 				
@@ -106,6 +110,7 @@ public class LBlocks {
 				"blockRaspite"
 				), ItemBlockWithCustomName.class, "storage");
 		GameRegistry.registerBlock(storageβ = new BlockMulti(
+				Lanthanoid.inst.creativeTabMaterials,
 				Material.iron,
 				Blocks.iron_block,
 				
@@ -114,6 +119,7 @@ public class LBlocks {
 				), ItemBlockWithCustomName.class, "storageβ");
 		
 		GameRegistry.registerBlock(weak_plating = new BlockMulti(
+				Lanthanoid.inst.creativeTabDecorative,
 				Material.iron,
 				Blocks.iron_block,
 				
@@ -121,6 +127,7 @@ public class LBlocks {
 				), ItemBlockWithCustomName.class, "weak_plating");
 		
 		GameRegistry.registerBlock(plating = new BlockMulti(
+				Lanthanoid.inst.creativeTabDecorative,
 				Material.iron,
 				Blocks.iron_block,
 				
@@ -143,6 +150,7 @@ public class LBlocks {
 				.setTextureName("lanthanoid:plasma"), "energized_lutetium");
 		
 		GameRegistry.registerBlock(misc = (BlockMulti) new BlockMulti(
+				Lanthanoid.inst.creativeTabDecorative,
 				Material.glass,
 				Blocks.glowstone,
 				

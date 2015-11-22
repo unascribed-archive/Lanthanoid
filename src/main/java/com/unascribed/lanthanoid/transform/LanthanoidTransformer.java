@@ -24,14 +24,14 @@ public class LanthanoidTransformer extends MalisisClassTransformer {
 	}
 
 	public AsmHook trackingDistanceHook() {
-		McpMethodMapping updatePlayerEntity = new McpMethodMapping("tryStartWachingThis", "func_73117_b", 
+		McpMethodMapping updatePlayerEntity = new McpMethodMapping("updatePlayerEntity", "func_73117_b", 
 				"net.minecraft.entity.EntityTrackerEntry", "(Lnet/minecraft/entity/player/EntityPlayerMP;)V");
 		
 		AsmHook ah = new AsmHook(updatePlayerEntity);
 		
 		InsnList insert = new InsnList();
 		
-		McpFieldMapping trackedEntity = new McpFieldMapping("myEntity", "field_73132_a", 
+		McpFieldMapping trackedEntity = new McpFieldMapping("trackedEntity", "field_73132_a", 
 				"net.minecraft.entity.EntityTrackerEntry", "Lnet/minecraft/entity/Entity;");
 		
 		// if (Lanthanoid.forceTrackingFor(p_73117_1_, this.myEntity) || 
@@ -43,7 +43,7 @@ public class LanthanoidTransformer extends MalisisClassTransformer {
 		LabelNode falseLabel = new LabelNode();
 		insert.add(new JumpInsnNode(IFNE, falseLabel));
 		
-		McpFieldMapping trackingDistanceThreshold = new McpFieldMapping("blocksDistanceThreshold", "field_73130_b", 
+		McpFieldMapping trackingDistanceThreshold = new McpFieldMapping("trackingDistanceThreshold", "field_73130_b", 
 				"net.minecraft.entity.EntityTrackerEntry", "I");
 		
 		// d0 >= (double)(-this.blocksDistanceThreshold)
@@ -102,6 +102,7 @@ public class LanthanoidTransformer extends MalisisClassTransformer {
 		insert.add(new InsnNode(ARETURN));
 		
 		InsnList match = new InsnList();
+		//McpMethodMapping getSkyColor = new McpMethodMapping("getSkyColor", , owner, descriptor)
 		match.add(new MethodInsnNode(INVOKEVIRTUAL, "net/minecraft/world/WorldProvider", "getSkyColor",
 				"(Lnet/minecraft/entity/Entity;F)Lnet/minecraft/util/Vec3;", false));
 		

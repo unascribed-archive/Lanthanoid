@@ -2,6 +2,7 @@ package com.unascribed.lanthanoid.block;
 
 import java.util.Random;
 
+import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.effect.LightningArcFX;
 import com.unascribed.lanthanoid.effect.LightningFX;
 
@@ -26,7 +27,7 @@ import net.minecraft.world.World;
 
 public class BlockEnergizedLutetium extends BlockBase {
 	public BlockEnergizedLutetium() {
-		super(Material.iron);
+		super(Lanthanoid.inst.creativeTabMachines, Material.iron);
 		setHarvestLevel("pickaxe", 1);
 		setHardness(5);
 		setResistance(10);

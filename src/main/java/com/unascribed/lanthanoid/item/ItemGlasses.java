@@ -28,7 +28,7 @@ public class ItemGlasses extends ItemArmor {
 	};
 	public ItemGlasses() {
 		super(ArmorMaterial.IRON, 0, 0);
-		setCreativeTab(Lanthanoid.inst.creativeTab);
+		setCreativeTab(Lanthanoid.inst.creativeTabEquipment);
 	}
 	private IIcon[] icons = new IIcon[types.length];
 	@Override

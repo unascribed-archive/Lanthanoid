@@ -3,8 +3,10 @@ package com.unascribed.lanthanoid.tile;
 import java.util.Collection;
 
 import com.unascribed.lanthanoid.glyph.IGlyphHolder;
+import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.util.LVec3;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
@@ -13,6 +15,8 @@ import net.minecraft.world.chunk.Chunk;
 
 public class TileEntityEldritchDistributor extends TileEntityEldritchWithBooks {
 
+	public boolean drain;
+	
 	@Override
 	protected void doTickLogic() {
 		if (!worldObj.isRemote && ticksExisted % 20 == 0) {
@@ -32,8 +36,6 @@ public class TileEntityEldritchDistributor extends TileEntityEldritchWithBooks {
 			int maxDiff = 0;
 			IGlyphHolder min = null;
 			int minDiff = 0;
-			
-			boolean drain = worldObj.getBlockPowerInput(xCoord, yCoord, zCoord) > 0;
 			
 			for (int cX = minCX; cX <= maxCX; cX++) {
 				for (int cZ = minCZ; cZ <= maxCZ; cZ++) {
@@ -94,9 +96,29 @@ public class TileEntityEldritchDistributor extends TileEntityEldritchWithBooks {
 	}
 
 	@Override
+	public boolean onBlockActivated(EntityPlayer player, int side, float subX, float subY, float subZ) {
+		if (player.getHeldItem() != null && player.getHeldItem().getItem() == LItems.spanner) {
+			if (!player.worldObj.isRemote) {
+				drain = !drain;
+				player.worldObj.addBlockEvent(xCoord, yCoord, zCoord, getBlockType(), 4, drain ? 1 : 0);
+			}
+			return true;
+		}
+		return super.onBlockActivated(player, side, subX, subY, subZ);
+	}
+	
+	@Override
+	public boolean receiveClientEvent(int event, int arg) {
+		if (event == 4) {
+			drain = (arg != 0);
+			return true;
+		}
+		return super.receiveClientEvent(event, arg);
+	}
+	
+	@Override
 	public boolean canReceiveGlyphs() {
-		if (worldObj.getBlockPowerInput(xCoord, yCoord, zCoord) > 0) return false;
-		return getMilliglyphs() < getMaxMilliglyphs();
+		return !drain && getMilliglyphs() < getMaxMilliglyphs();
 	}
 
 	@Override

@@ -1,7 +1,11 @@
 tile.error=Invalid Block
 item.error=Invalid Item
 
-itemGroup.lanthanoid=Lanthanoid
+itemGroup.lanthanoid_ores=Lanthanoid Ores
+itemGroup.lanthanoid_equipment=Lanthanoid Equipment
+itemGroup.lanthanoid_decorative=Lanthanoid Decorative
+itemGroup.lanthanoid_machines=Lanthanoid Machines
+itemGroup.lanthanoid_materials=Lanthanoid Materials
 
 ui.lore_hint=Hold %s for lore
 ui.help_hint=Hold %s for help
@@ -105,6 +109,7 @@ item.rose_colored_spanner.name=Rose-Colored Spanner
 item.rose_colored_spanner.lore=Happy little nuts and bolts...
 item.rose_colored_spanner.help.1=Right-click a waypoint to increase it's name range
 item.rose_colored_spanner.help.2=Sneak-right-click a waypoint to decrease it's name range
+item.rose_colored_spanner.help.3=Right-click an Eldritch Distributor to toggle drain mode
 
 
 item.rifle.name=Lanthanide Rifle
@@ -143,6 +148,8 @@ item.teleporter.help.2=Be careful.
 
 item.teleporter.distance_tooltip=Teleport Distance: %s blocks
 item.teleporter.cooldown_tooltip=Cooldown: %s seconds
+
+item.charged_book.name=Charged Book
 
 
 item.ingot.template=%s Ingot

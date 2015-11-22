@@ -11,6 +11,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -18,8 +19,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.StatCollector;
 
 public class ItemBase extends Item {
-	public ItemBase() {
-		setCreativeTab(Lanthanoid.inst.creativeTab);
+	public ItemBase(CreativeTabs tab) {
+		setCreativeTab(tab);
 	}
 	@Override
 	@SideOnly(Side.CLIENT)

@@ -1,6 +1,7 @@
 package com.unascribed.lanthanoid.tile;
 
 import com.unascribed.lanthanoid.init.LBlocks;
+import com.unascribed.lanthanoid.init.LItems;
 
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -8,7 +9,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-public abstract class TileEntityEldritchWithBooks extends TileEntityEldritch implements IActivatable, IBreakable {
+public abstract class TileEntityEldritchWithBooks extends TileEntityEldritch implements IActivatable {
 
 	private int bookCount;
 	
@@ -57,18 +58,34 @@ public abstract class TileEntityEldritchWithBooks extends TileEntityEldritch imp
 				if (!worldObj.isRemote) {
 					setBookCount(getBookCount() - 1);
 					if (worldObj.getGameRules().getGameRuleBooleanValue("doTileDrops")) {
-						player.entityDropItem(new ItemStack(Items.book), 0.5f);
+						int amt = 0;
+						int newMax = getMaxMilliglyphs();
+						if (getMilliglyphs() > newMax) {
+							amt = getMilliglyphs()-newMax;
+						}
+						System.out.println(amt);
+						ItemStack stack;
+						if (amt <= 0) {
+							stack = new ItemStack(Items.book);
+						} else {
+							stack = new ItemStack(LItems.charged_book);
+							LItems.charged_book.setMilliglyphs(stack, amt);
+						}
+						player.entityDropItem(stack, 0.5f);
 					}
 				}
 				return true;
 			}
-		} else if (player.getHeldItem() != null && player.getHeldItem().getItem() == Items.book) {
+		} else if (player.getHeldItem() != null && (player.getHeldItem().getItem() == Items.book || player.getHeldItem().getItem() == LItems.charged_book)) {
 			if (getBookCount() < 5) {
 				if (!worldObj.isRemote) {
 					if (!player.capabilities.isCreativeMode) {
 						player.getHeldItem().stackSize--;
 					}
 					setBookCount(getBookCount() + 1);
+					if (player.getHeldItem().getItem() == LItems.charged_book) {
+						setMilliglyphs(getMilliglyphs()+LItems.charged_book.getMilliglyphs(player.getHeldItem()));
+					}
 				}
 				return true;
 			}
@@ -78,6 +95,7 @@ public abstract class TileEntityEldritchWithBooks extends TileEntityEldritch imp
 	
 	@Override
 	public void breakBlock() {
+		super.breakBlock();
 		dropBooks(true);
 	}
 	

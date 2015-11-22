@@ -1,5 +1,7 @@
 package com.unascribed.lanthanoid.init;
 
+import com.unascribed.lanthanoid.Lanthanoid;
+import com.unascribed.lanthanoid.item.ItemChargedBook;
 import com.unascribed.lanthanoid.item.ItemDisabled;
 import com.unascribed.lanthanoid.item.ItemMulti;
 import com.unascribed.lanthanoid.item.ItemSpanner;
@@ -21,26 +23,27 @@ public class LItems {
 	public static ItemWreckingBall ytterbium_wrecking_ball, erbium_wrecking_ball, dysprosium_wrecking_ball;
 	public static ItemGlasses glasses;
 	public static ItemSpanner spanner;
+	public static ItemChargedBook charged_book;
 	
 	public static void init() {
-		GameRegistry.registerItem(ingot = new ItemMulti(LArrays.all(LMaterials.metals, "ingot")), "ingot");
-		GameRegistry.registerItem(stick = new ItemMulti(LArrays.all(LMaterials.metalsPlusVanilla, "stick")), "stick");
-		GameRegistry.registerItem(nugget = new ItemMulti(LArrays.exclude(LArrays.all(LMaterials.metalsPlusVanilla, "nugget"), "nuggetGold")), "nugget");
-		GameRegistry.registerItem(dust = new ItemMulti(LArrays.all(LMaterials.gemsAndMetalPlusVanilla, "dust")), "dust");
-		GameRegistry.registerItem(gem = new ItemMulti(LArrays.all(LMaterials.gems, "gem")), "gem");
+		GameRegistry.registerItem(ingot = new ItemMulti(Lanthanoid.inst.creativeTabMaterials, LArrays.all(LMaterials.metals, "ingot")), "ingot");
+		GameRegistry.registerItem(stick = new ItemMulti(Lanthanoid.inst.creativeTabMaterials, LArrays.all(LMaterials.metalsPlusVanilla, "stick")), "stick");
+		GameRegistry.registerItem(nugget = new ItemMulti(Lanthanoid.inst.creativeTabMaterials, LArrays.exclude(LArrays.all(LMaterials.metalsPlusVanilla, "nugget"), "nuggetGold")), "nugget");
+		GameRegistry.registerItem(dust = new ItemMulti(Lanthanoid.inst.creativeTabMaterials, LArrays.all(LMaterials.gemsAndMetalPlusVanilla, "dust")), "dust");
+		GameRegistry.registerItem(gem = new ItemMulti(Lanthanoid.inst.creativeTabMaterials, LArrays.all(LMaterials.gems, "gem")), "gem");
 		
 		teleporter = new ItemTeleporter();
 		if (LConfig.item_teleporter) {
 			GameRegistry.registerItem(teleporter, "teleporter");
 		} else {
-			GameRegistry.registerItem(new ItemDisabled().setUnlocalizedName("teleporter"), "teleporter");
+			GameRegistry.registerItem(new ItemDisabled(Lanthanoid.inst.creativeTabEquipment).setUnlocalizedName("teleporter"), "teleporter");
 		}
 		
 		rifle = new ItemRifle();
 		if (LConfig.item_rifle) {
 			GameRegistry.registerItem(rifle, "rifle");
 		} else {
-			GameRegistry.registerItem(new ItemDisabled().setUnlocalizedName("rifle"), "rifle");
+			GameRegistry.registerItem(new ItemDisabled(Lanthanoid.inst.creativeTabEquipment).setUnlocalizedName("rifle"), "rifle");
 		}
 		
 		ytterbium_wrecking_ball = new ItemWreckingBall(ItemWreckingBall.Material.YTTERBIUM);
@@ -51,9 +54,9 @@ public class LItems {
 			GameRegistry.registerItem(erbium_wrecking_ball, "erbium_wrecking_ball");
 			GameRegistry.registerItem(dysprosium_wrecking_ball, "dysprosium_wrecking_ball");
 		} else {
-			GameRegistry.registerItem(new ItemDisabled().setUnlocalizedName("ytterbium_wrecking_ball"), "ytterbium_wrecking_ball");
-			GameRegistry.registerItem(new ItemDisabled().setUnlocalizedName("erbium_wrecking_ball"), "erbium_wrecking_ball");
-			GameRegistry.registerItem(new ItemDisabled().setUnlocalizedName("dysprosium_wrecking_ball"), "dysprosium_wrecking_ball");
+			GameRegistry.registerItem(new ItemDisabled(Lanthanoid.inst.creativeTabEquipment).setUnlocalizedName("ytterbium_wrecking_ball"), "ytterbium_wrecking_ball");
+			GameRegistry.registerItem(new ItemDisabled(Lanthanoid.inst.creativeTabEquipment).setUnlocalizedName("erbium_wrecking_ball"), "erbium_wrecking_ball");
+			GameRegistry.registerItem(new ItemDisabled(Lanthanoid.inst.creativeTabEquipment).setUnlocalizedName("dysprosium_wrecking_ball"), "dysprosium_wrecking_ball");
 		}
 		
 		glasses = new ItemGlasses();
@@ -61,6 +64,9 @@ public class LItems {
 		
 		spanner = new ItemSpanner();
 		GameRegistry.registerItem(spanner, "spanner");
+		
+		charged_book = new ItemChargedBook();
+		GameRegistry.registerItem(charged_book, "charged_book");
 		
 		ToolMaterial eldritchTool = EnumHelper.addToolMaterial("ELDRITCH", 3, 1561, 9.0F, 3.0F, 24);
 		ArmorMaterial eldritchArmor = EnumHelper.addArmorMaterial("ELDRITCH", 33, new int[]{3, 8, 6, 3}, 24);

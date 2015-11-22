@@ -8,6 +8,7 @@ import java.util.Random;
 import com.google.common.collect.Lists;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.tile.IActivatable;
+import com.unascribed.lanthanoid.tile.IBounded;
 import com.unascribed.lanthanoid.tile.IBreakable;
 import com.unascribed.lanthanoid.tile.IFallable;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchCollector;
@@ -35,6 +36,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.IBlockAccess;
@@ -49,7 +51,7 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 	public IIcon collectorGlyphs, distributorGlyphs, chargerGlyphs, coil, faithPlateGlyphs;
 
 	public BlockMachine() {
-		super(Material.iron);
+		super(Lanthanoid.inst.creativeTabMachines, Material.iron);
 		setHarvestLevel("pickaxe", 2);
 		setResistance(5000);
 		setHardness(2);
@@ -165,6 +167,32 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 			return ((IActivatable)te).onBlockActivated(player, side, subX, subY, subZ);
 		}
 		return false;
+	}
+	
+	@Override
+	public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {
+		TileEntity te = world.getTileEntity(x, y, z);
+		if (te instanceof IBounded) {
+			return ((IBounded)te).getBoundingBox().getOffsetBoundingBox(x, y, z);
+		} else {
+			return AxisAlignedBB.getBoundingBox(x, y, z, x+1, y+1, z+1);
+		}
+	}
+	
+	@Override
+	public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z) {
+		TileEntity te = world.getTileEntity(x, y, z);
+		if (te instanceof IBounded) {
+			AxisAlignedBB aabb = ((IBounded)te).getBoundingBox();
+			setBlockBounds((float)aabb.minX, (float)aabb.minY, (float)aabb.minZ, (float)aabb.maxX, (float)aabb.maxY, (float)aabb.maxZ);
+		} else {
+			setBlockBounds(0, 0, 0, 1, 1, 1);
+		}
+	}
+	
+	@Override
+	public void setBlockBoundsForItemRender() {
+		setBlockBounds(0, 0, 0, 1, 1, 1);
 	}
 	
 	@Override

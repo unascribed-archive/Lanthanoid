@@ -2,11 +2,13 @@ package com.unascribed.lanthanoid.item;
 
 import java.util.List;
 
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
 public class ItemDisabled extends ItemBase {
-	public ItemDisabled() {
+	public ItemDisabled(CreativeTabs tab) {
+		super(tab);
 		setTextureName("lanthanoid:disabled");
 		setHasSubtypes(true);
 	}

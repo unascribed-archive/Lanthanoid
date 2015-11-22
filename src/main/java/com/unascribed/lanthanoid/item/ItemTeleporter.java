@@ -2,6 +2,7 @@ package com.unascribed.lanthanoid.item;
 
 import java.util.List;
 
+import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.init.LAchievements;
 
 import net.minecraft.entity.Entity;
@@ -27,7 +28,7 @@ public class ItemTeleporter extends ItemMulti {
 			"Dysprosium"
 	};
 	public ItemTeleporter() {
-		super(prefix(flavors));
+		super(Lanthanoid.inst.creativeTabEquipment, prefix(flavors));
 	}
 	private static String[] prefix(String[] arr) {
 		String[] rtrn = new String[arr.length];

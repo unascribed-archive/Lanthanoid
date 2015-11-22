@@ -14,6 +14,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.unascribed.lanthanoid.Lanthanoid;
+import com.unascribed.lanthanoid.glyph.IGlyphHolder;
 import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.item.rifle.ItemRifle;
 import com.unascribed.lanthanoid.item.rifle.Mode;
@@ -47,6 +48,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
@@ -289,34 +291,36 @@ public class LClientEventHandler {
 			final double dZ = (waypoint.z-pZ)+0.5;
 			if (rcg) {
 				GL11.glDisable(GL11.GL_TEXTURE_2D);
+				GL11.glDisable(GL11.GL_ALPHA_TEST);
 				GL11.glDisable(GL11.GL_CULL_FACE);
-				for (int q = 0; q < 16; q++) {
-					float tickPos = (((player.ticksExisted+e.partialTicks+waypoint.id*31+q*2)/40f)%2)-1;
+				for (int q = 0; q < 8; q++) {
+					float tickPos = (((player.ticksExisted+e.partialTicks+waypoint.id*31+q*(40))/160f)%2)-1;
 					float planeY = tickPos * waypoint.nameDistance;
 					float r = MathHelper.cos(tickPos*(RingRenderer.TAUf/4f)) * waypoint.nameDistance;
 					GL11.glDisable(GL11.GL_DEPTH_TEST);
 					OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-					tess.startDrawing(GL11.GL_POLYGON);
-					tess.setColorRGBA_I(waypoint.color, 32);
-					for (int i = 0; i < 20; i++) {
-						double cX = MathHelper.sin((i/20f)*RingRenderer.TAUf) * r;
-						double cZ = MathHelper.cos((i/20f)*RingRenderer.TAUf) * r;
+					tess.startDrawing(GL11.GL_LINE_LOOP);
+					GL11.glColor4f(((waypoint.color >> 16)&255)/255f, ((waypoint.color >> 8)&255)/255f, (waypoint.color&255)/255f, 0.05f);
+					float vertexCount = Minecraft.isFancyGraphicsEnabled() ? 40 : 20;
+					for (int i = 0; i < vertexCount; i++) {
+						double cX = MathHelper.sin((i/vertexCount)*RingRenderer.TAUf) * r;
+						double cZ = MathHelper.cos((i/vertexCount)*RingRenderer.TAUf) * r;
 						tess.addVertex(dX+cX, dY+planeY, dZ+cZ);
 					}
 					tess.draw();
-					OpenGlHelper.glBlendFunc(770, 1, 1, 0);
 					GL11.glEnable(GL11.GL_DEPTH_TEST);
-					tess.startDrawing(GL11.GL_POLYGON);
-					tess.setColorRGBA_I(waypoint.color, 255);
-					for (int i = 0; i < 20; i++) {
-						double cX = MathHelper.sin((i/20f)*RingRenderer.TAUf) * r;
-						double cZ = MathHelper.cos((i/20f)*RingRenderer.TAUf) * r;
+					tess.startDrawing(GL11.GL_LINE_LOOP);
+					GL11.glColor4f(((waypoint.color >> 16)&255)/255f, ((waypoint.color >> 8)&255)/255f, (waypoint.color&255)/255f, 0.25f);
+					for (int i = 0; i < vertexCount; i++) {
+						double cX = MathHelper.sin((i/vertexCount)*RingRenderer.TAUf) * r;
+						double cZ = MathHelper.cos((i/vertexCount)*RingRenderer.TAUf) * r;
 						tess.addVertex(dX+cX, dY+planeY, dZ+cZ);
 					}
 					tess.draw();
 				}
 				GL11.glEnable(GL11.GL_CULL_FACE);
 				GL11.glEnable(GL11.GL_TEXTURE_2D);
+				GL11.glEnable(GL11.GL_ALPHA_TEST);
 			}
 			if (waypoint.type != Type.MARKER) {
 				GL11.glPushMatrix();
@@ -514,13 +518,13 @@ public class LClientEventHandler {
 				GL11.glPopMatrix();
 				mc.renderEngine.bindTexture(WIDGITS);
 			}
-			if (mc.thePlayer.getEquipmentInSlot(4) != null && mc.thePlayer.getEquipmentInSlot(4).getItem() == LItems.glasses) {
+			/*if (mc.thePlayer.getEquipmentInSlot(4) != null && mc.thePlayer.getEquipmentInSlot(4).getItem() == LItems.glasses) {
 				int color = 0x22FF9797;
 				GL11.glPushMatrix();
 				GL11.glTranslatef(0, 0, -300);
 				Gui.drawRect(0, 0, e.resolution.getScaledWidth(), e.resolution.getScaledHeight(), color);
 				GL11.glPopMatrix();
-			}
+			}*/
 		} else if (e.type == ElementType.CROSSHAIRS) {
 			if (scopeFactor != 1) {
 				e.setCanceled(true);
@@ -545,6 +549,12 @@ public class LClientEventHandler {
 					if (w != null) {
 						String str = Integer.toString(w.nameDistance);
 						mc.fontRendererObj.drawStringWithShadow(str, ((e.resolution.getScaledWidth()/2)-(mc.fontRendererObj.getStringWidth(str)/2))-10, (e.resolution.getScaledHeight()/2)-10, -1);
+					}
+					TileEntity te = mc.theWorld.getTileEntity(mop.blockX, mop.blockY, mop.blockZ);
+					if (te instanceof IGlyphHolder) {
+						IGlyphHolder holder = ((IGlyphHolder)te);
+						String str = (int)Math.round((float)holder.getMilliglyphs()/(float)holder.getMaxMilliglyphs()*100f)+"%";
+						mc.fontRendererObj.drawStringWithShadow(str, ((e.resolution.getScaledWidth()/2)-(mc.fontRendererObj.getStringWidth(str)/2))+18, (e.resolution.getScaledHeight()/2)-10, -1);
 					}
 				}
 			}

@@ -1,5 +1,6 @@
 package com.unascribed.lanthanoid.item;
 
+import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.init.LBlocks;
 
 import net.minecraft.entity.EntityLivingBase;
@@ -10,6 +11,7 @@ import net.minecraft.world.World;
 
 public class ItemSpanner extends ItemBase {
 	public ItemSpanner() {
+		super(Lanthanoid.inst.creativeTabEquipment);
 		setTextureName("lanthanoid:spanner");
 		setUnlocalizedName("rose_colored_spanner");
 		setMaxDurability(256);

@@ -11,6 +11,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityFallingBlock;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -27,6 +28,7 @@ public class TileEntityEldritchFaithPlate extends TileEntityEldritch implements 
 	
 	public int bounceTicks = 40;
 	public int bounceAnimTicks = 40;
+	public int animHeight = 0;
 	
 	private ItemStack stack;
 	
@@ -38,12 +40,12 @@ public class TileEntityEldritchFaithPlate extends TileEntityEldritch implements 
 			if (bounceTicks > 20) {
 				List<Entity> affected = Lists.newArrayList();
 				if (stack != null && canLaunch()) {
-					EntityItem ent = new EntityItem(worldObj, xCoord + 0.5, yCoord + 1.2, zCoord + 0.5, stack.splitStack(1));
+					EntityItem ent = new EntityItem(worldObj, xCoord + 0.5, yCoord + 1.2, zCoord + 0.5, stack);
+					ent.delayBeforeCanPickup = 40;
 					worldObj.spawnEntityInWorld(ent);
 					affected.add(ent);
-					if (stack.stackSize <= 0) {
-						stack = null;
-					}
+					stack = null;
+					markDirty();
 				}
 				Block b = worldObj.getBlock(xCoord, yCoord+1, zCoord);
 				int meta = worldObj.getBlockMetadata(xCoord, yCoord+1, zCoord);
@@ -83,7 +85,7 @@ public class TileEntityEldritchFaithPlate extends TileEntityEldritch implements 
 						fp.setMilliglyphs(fp.getMilliglyphs()-LAUNCH_COST);
 						fp.bounceTicks = 0;
 					}
-					worldObj.addBlockEvent(xCoord, yCoord, zCoord, LBlocks.machine, 4, 0);
+					worldObj.addBlockEvent(xCoord, yCoord, zCoord, LBlocks.machine, 4, plates.size());
 					worldObj.playSoundEffect(xCoord+0.5, yCoord+0.5, zCoord+0.5, "lanthanoid:launch", 1, 0.5f);
 				}
 			}
@@ -123,6 +125,22 @@ public class TileEntityEldritchFaithPlate extends TileEntityEldritch implements 
 	}
 	
 	@Override
+	public void breakBlock() {
+		super.breakBlock();
+		if (stack != null) {
+			float f = worldObj.rand.nextFloat() * 0.8F + 0.1F;
+			float f1 = worldObj.rand.nextFloat() * 0.8F + 0.1F;
+			float f2 = worldObj.rand.nextFloat() * 0.8F + 0.1F;
+			EntityItem ent = new EntityItem(worldObj, xCoord + f, yCoord + f1, zCoord + f2, stack);
+			float f3 = 0.05F;
+			ent.motionX = worldObj.rand.nextGaussian() * f3;
+			ent.motionY = worldObj.rand.nextGaussian() * f3 + 0.2F;
+			ent.motionZ = worldObj.rand.nextGaussian() * f3;
+			worldObj.spawnEntityInWorld(ent);
+		}
+	}
+	
+	@Override
 	public boolean canReceiveGlyphs() {
 		return true;
 	}
@@ -158,6 +176,7 @@ public class TileEntityEldritchFaithPlate extends TileEntityEldritch implements 
 	public boolean receiveClientEvent(int event, int arg) {
 		if (event == 4) {
 			bounceAnimTicks = 0;
+			animHeight = arg;
 			return true;
 		}
 		return super.receiveClientEvent(event, arg);
@@ -169,6 +188,7 @@ public class TileEntityEldritchFaithPlate extends TileEntityEldritch implements 
 			if (stack == null) {
 				stack = player.getHeldItem();
 				player.setCurrentItemOrArmor(0, null);
+				markDirty();
 			} else if (ItemUtils.areItemStacksStackable(stack, player.getHeldItem())) {
 				int s = Math.min(player.getHeldItem().stackSize, 64-stack.stackSize);
 				stack.stackSize += s;
@@ -176,10 +196,12 @@ public class TileEntityEldritchFaithPlate extends TileEntityEldritch implements 
 				if (player.getHeldItem().stackSize <= 0) {
 					player.setCurrentItemOrArmor(0, null);
 				}
+				markDirty();
 			} else {
 				ItemStack swap = player.getHeldItem();
 				player.setCurrentItemOrArmor(0, stack);
 				stack = swap;
+				markDirty();
 			}
 		}
 		return true;
@@ -197,12 +219,28 @@ public class TileEntityEldritchFaithPlate extends TileEntityEldritch implements 
 
 	@Override
 	public ItemStack getStackInSlot(int p_70301_1_) {
-		return stack;
+		return p_70301_1_ == 0 ? stack : null;
 	}
 
 	@Override
-	public ItemStack decrStackSize(int p_70298_1_, int p_70298_2_) {
-		return null;
+	public ItemStack decrStackSize(int index, int count) {
+		ItemStack itemstack;
+
+		if (stack.stackSize <= count) {
+			itemstack = stack;
+			stack = null;
+			markDirty();
+			return itemstack;
+		} else {
+			itemstack = stack.splitStack(count);
+
+			if (stack.stackSize == 0) {
+				stack = null;
+			}
+
+			markDirty();
+			return itemstack;
+		}
 	}
 
 	@Override

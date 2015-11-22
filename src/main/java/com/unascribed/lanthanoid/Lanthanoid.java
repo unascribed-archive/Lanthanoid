@@ -60,10 +60,34 @@ public class Lanthanoid {
 	public static boolean isObfEnv;
 	
 	public TextureCompositor compositor;
-	public CreativeTabs creativeTab = new CreativeTabs("lanthanoid") {
+	public CreativeTabs creativeTabOres = new CreativeTabs("lanthanoid_ores") {
 		@Override
 		public Item getTabIconItem() {
 			return Item.getItemFromBlock(LBlocks.ore_metal);
+		}
+	};
+	public CreativeTabs creativeTabEquipment = new CreativeTabs("lanthanoid_equipment") {
+		@Override
+		public Item getTabIconItem() {
+			return LItems.rifle;
+		}
+	};
+	public CreativeTabs creativeTabDecorative = new CreativeTabs("lanthanoid_decorative") {
+		@Override
+		public Item getTabIconItem() {
+			return Item.getItemFromBlock(LBlocks.plating);
+		}
+	};
+	public CreativeTabs creativeTabMachines = new CreativeTabs("lanthanoid_machines") {
+		@Override
+		public Item getTabIconItem() {
+			return Item.getItemFromBlock(LBlocks.machine);
+		}
+	};
+	public CreativeTabs creativeTabMaterials = new CreativeTabs("lanthanoid_materials") {
+		@Override
+		public Item getTabIconItem() {
+			return LItems.ingot;
 		}
 	};
 	

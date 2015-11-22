@@ -119,5 +119,14 @@
 				"stream": false
 			}
 		]
+	},
+	"waste": {
+		"category": "block",
+		"sounds": [
+			{
+				"name": "eldritch-waste",
+				"stream": false
+			}
+		]
 	}
 }

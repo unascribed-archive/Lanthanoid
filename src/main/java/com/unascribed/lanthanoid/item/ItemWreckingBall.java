@@ -45,6 +45,7 @@ public class ItemWreckingBall extends ItemBase {
 	}
 	private int radius, enchantability, blocksBeforeCooldown, breaksPerSwing;
 	public ItemWreckingBall(Material material) {
+		super(Lanthanoid.inst.creativeTabEquipment);
 		setHarvestLevel("pickaxe", 4);
 		setHarvestLevel("shovel", 4);
 		setUnlocalizedName(material.lowerName+"_wrecking_ball");

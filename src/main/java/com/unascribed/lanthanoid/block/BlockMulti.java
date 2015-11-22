@@ -31,8 +31,8 @@ public class BlockMulti extends BlockBase implements NameDelegate {
 	
 	protected float explosionResistance;
 	
-	public BlockMulti(Material materialIn, Block defaultTemplate, String... names) {
-		super(materialIn);
+	public BlockMulti(CreativeTabs tab, Material materialIn, Block defaultTemplate, String... names) {
+		super(tab, materialIn);
 		helper = new MultiHelper("tile", names);
 		icons = new IIcon[names.length];
 		templates = new Block[names.length];

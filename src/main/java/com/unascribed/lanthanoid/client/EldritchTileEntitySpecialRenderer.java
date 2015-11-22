@@ -5,7 +5,9 @@ import org.lwjgl.opengl.GL11;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.init.LBlocks;
 import com.unascribed.lanthanoid.tile.TileEntityEldritch;
+import com.unascribed.lanthanoid.tile.TileEntityEldritchDistributor;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchFaithPlate;
+import com.unascribed.lanthanoid.tile.TileEntityEldritchInductor;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchWithBooks;
 
 import net.minecraft.client.Minecraft;
@@ -14,8 +16,12 @@ import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
@@ -26,6 +32,12 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 	private static ModelSimpleBook book = new ModelSimpleBook();
 	
 	private static final ResourceLocation bookTex = new ResourceLocation("textures/entity/enchanting_table_book.png");
+	
+	private static RenderItem ri = new RenderItem() {
+		public boolean shouldBob() { return false; }
+		public boolean shouldSpreadItems() { return false; }
+	};
+	private static EntityItem dummy = new EntityItem(null);
 	
 	public static void renderEldritchBlock(float x, float y, float z, float partialTicks,
 			float playerAnim, float glyphCount, int bookCount, IIcon glyphs, int brightness, float t, int hash,
@@ -41,15 +53,6 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 			GL11.glDepthMask(true);
 			OpenGlHelper.glBlendFunc(770, 771, 1, 0);
 			
-			/*if (te.getBlockMetadata() == 5) {
-				GL11.glPushMatrix();
-					GL11.glColor3f(0, 1, 0);
-					GL11.glTranslatef(x, y+1.05f, z+1);
-					GL11.glRotatef(90f, -1, 0, 0);
-					drawExtrudedIcon(LBlocks.machine.coil, 0.05f);
-				GL11.glPopMatrix();
-			}*/
-			
 			int j = brightness % 65536;
 			int k = brightness / 65536;
 			
@@ -62,13 +65,19 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 			float b = q-(playerAnim*glyphCount);
 			float a = 0.5f;
 			
-			if (glyphCount >= 1) {
+			if (glyphCount >= 0.99999f) {
 				a = 1;
 			}
 			if (blink) {
-				r = ((MathHelper.sin(t/((hash%5)+3))+1)/4)+0.5f;
-				g = 0;
-				b = 0;
+				if (glyphCount <= 0.01f) {
+					r = 1;
+					g = 1;
+					b = 1;
+				} else {
+					r = ((MathHelper.sin(t/((hash%5)+3))+1)/4)+0.5f;
+					g = glyphCount*r;
+					b = 0;
+				}
 			}
 			
 			GL11.glPushMatrix();
@@ -84,7 +93,7 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 					GL11.glPushMatrix();
 						GL11.glRotatef(180f, 0, 1, 0);
 						GL11.glTranslatef(-0.5f, 0, (0.09f*playerAnim)+0.01f);
-						if (glyphCount < 1) {
+						if (!blink) {
 							GL11.glRotatef(((sin*10)-15)*playerAnim, 1, 0, 0);
 							GL11.glRotatef((sin*4)*playerAnim, 0, 0, 1);
 						} else {
@@ -93,14 +102,26 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 						GL11.glTranslatef(-0.5f, -0.25f, 0);
 						GL11.glScalef(1, 0.5f, 1);
 						GL11.glColor4f(r, g, b, a/3);
-						if (!inventory) {
+						if (Minecraft.isFancyGraphicsEnabled() && !inventory) {
 							GL11.glDepthMask(false);
 							drawExtrudedHalfIcon(glyphs, 0.5f);
 							GL11.glDepthMask(true);
 						}
 						GL11.glTranslatef(0, 0, 0.05f);
 						GL11.glColor4f(r, g, b, a);
-						drawExtrudedHalfIcon(glyphs, 0.05f);
+						if (Minecraft.isFancyGraphicsEnabled()) {
+							drawExtrudedHalfIcon(glyphs, 0.05f);
+						} else {
+							GL11.glDisable(GL11.GL_CULL_FACE);
+							Tessellator tessellator = Tessellator.instance;
+							tessellator.startDrawingQuads();
+							tessellator.addVertexWithUV((double)(0 + 0), (double)(0 + 1), (double)ri.zLevel, (double)glyphs.getMinU(), (double)glyphs.getMinV());
+							tessellator.addVertexWithUV((double)(0 + 1), (double)(0 + 1), (double)ri.zLevel, (double)glyphs.getMaxU(), (double)glyphs.getMinV());
+							tessellator.addVertexWithUV((double)(0 + 1), (double)(0 + -1), (double)ri.zLevel, (double)glyphs.getMaxU(), (double)glyphs.getMaxV());
+							tessellator.addVertexWithUV((double)(0 + 0), (double)(0 + -1), (double)ri.zLevel, (double)glyphs.getMinU(), (double)glyphs.getMaxV());
+							tessellator.draw();
+							GL11.glEnable(GL11.GL_CULL_FACE);
+						}
 						/*tessellator.startDrawingQuads();
 						tessellator.setColorOpaque_F(q, q-playerAnim, q);
 						tessellator.addVertexWithUV(-0.5, -0.25, 0, minU, maxV);
@@ -198,7 +219,7 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 		
 		renderEldritchBlock(x, y, z, partialTicks, playerAnim, glyphCount, books, glyphs,
 				brightness, t,
-				te.hashCode(), false, te.getBlockMetadata() == 4 && te.getWorld().getBlockPowerInput(te.xCoord, te.yCoord, te.zCoord) > 0);
+				te.hashCode(), false, te instanceof TileEntityEldritchDistributor && ((TileEntityEldritchDistributor)te).drain);
 		
 		if (Minecraft.getMinecraft().gameSettings.showDebugInfo && Minecraft.getMinecraft().thePlayer.capabilities.isCreativeMode) {
 			String str = (te.getMilliglyphs()/1000)+"."+((te.getMilliglyphs()%1000)/10);
@@ -239,7 +260,7 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 		
 		if (teraw instanceof TileEntityEldritchFaithPlate) {
 			TileEntityEldritchFaithPlate tefp = (TileEntityEldritchFaithPlate) teraw;
-			int len = tefp.getAmountStacked();
+			int len = tefp.animHeight;
 			GL11.glPushMatrix();
 				Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
 				int j = brightness % 65536;
@@ -264,6 +285,52 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 				rb.lockBlockBounds = false;
 				tess.draw();
 			GL11.glPopMatrix();
+		} else if (teraw instanceof TileEntityEldritchInductor) {
+			GL11.glPushMatrix();
+				Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+				GL11.glColor3f(0, 1, 0);
+				GL11.glTranslatef(x, y+1, z+1);
+				GL11.glRotatef(90f, -1, 0, 0);
+				drawExtrudedIcon(LBlocks.machine.coil, 1/32f);
+			GL11.glPopMatrix();
+			for (int i = 0; i < 4; i++) {
+				ItemStack stack = ((TileEntityEldritchInductor)te).getStackInSlot(i);
+				if (stack != null) {
+					float iX = (i % 2 == 0 ? 0.75f : 0.25f);
+					float iZ = (i > 1 ? 0.25f : 0.75f);
+					iZ -= 0.125f;
+					GL11.glPushMatrix();
+						ri.setRenderManager(RenderManager.instance);
+						GL11.glTranslatef(x+iX, y+(33/32f), z+iZ);
+						GL11.glRotatef(90f, 1, 0, 0);
+						float ofsX = 0;
+						float ofsY = 0.125f;
+						GL11.glTranslatef(ofsX, ofsY, 0);
+						
+						/*GL11.glDisable(GL11.GL_TEXTURE_2D);
+						GL11.glColor3f(1, 1, 1);
+						GL11.glLineWidth(2.5f);
+						GL11.glBegin(GL11.GL_LINES);
+							GL11.glVertex3f(0, 0, 0);
+							GL11.glVertex3f(0, 0, -0.5f);
+						GL11.glEnd();
+						GL11.glEnable(GL11.GL_TEXTURE_2D);*/
+						
+						GL11.glRotatef(((te.hashCode()^(i*3433))/67f)%180, 0, 0, 1);
+						GL11.glTranslatef(-ofsX, -ofsY, 0);
+						try {
+							dummy.setWorld(te.getWorld());
+							dummy.setEntityItemStack(stack);
+							dummy.ticksExisted = 0;
+							dummy.age = 0;
+							dummy.hoverStart = 0;
+							ri.doRender(dummy, 0, 0, 0, 0f, 0f);
+						} catch (Throwable tr) {;
+							tr.printStackTrace();
+						}
+					GL11.glPopMatrix();
+				}
+			}
 		}
 	}
 
@@ -275,7 +342,7 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 		ItemRenderer.renderItemIn2D(Tessellator.instance, icon.getMinU(), icon.getMinV(), icon.getMaxU(), icon.getMinV()+((icon.getMaxV()-icon.getMinV())/2), icon.getIconWidth(), icon.getIconHeight()/2, thickness);
 	}
 	
-	public static void drawExtrudedIcon(IIcon icon, float thickness) {
+	public void drawExtrudedIcon(IIcon icon, float thickness) {
 		if (icon == null) {
 			return;
 		}

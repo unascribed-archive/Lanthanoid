@@ -62,6 +62,7 @@ public class ItemRifle extends ItemBase {
 	public static AxisAlignedBB latestAABB;
 	
 	public ItemRifle() {
+		super(Lanthanoid.inst.creativeTabEquipment);
 		setMaxStackSize(1);
 		setFull3D();
 		setHasSubtypes(true);
