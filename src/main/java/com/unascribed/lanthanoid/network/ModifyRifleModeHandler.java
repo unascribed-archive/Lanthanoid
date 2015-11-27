@@ -4,7 +4,9 @@ import net.minecraft.entity.player.EntityPlayerMP;
 
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.init.LItems;
+import com.unascribed.lanthanoid.item.rifle.Mode;
 import com.unascribed.lanthanoid.item.rifle.PrimaryMode;
+import com.unascribed.lanthanoid.item.rifle.SecondaryMode;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
@@ -18,14 +20,15 @@ public class ModifyRifleModeHandler implements IMessageHandler<ModifyRifleModeMe
 		if (player.getHeldItem() != null) {
 			if (player.getHeldItem().getItem() == LItems.rifle) {
 				int value = message.value;
+				Mode[] vals = (message.primary ? PrimaryMode.values() : SecondaryMode.values());
 				if (message.set) {
 					if (value < 0) {
 						Lanthanoid.log.warn(player.getCommandSenderName()+" sent an illegal value for ModifyRifleMode (message is absolute and value is less than zero), trying to crash the server?");
 						value = 0;
 					}
-					if (value >= PrimaryMode.values().length) {
+					if (value >= vals.length) {
 						Lanthanoid.log.warn(player.getCommandSenderName()+" sent an illegal value for ModifyRifleMode (message is absolute and value is greater than the limit), trying to crash the server?");
-						value = PrimaryMode.values().length-1;
+						value = vals.length-1;
 					}
 				} else {
 					if ((Math.abs(value) != 1 || value == 0)) {
