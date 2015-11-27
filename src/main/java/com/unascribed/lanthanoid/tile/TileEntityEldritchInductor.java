@@ -20,6 +20,7 @@ import net.minecraftforge.common.util.Constants.NBT;
 public class TileEntityEldritchInductor extends TileEntityEldritch implements IInventory, IActivatable, IBounded {
 
 	private InventoryBasic inv = new InventoryBasic("eldritch_inductor", false, 4) {
+		@Override
 		public int getInventoryStackLimit() {
 			return 1;
 		}
@@ -156,6 +157,10 @@ public class TileEntityEldritchInductor extends TileEntityEldritch implements II
 	@Override
 	protected void buildDescriptionPacket(NBTTagCompound nbt) {
 		super.buildDescriptionPacket(nbt);
+		writeInventory(nbt);
+	}
+
+	private void writeInventory(NBTTagCompound nbt) {
 		NBTTagList slots = new NBTTagList();
 		for (int i = 0; i < getSizeInventory(); i++) {
 			if (getStackInSlot(i) != null) {
@@ -171,7 +176,10 @@ public class TileEntityEldritchInductor extends TileEntityEldritch implements II
 	@Override
 	protected void processDescriptionPacket(NBTTagCompound nbt) {
 		super.processDescriptionPacket(nbt);
-		System.out.println("hi");
+		readInventory(nbt);
+	}
+
+	private void readInventory(NBTTagCompound nbt) {
 		for (int i = 0; i < getSizeInventory(); i++) {
 			setInventorySlotContents(i, null);
 		}
@@ -180,6 +188,18 @@ public class TileEntityEldritchInductor extends TileEntityEldritch implements II
 			NBTTagCompound comp = li.getCompoundTagAt(i);
 			setInventorySlotContents(comp.getInteger("Slot"), ItemStack.loadItemStackFromNBT(comp));
 		}
+	}
+	
+	@Override
+	public void readFromNBT(NBTTagCompound tag) {
+		super.readFromNBT(tag);
+		readInventory(tag);
+	}
+	
+	@Override
+	public void writeToNBT(NBTTagCompound tag) {
+		super.writeToNBT(tag);
+		writeInventory(tag);
 	}
 	
 	@Override

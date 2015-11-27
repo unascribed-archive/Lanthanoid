@@ -4,11 +4,8 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.client.IItemRenderer;
 
@@ -62,15 +59,7 @@ public class WreckingBallItemRenderer implements IItemRenderer {
 			GL11.glTranslatef(player.worldObj.rand.nextFloat()*5, player.worldObj.rand.nextFloat(), -player.worldObj.rand.nextFloat()*4);
 			GL11.glRotatef(180f, player.worldObj.rand.nextFloat(), player.worldObj.rand.nextFloat(), player.worldObj.rand.nextFloat());
 		}
-		for (int i = 0; i < item.getItem().getRenderPasses(item.getMetadata()); i++) {
-			IIcon icon = item.getItem().getIcon(item, i, player, player.getItemInUse(), player.getItemInUseCount());
-			int color = item.getItem().getColorFromItemStack(item, i);
-			float r = ((color >> 16)&0xFF)/255f;
-			float g = ((color >> 8)&0xFF)/255f;
-			float b = (color&0xFF)/255f;
-			GL11.glColor3f(r, g, b);
-			ItemRenderer.renderItemIn2D(Tessellator.instance, icon.getMinU(), icon.getMinV(), icon.getMaxU(), icon.getMaxV(), icon.getIconWidth(), icon.getIconHeight(), 0.0625f);
-		}
+		Rendering.renderItemDefault(item);
 	}
 
 }

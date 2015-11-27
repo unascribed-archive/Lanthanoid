@@ -25,6 +25,8 @@ public class LRecipes {
 		
 		initRoseColored();
 		
+		initEldritchTools();
+		
 		for (String s : LMaterials.metals) {
 			GameRegistry.addSmelting(LItems.dust.getStackForName("dust"+s), LItems.ingot.getStackForName("ingot"+s), 0);
 		}
@@ -73,6 +75,23 @@ public class LRecipes {
 				'B', "blockDysprosium"));
 	}
 	
+	private static void initEldritchTools() {
+		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.eldritch_pickaxe, 
+				"yyy",
+				" / ",
+				" / ",
+				
+				'y', "ingotYttriumBariumCopperOxide",
+				'/', "stickBarium"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.eldritch_shovel, 
+				"y",
+				"/",
+				"/",
+				
+				'y', "ingotYttriumBariumCopperOxide",
+				'/', "stickBarium"));
+	}
+
 	private static void initRoseColored() {
 		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LItems.glasses, 1, 0), 
 				"/r",

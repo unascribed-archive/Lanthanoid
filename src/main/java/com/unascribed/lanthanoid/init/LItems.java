@@ -3,6 +3,10 @@ package com.unascribed.lanthanoid.init;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.item.ItemChargedBook;
 import com.unascribed.lanthanoid.item.ItemDisabled;
+import com.unascribed.lanthanoid.item.ItemEldritchAxe;
+import com.unascribed.lanthanoid.item.ItemEldritchPickaxe;
+import com.unascribed.lanthanoid.item.ItemEldritchSpade;
+import com.unascribed.lanthanoid.item.ItemEldritchSword;
 import com.unascribed.lanthanoid.item.ItemMulti;
 import com.unascribed.lanthanoid.item.ItemSpanner;
 import com.unascribed.lanthanoid.item.ItemGlasses;
@@ -24,6 +28,11 @@ public class LItems {
 	public static ItemGlasses glasses;
 	public static ItemSpanner spanner;
 	public static ItemChargedBook charged_book;
+	
+	public static ItemEldritchPickaxe eldritch_pickaxe;
+	public static ItemEldritchSpade eldritch_shovel;
+	public static ItemEldritchAxe eldritch_axe;
+	public static ItemEldritchSword eldritch_sword;
 	
 	public static void init() {
 		GameRegistry.registerItem(ingot = new ItemMulti(Lanthanoid.inst.creativeTabMaterials, LArrays.all(LMaterials.metals, "ingot")), "ingot");
@@ -68,7 +77,19 @@ public class LItems {
 		charged_book = new ItemChargedBook();
 		GameRegistry.registerItem(charged_book, "charged_book");
 		
-		ToolMaterial eldritchTool = EnumHelper.addToolMaterial("ELDRITCH", 3, 1561, 9.0F, 3.0F, 24);
+		ToolMaterial eldritchTool = EnumHelper.addToolMaterial("ELDRITCH", 3, 1561, 9.0F, 4.0F, 24);
 		ArmorMaterial eldritchArmor = EnumHelper.addArmorMaterial("ELDRITCH", 33, new int[]{3, 8, 6, 3}, 24);
+		
+		eldritch_pickaxe = new ItemEldritchPickaxe(eldritchTool);
+		GameRegistry.registerItem(eldritch_pickaxe, "eldritch_pickaxe");
+		
+		eldritch_shovel = new ItemEldritchSpade(eldritchTool);
+		GameRegistry.registerItem(eldritch_shovel, "eldritch_shovel");
+		
+		eldritch_axe = new ItemEldritchAxe(eldritchTool);
+		GameRegistry.registerItem(eldritch_axe, "eldritch_axe");
+		
+		eldritch_sword = new ItemEldritchSword(eldritchTool);
+		GameRegistry.registerItem(eldritch_sword, "eldritch_sword");
 	}
 }

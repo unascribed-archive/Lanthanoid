@@ -103,7 +103,7 @@
 		"sounds": [
 			{
 				"name": "pulsating",
-				"stream": false
+				"stream": true
 			}
 		]
 	},

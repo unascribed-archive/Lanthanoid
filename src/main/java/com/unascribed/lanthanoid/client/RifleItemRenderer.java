@@ -2,10 +2,7 @@ package com.unascribed.lanthanoid.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.client.IItemRenderer;
 
@@ -57,15 +54,7 @@ public class RifleItemRenderer implements IItemRenderer {
 			GL11.glRotatef(-135f, 0, 1, 0);
 			GL11.glRotatef(0f, 0, 0, 1);
 		}
-		for (int i = 0; i < item.getItem().getRenderPasses(item.getMetadata()); i++) {
-			IIcon icon = item.getItem().getIcon(item, i, player, player.getItemInUse(), player.getItemInUseCount());
-			int color = item.getItem().getColorFromItemStack(item, i);
-			float r = ((color >> 16)&0xFF)/255f;
-			float g = ((color >> 8)&0xFF)/255f;
-			float b = (color&0xFF)/255f;
-			GL11.glColor3f(r, g, b);
-			ItemRenderer.renderItemIn2D(Tessellator.instance, icon.getMinU(), icon.getMinV(), icon.getMaxU(), icon.getMaxV(), icon.getIconWidth(), icon.getIconHeight(), 0.0625f);
-		}
+		Rendering.renderItemDefault(item);
 	}
 
 }

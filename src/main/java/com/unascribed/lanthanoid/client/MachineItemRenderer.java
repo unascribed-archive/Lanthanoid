@@ -153,7 +153,7 @@ public class MachineItemRenderer implements IItemRenderer {
 				EldritchTileEntitySpecialRenderer.renderEldritchBlock(x, y, z,
 						partialTicks, ticks, 0, 0, glyphs, 0,
 						p.ticksExisted+partialTicks,
-						item.hashCode(), type == ItemRenderType.INVENTORY, false);
+						item.hashCode(), type == ItemRenderType.INVENTORY, false, true);
 			}
 		}
 		GL11.glDisable(GL11.GL_BLEND);

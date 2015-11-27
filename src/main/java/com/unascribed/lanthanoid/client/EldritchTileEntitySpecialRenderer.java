@@ -12,7 +12,6 @@ import com.unascribed.lanthanoid.tile.TileEntityEldritchWithBooks;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
@@ -34,14 +33,16 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 	private static final ResourceLocation bookTex = new ResourceLocation("textures/entity/enchanting_table_book.png");
 	
 	private static RenderItem ri = new RenderItem() {
+		@Override
 		public boolean shouldBob() { return false; }
+		@Override
 		public boolean shouldSpreadItems() { return false; }
 	};
 	private static EntityItem dummy = new EntityItem(null);
 	
 	public static void renderEldritchBlock(float x, float y, float z, float partialTicks,
 			float playerAnim, float glyphCount, int bookCount, IIcon glyphs, int brightness, float t, int hash,
-			boolean inventory, boolean blink) {
+			boolean inventory, boolean blink, boolean nearby) {
 		float q = Math.max(0.25f, playerAnim);
 		float q2 = Math.max(0.25f, playerAnim*glyphCount);
 		
@@ -102,15 +103,16 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 						GL11.glTranslatef(-0.5f, -0.25f, 0);
 						GL11.glScalef(1, 0.5f, 1);
 						GL11.glColor4f(r, g, b, a/3);
-						if (Minecraft.isFancyGraphicsEnabled() && !inventory) {
+						boolean fancy = Minecraft.isFancyGraphicsEnabled() && nearby;
+						if (fancy && !inventory) {
 							GL11.glDepthMask(false);
-							drawExtrudedHalfIcon(glyphs, 0.5f);
+							Rendering.drawExtrudedHalfIcon(glyphs, 0.5f);
 							GL11.glDepthMask(true);
 						}
 						GL11.glTranslatef(0, 0, 0.05f);
 						GL11.glColor4f(r, g, b, a);
-						if (Minecraft.isFancyGraphicsEnabled()) {
-							drawExtrudedHalfIcon(glyphs, 0.05f);
+						if (fancy) {
+							Rendering.drawExtrudedHalfIcon(glyphs, 0.05f);
 						} else {
 							GL11.glDisable(GL11.GL_CULL_FACE);
 							Tessellator tessellator = Tessellator.instance;
@@ -134,30 +136,31 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 				}
 			GL11.glPopMatrix();
 			
-			GL11.glColor3f(1, 1, 1);
-			GL11.glDisable(GL11.GL_BLEND);
-			
-			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, j / 1.0F, k / 1.0F);
-			
-			boolean moveX = false;
-			int moveY = 0;
-			for (int i = 0; i < bookCount; i++) {
-				GL11.glPushMatrix();
-					Minecraft.getMinecraft().renderEngine.bindTexture(bookTex);
-					GL11.glTranslatef(x+0.0625f+(moveX ? 0.5f : 0f)+(moveY*0.05f), y+1.07f+(moveY*0.13f), z+0.5f);
-					GL11.glRotatef(90f, 1, 0, 0);
-					GL11.glRotatef((((i*67)^hash)%60)-30, 0, 0, 1);
-					book.render(null, 0, 0, 1, 0, 0.0F, 0.0625F);
-				GL11.glPopMatrix();
-				if (!moveX) {
-					moveX = true;
-				} else {
-					moveX = false;
-					moveY++;
+			if (nearby) {
+				GL11.glColor3f(1, 1, 1);
+				GL11.glDisable(GL11.GL_BLEND);
+				
+				OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, j / 1.0F, k / 1.0F);
+				boolean moveX = false;
+				int moveY = 0;
+				for (int i = 0; i < bookCount; i++) {
+					GL11.glPushMatrix();
+						Minecraft.getMinecraft().renderEngine.bindTexture(bookTex);
+						GL11.glTranslatef(x+0.0625f+(moveX ? 0.5f : 0f)+(moveY*0.05f), y+1.07f+(moveY*0.13f), z+0.5f);
+						GL11.glRotatef(90f, 1, 0, 0);
+						GL11.glRotatef((((i*67)^hash)%60)-30, 0, 0, 1);
+						book.render(null, 0, 0, 1, 0, 0.0F, 0.0625F);
+					GL11.glPopMatrix();
+					if (!moveX) {
+						moveX = true;
+					} else {
+						moveX = false;
+						moveY++;
+					}
 				}
+				GL11.glDepthMask(false);
+				GL11.glEnable(GL11.GL_LIGHTING);
 			}
-			GL11.glDepthMask(false);
-			GL11.glEnable(GL11.GL_LIGHTING);
 		GL11.glPopMatrix();
 		GL11.glDepthMask(true);
 	}
@@ -219,7 +222,8 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 		
 		renderEldritchBlock(x, y, z, partialTicks, playerAnim, glyphCount, books, glyphs,
 				brightness, t,
-				te.hashCode(), false, te instanceof TileEntityEldritchDistributor && ((TileEntityEldritchDistributor)te).drain);
+				te.hashCode(), false, te instanceof TileEntityEldritchDistributor && ((TileEntityEldritchDistributor)te).drain,
+				Minecraft.getMinecraft().thePlayer.getDistanceSq(te.xCoord+0.5, te.yCoord+0.5, te.zCoord+0.5) < (64*64));
 		
 		if (Minecraft.getMinecraft().gameSettings.showDebugInfo && Minecraft.getMinecraft().thePlayer.capabilities.isCreativeMode) {
 			String str = (te.getMilliglyphs()/1000)+"."+((te.getMilliglyphs()%1000)/10);
@@ -291,7 +295,7 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 				GL11.glColor3f(0, 1, 0);
 				GL11.glTranslatef(x, y+1, z+1);
 				GL11.glRotatef(90f, -1, 0, 0);
-				drawExtrudedIcon(LBlocks.machine.coil, 1/32f);
+				Rendering.drawExtrudedIcon(LBlocks.machine.coil, 1/32f);
 			GL11.glPopMatrix();
 			for (int i = 0; i < 4; i++) {
 				ItemStack stack = ((TileEntityEldritchInductor)te).getStackInSlot(i);
@@ -332,21 +336,6 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 				}
 			}
 		}
-	}
-
-	
-	public static void drawExtrudedHalfIcon(IIcon icon, float thickness) {
-		if (icon == null) {
-			return;
-		}
-		ItemRenderer.renderItemIn2D(Tessellator.instance, icon.getMinU(), icon.getMinV(), icon.getMaxU(), icon.getMinV()+((icon.getMaxV()-icon.getMinV())/2), icon.getIconWidth(), icon.getIconHeight()/2, thickness);
-	}
-	
-	public void drawExtrudedIcon(IIcon icon, float thickness) {
-		if (icon == null) {
-			return;
-		}
-		ItemRenderer.renderItemIn2D(Tessellator.instance, icon.getMinU(), icon.getMinV(), icon.getMaxU(), icon.getMaxV(), icon.getIconWidth(), icon.getIconHeight(), thickness);
 	}
 
 }

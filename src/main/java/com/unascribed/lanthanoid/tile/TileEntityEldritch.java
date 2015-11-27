@@ -8,10 +8,7 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
@@ -67,6 +64,7 @@ public abstract class TileEntityEldritch extends TileEntity implements IGlyphHol
 		}
 	}
 	
+	@Override
 	public boolean transferFrom(IGlyphHolder holder, boolean force) {
 		int d;
 		if (force) {

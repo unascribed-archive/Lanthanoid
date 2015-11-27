@@ -30,7 +30,7 @@ public class ItemChargedBook extends ItemBase implements IGlyphHolderItem {
 	
 	@Override
 	public int getMaxMilliglyphs(ItemStack stack) {
-		return 20000;
+		return 20_000;
 	}
 
 }

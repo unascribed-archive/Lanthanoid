@@ -90,6 +90,48 @@ item.erbium_wrecking_ball.name=Erbium Wrecking Ball
 item.dysprosium_wrecking_ball.name=Dysprosium Wrecking Ball
 
 
+item.eldritch_sword.name=Eldritch Sword
+item.eldritch_sword.ability.name=Retribution
+item.eldritch_sword.ability.desc=Damage taken while blocking is released when finishing blocking
+
+item.eldritch_shovel.name=Eldritch Shovel
+item.eldritch_shovel.ability.name=Excavation
+item.eldritch_shovel.ability.desc=All loose blocks (e.g. gravel) above the block broken are also broken
+
+item.eldritch_axe.name=Eldritch Axe
+item.eldritch_axe.ability.name=Timber
+item.eldritch_axe.ability.desc=Breaking a log breaks all connected logs, unless sneaking
+
+item.eldritch_pickaxe.name=Eldritch Pickaxe
+item.eldritch_pickaxe.ability.name=Quickening
+item.eldritch_pickaxe.ability.desc=Every block mined increases dig speed, to a cap. When not mining, speed decreases
+
+item.eldritch_shears.name=Eldritch Shears
+item.eldritch_shears.ability.name=Duplicity
+item.eldritch_shears.ability.desc=Can shear any entity once to drop items as if it were killed
+
+
+ui.eldritch_ability=Ability: %s
+
+item.eldritch_helmet.name=Eldritch Helmet
+item.eldritch_helmet.ability.name=Mending
+item.eldritch_helmet.ability.desc=Glyphs are taken from nearby Distributors to heal the wearer
+
+item.eldritch_chestplate.name=Eldritch Chestplate
+item.eldritch_chestplate.ability.name=Aegis
+item.eldritch_chestplate.ability.desc=Most damage taken is absorbed, at the cost of Glyphs
+
+item.eldritch_leggings.name=Eldritch Leggings
+item.eldritch_leggings.ability.name=Enervation
+item.eldritch_leggings.ability.desc=Glyphs are taken from nearby Distributors to charge items in the inventory
+
+item.eldritch_boots.name=Eldritch Boots
+item.eldritch_boots.ability.name=Acceleration
+item.eldritch_boots.ability.desc=Sprinting slowly increases speed, stopping sprinting resets
+
+ui.eldritch_set_bonus.name=Flight
+
+
 item.rcg_glasses.name=Rose-Colored Glasses
 item.rcg_glasses.design=Designed for Steve-like 2x1 eyes
 
