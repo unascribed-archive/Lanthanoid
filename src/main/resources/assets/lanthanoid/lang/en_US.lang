@@ -96,7 +96,7 @@ item.eldritch_sword.ability.desc=Damage taken while blocking is released when fi
 
 item.eldritch_shovel.name=Eldritch Shovel
 item.eldritch_shovel.ability.name=Excavation
-item.eldritch_shovel.ability.desc=All loose blocks (e.g. gravel) above the block broken are also broken
+item.eldritch_shovel.ability.desc=All loose blocks (e.g. gravel, dirt) above the block broken are also broken, unless sneaking
 
 item.eldritch_axe.name=Eldritch Axe
 item.eldritch_axe.ability.name=Timber
@@ -109,6 +109,10 @@ item.eldritch_pickaxe.ability.desc=Every block mined increases dig speed, to a c
 item.eldritch_shears.name=Eldritch Shears
 item.eldritch_shears.ability.name=Duplicity
 item.eldritch_shears.ability.desc=Can shear any entity once to drop items as if it were killed
+
+item.eldritch_drill.name=Eldritch Drill
+item.eldritch_drill.ability.name=?
+item.eldritch_drill.ability.desc=Breaks the blocks below and above the block broken, unless sneaking
 
 
 ui.eldritch_ability=Ability: %s

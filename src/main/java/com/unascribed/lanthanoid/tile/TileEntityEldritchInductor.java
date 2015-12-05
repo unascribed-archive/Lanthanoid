@@ -238,7 +238,9 @@ public class TileEntityEldritchInductor extends TileEntityEldritch implements II
 	public void setInventorySlotContents(int index, ItemStack stack) {
 		inv.setInventorySlotContents(index, stack);
 		markDirty();
-		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+		if (hasWorldObj()) {
+			worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+		}
 	}
 
 	@Override

@@ -80,9 +80,8 @@ public class ItemEldritchSword extends ItemSword implements IGlyphHolderTool {
 		if (heldItem != null && heldItem.getItem() == this) {
 			if (e.entityLiving instanceof EntityPlayer) {
 				EntityPlayer p = (EntityPlayer) e.entityLiving;
-				if (p.isBlocking() && !e.source.isUnblockable() && p.hurtResistantTime < (float)p.maxHurtResistantTime/2f) {
+				if (p.isBlocking() && !e.source.isUnblockable() && p.hurtResistantTime <= p.maxHurtResistantTime/2f) {
 					int cost = (int)(e.ammount * 1000);
-					System.out.println(cost/1000f);
 					if (getMilliglyphs(heldItem) >= cost && getHeldDamage(heldItem) < 40) {
 						setMilliglyphs(heldItem, getMilliglyphs(heldItem)-cost);
 						setHeldDamage(heldItem, getHeldDamage(heldItem)+(e.ammount/3));

@@ -4,6 +4,7 @@ import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.item.ItemChargedBook;
 import com.unascribed.lanthanoid.item.ItemDisabled;
 import com.unascribed.lanthanoid.item.ItemEldritchAxe;
+import com.unascribed.lanthanoid.item.ItemEldritchDrill;
 import com.unascribed.lanthanoid.item.ItemEldritchPickaxe;
 import com.unascribed.lanthanoid.item.ItemEldritchSpade;
 import com.unascribed.lanthanoid.item.ItemEldritchSword;
@@ -33,6 +34,7 @@ public class LItems {
 	public static ItemEldritchSpade eldritch_shovel;
 	public static ItemEldritchAxe eldritch_axe;
 	public static ItemEldritchSword eldritch_sword;
+	public static ItemEldritchDrill eldritch_drill;
 	
 	public static void init() {
 		GameRegistry.registerItem(ingot = new ItemMulti(Lanthanoid.inst.creativeTabMaterials, LArrays.all(LMaterials.metals, "ingot")), "ingot");
@@ -91,5 +93,8 @@ public class LItems {
 		
 		eldritch_sword = new ItemEldritchSword(eldritchTool);
 		GameRegistry.registerItem(eldritch_sword, "eldritch_sword");
+		
+		eldritch_drill = new ItemEldritchDrill(eldritchTool);
+		GameRegistry.registerItem(eldritch_drill, "eldritch_drill");
 	}
 }

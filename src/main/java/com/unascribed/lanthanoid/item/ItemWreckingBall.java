@@ -6,6 +6,7 @@ import com.unascribed.lanthanoid.function.IntSupplier;
 import com.unascribed.lanthanoid.init.LAchievements;
 import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.network.ItemBreakMessage;
+import com.unascribed.lanthanoid.util.LUtil;
 
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraft.block.Block;
@@ -23,8 +24,6 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.event.world.BlockEvent;
 
 public class ItemWreckingBall extends ItemBase {
 	public enum Material {
@@ -142,7 +141,7 @@ public class ItemWreckingBall extends ItemBase {
 					world.playAuxSFX(2001, x, y, z, Block.getIdFromBlock(block) + (world.getBlockMetadata(x, y, z) << 12));
 					continue;
 				}
-				if (harvest(player, player.worldObj, x, y, z, itemRand.nextInt(4) == 0, true)) {
+				if (LUtil.harvest(player, player.worldObj, x, y, z, itemRand.nextInt(4) == 0, true, true)) {
 					if (!stack.hasTagCompound()) {
 						stack.setTagCompound(new NBTTagCompound());
 					}
@@ -150,7 +149,7 @@ public class ItemWreckingBall extends ItemBase {
 					if (stack.getTagCompound().getInteger("blocksBroken") >= blocksBeforeCooldown) {
 						stack.getTagCompound().setInteger("cooldown", 40);
 						stack.getTagCompound().setInteger("blocksBroken", 0);
-						harvest(player, player.worldObj, mop.blockX, mop.blockY, mop.blockZ, itemRand.nextInt(4) == 0, true);
+						LUtil.harvest(player, player.worldObj, mop.blockX, mop.blockY, mop.blockZ, itemRand.nextInt(4) == 0, true, true);
 					}
 				}
 				if (stack.stackSize <= 0) {
@@ -191,7 +190,7 @@ public class ItemWreckingBall extends ItemBase {
 		if (!(destroyer instanceof EntityPlayerMP)) {
 			return false;
 		}
-		harvest(((EntityPlayerMP)destroyer), world, x, y, z, itemRand.nextInt(4) == 0, false);
+		LUtil.harvest(((EntityPlayerMP)destroyer), world, x, y, z, itemRand.nextInt(4) == 0, false, true);
 		/*if (breaking) return false;
 		if (!(destroyer instanceof EntityPlayerMP)) return false;
 		if (destroyer.isSneaking()) {
@@ -237,41 +236,6 @@ public class ItemWreckingBall extends ItemBase {
 		}
 		breaking = false;*/
 		return true;
-	}
-	
-	private boolean harvest(EntityPlayerMP player, World world, int x, int y, int z, boolean drop, boolean particles) {
-		BlockEvent.BreakEvent event = ForgeHooks.onBlockBreakEvent(world, player.theItemInWorldManager.getGameType(), player, x, y, z);
-		if (event.isCanceled()) {
-			return false;
-		} else {
-			Block block = world.getBlock(x, y, z);
-			int meta = world.getBlockMetadata(x, y, z);
-			if (block == Blocks.cobblestone) {
-				block = Blocks.gravel;
-			} else if (block == Blocks.stone) {
-				block = Blocks.cobblestone;
-			} else if (block == Blocks.gravel) {
-				block = Blocks.sand;
-			}
-			if (block.getBlockHardness(world, x, y, z) < 0) {
-				return false;
-			}
-			if (particles) {
-				world.playAuxSFX(2001, x, y, z, Block.getIdFromBlock(block) + (world.getBlockMetadata(x, y, z) << 12));
-			}
-			block.onBlockHarvested(world, x, y, z, meta, player);
-			boolean success = block.removedByPlayer(world, player, x, y, z, true);
-
-			if (success) {
-				block.onBlockDestroyedByPlayer(world, x, y, z, meta);
-				if (drop) {
-					block.harvestBlock(world, player, x, y, z, meta);
-					block.dropXpOnBlockBreak(world, x, y, z, event.getExpToDrop() != 0 ? event.getExpToDrop() : block.getExpDrop(world, meta, 0));
-				}
-				player.getHeldItem().damageItem(1, player);
-			}
-			return success;
-		}
 	}
 	
 }

@@ -117,10 +117,10 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 							GL11.glDisable(GL11.GL_CULL_FACE);
 							Tessellator tessellator = Tessellator.instance;
 							tessellator.startDrawingQuads();
-							tessellator.addVertexWithUV((double)(0 + 0), (double)(0 + 1), (double)ri.zLevel, (double)glyphs.getMinU(), (double)glyphs.getMinV());
-							tessellator.addVertexWithUV((double)(0 + 1), (double)(0 + 1), (double)ri.zLevel, (double)glyphs.getMaxU(), (double)glyphs.getMinV());
-							tessellator.addVertexWithUV((double)(0 + 1), (double)(0 + -1), (double)ri.zLevel, (double)glyphs.getMaxU(), (double)glyphs.getMaxV());
-							tessellator.addVertexWithUV((double)(0 + 0), (double)(0 + -1), (double)ri.zLevel, (double)glyphs.getMinU(), (double)glyphs.getMaxV());
+							tessellator.addVertexWithUV(0 + 0, 0 + 1, ri.zLevel, glyphs.getMinU(), glyphs.getMinV());
+							tessellator.addVertexWithUV(0 + 1, 0 + 1, ri.zLevel, glyphs.getMaxU(), glyphs.getMinV());
+							tessellator.addVertexWithUV(0 + 1, 0 + -1, ri.zLevel, glyphs.getMaxU(), glyphs.getMaxV());
+							tessellator.addVertexWithUV(0 + 0, 0 + -1, ri.zLevel, glyphs.getMinU(), glyphs.getMaxV());
 							tessellator.draw();
 							GL11.glEnable(GL11.GL_CULL_FACE);
 						}
@@ -302,14 +302,14 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 				if (stack != null) {
 					float iX = (i % 2 == 0 ? 0.75f : 0.25f);
 					float iZ = (i > 1 ? 0.25f : 0.75f);
-					iZ -= 0.125f;
+					iZ -= 0.25f;
 					GL11.glPushMatrix();
 						ri.setRenderManager(RenderManager.instance);
 						GL11.glTranslatef(x+iX, y+(33/32f), z+iZ);
 						GL11.glRotatef(90f, 1, 0, 0);
-						float ofsX = 0;
+						/*float ofsX = 0;
 						float ofsY = 0.125f;
-						GL11.glTranslatef(ofsX, ofsY, 0);
+						GL11.glTranslatef(ofsX, ofsY, 0);*/
 						
 						/*GL11.glDisable(GL11.GL_TEXTURE_2D);
 						GL11.glColor3f(1, 1, 1);
@@ -320,8 +320,8 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 						GL11.glEnd();
 						GL11.glEnable(GL11.GL_TEXTURE_2D);*/
 						
-						GL11.glRotatef(((te.hashCode()^(i*3433))/67f)%180, 0, 0, 1);
-						GL11.glTranslatef(-ofsX, -ofsY, 0);
+						//GL11.glRotatef(((te.hashCode()^(i*3433))/67f)%180, 0, 0, 1);
+						//GL11.glTranslatef(-ofsX, -ofsY, 0);
 						try {
 							dummy.setWorld(te.getWorld());
 							dummy.setEntityItemStack(stack);

@@ -1,15 +1,24 @@
 package com.unascribed.lanthanoid.item;
 
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 import com.unascribed.lanthanoid.Lanthanoid;
+import com.unascribed.lanthanoid.util.LUtil;
 
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.Phase;
+import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemAxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
@@ -17,13 +26,172 @@ import net.minecraft.world.World;
 
 public class ItemEldritchAxe extends ItemAxe implements IGlyphHolderTool {
 
+	public class BreakTask {
+		public World world;
+		public int x, y, z;
+		public ItemStack stack;
+		public EntityPlayerMP player;
+		public Block expected;
+		public int expectedMeta;
+		public Block initial;
+		
+		public BreakTask(World world, int x, int y, int z, ItemStack stack, EntityPlayerMP player, Block expected, int expectedMeta, Block initial) {
+			this.world = world;
+			this.x = x;
+			this.y = y;
+			this.z = z;
+			this.stack = stack;
+			this.player = player;
+			this.expected = expected;
+			this.expectedMeta = expectedMeta;
+			this.initial = initial;
+		}
+
+		public void execute() {
+			if (player.isDead) return;
+			System.out.println("Breaking "+x+", "+y+", "+z);
+			breaking = true;
+			Block block = world.getBlock(x, y, z);
+			int meta = world.getBlockMetadata(x, y, z);
+			if (block == expected && meta == expectedMeta && doBlockDestroyed(stack, world, block, x, y, z, player)) {
+				stack.damageItem(1, player);
+				LUtil.harvest(player, world, x, y, z, true, true, false);
+				if (stack.getMetadata() >= stack.getMaxDurability()) {
+					player.destroyCurrentEquippedItem();
+				} else {
+					addSurroundings(world, x, y, z, stack, player, initial);
+				}
+			}
+			breaking = false;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((expected == null) ? 0 : expected.hashCode());
+			result = prime * result + expectedMeta;
+			result = prime * result + ((initial == null) ? 0 : initial.hashCode());
+			result = prime * result + ((player == null) ? 0 : player.hashCode());
+			result = prime * result + ((stack == null) ? 0 : stack.hashCode());
+			result = prime * result + ((world == null) ? 0 : world.hashCode());
+			result = prime * result + x;
+			result = prime * result + y;
+			result = prime * result + z;
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			BreakTask other = (BreakTask) obj;
+			if (getOuterType() != other.getOuterType()) {
+				return false;
+			}
+			if (expected == null) {
+				if (other.expected != null) {
+					return false;
+				}
+			} else if (!expected.equals(other.expected)) {
+				return false;
+			}
+			if (expectedMeta != other.expectedMeta) {
+				return false;
+			}
+			if (initial == null) {
+				if (other.initial != null) {
+					return false;
+				}
+			} else if (!initial.equals(other.initial)) {
+				return false;
+			}
+			if (player == null) {
+				if (other.player != null) {
+					return false;
+				}
+			} else if (!player.equals(other.player)) {
+				return false;
+			}
+			if (stack == null) {
+				if (other.stack != null) {
+					return false;
+				}
+			} else if (!stack.equals(other.stack)) {
+				return false;
+			}
+			if (world == null) {
+				if (other.world != null) {
+					return false;
+				}
+			} else if (!world.equals(other.world)) {
+				return false;
+			}
+			if (x != other.x) {
+				return false;
+			}
+			if (y != other.y) {
+				return false;
+			}
+			if (z != other.z) {
+				return false;
+			}
+			return true;
+		}
+
+		private ItemEldritchAxe getOuterType() {
+			return ItemEldritchAxe.this;
+		}
+		
+		
+	}
+
 	private IIcon glyphs;
+	
+	private Set<BreakTask> breakTasks = Sets.newHashSet();
 	
 	public ItemEldritchAxe(ToolMaterial mat) {
 		super(mat);
 		setCreativeTab(Lanthanoid.inst.creativeTabEquipment);
 		setTextureName("lanthanoid:eldritch_axe");
 		setUnlocalizedName("eldritch_axe");
+		FMLCommonHandler.instance().bus().register(this);
+	}
+	
+	public void addSurroundings(World world, int x, int y, int z, ItemStack stack, EntityPlayerMP player, Block initial) {
+		for (int oX = -1; oX <= 1; oX ++) {
+			for (int oY = -1; oY <= 1; oY ++) {
+				for (int oZ = -1; oZ <= 1; oZ ++) {
+					if (oX == 0 && oY == 0 && oZ == 0) continue;
+					int cX = x+oX;
+					int cY = y+oY;
+					int cZ = z+oZ;
+					Block b = world.getBlock(cX, cY, cZ);
+					int meta = world.getBlockMetadata(cX, cY, cZ);
+					if (b == initial && b.getMaterial() == Material.wood && b.isToolEffective("axe", meta)) {
+						breakTasks.add(new BreakTask(world, cX, cY, cZ, stack, player, b, meta, initial));
+					}
+				}
+			}
+		}
+	}
+
+	@SubscribeEvent
+	public void onTick(ServerTickEvent e) {
+		if (e.phase == Phase.END) {
+			BreakTask[] tasks = breakTasks.toArray(new BreakTask[breakTasks.size()]);
+			breakTasks.clear();
+			for (BreakTask bt : tasks) {
+				bt.execute();
+			}
+		}
 	}
 	
 	@Override
@@ -51,9 +219,14 @@ public class ItemEldritchAxe extends ItemAxe implements IGlyphHolderTool {
 		doUpdate(stack, world, entity, slot, equipped);
 	}
 	
+	private boolean breaking = false;
+	
 	@Override
 	public boolean onBlockDestroyed(ItemStack stack, World world, Block block, int x, int y, int z, EntityLivingBase ent) {
-		return doBlockDestroyed(stack, world, block, x, y, z, ent);
+		if (doBlockDestroyed(stack, world, block, x, y, z, ent) && !breaking && ent instanceof EntityPlayerMP && !ent.isSneaking()) {
+			addSurroundings(world, x, y, z, stack, (EntityPlayerMP)ent, block);
+		}
+		return true;
 	}
 	
 	@Override

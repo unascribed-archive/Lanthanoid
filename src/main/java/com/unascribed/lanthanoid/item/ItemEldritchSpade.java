@@ -4,12 +4,15 @@ import java.util.List;
 
 import com.google.common.base.Strings;
 import com.unascribed.lanthanoid.Lanthanoid;
+import com.unascribed.lanthanoid.util.LUtil;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemSpade;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
@@ -51,10 +54,31 @@ public class ItemEldritchSpade extends ItemSpade implements IGlyphHolderTool {
 		doUpdate(stack, world, entity, slot, equipped);
 	}
 	
+	private boolean breaking = false;
+	
 	@Override
 	public boolean onBlockDestroyed(ItemStack stack, World world, Block block, int x, int y, int z, EntityLivingBase ent) {
-		if (doBlockDestroyed(stack, world, block, x, y, z, ent)) {
-			
+		if (doBlockDestroyed(stack, world, block, x, y, z, ent) && !breaking && ent instanceof EntityPlayerMP && !ent.isSneaking()) {
+			try {
+				breaking = true;
+				int iterations = 0;
+				int curY = y+1;
+				while (world.getBlock(x, curY, z) != null &&
+						(world.getBlock(x, curY, z).getMaterial() == Material.sand
+						|| world.getBlock(x, curY, z).getMaterial() == Material.grass
+						|| world.getBlock(x, curY, z).getMaterial() == Material.ground)) {
+					if (iterations > 7) break;
+					if (doBlockDestroyed(stack, world, block, x, curY, z, ent)) {
+						LUtil.harvest((EntityPlayerMP)ent, world, x, curY, z, world.getBlock(x, curY, z).isToolEffective("shovel", world.getBlockMetadata(x, curY, z)), true, false);
+					} else {
+						break;
+					}
+					curY++;
+					iterations++;
+				}
+			} finally {
+				breaking = false;
+			}
 		}
 		return true;
 	}

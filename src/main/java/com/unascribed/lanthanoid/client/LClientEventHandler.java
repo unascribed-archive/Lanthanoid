@@ -22,6 +22,7 @@ import com.unascribed.lanthanoid.item.rifle.PrimaryMode;
 import com.unascribed.lanthanoid.item.rifle.SecondaryMode;
 import com.unascribed.lanthanoid.network.ModifyRifleModeMessage;
 import com.unascribed.lanthanoid.network.ToggleRifleBlazeModeMessage;
+import com.unascribed.lanthanoid.util.LUtil;
 import com.unascribed.lanthanoid.waypoint.Waypoint;
 import com.unascribed.lanthanoid.waypoint.Waypoint.Type;
 
@@ -543,7 +544,7 @@ public class LClientEventHandler {
 			EntityClientPlayerMP p = mc.thePlayer;
 			GL11.glDisable(GL11.GL_LIGHTING);
 			if (p.getHeldItem() != null && p.getHeldItem().getItem() == LItems.spanner) {
-				MovingObjectPosition mop = p.rayTrace(8, e.partialTicks);
+				MovingObjectPosition mop = LUtil.rayTrace(p, 8);
 				if (mop != null && mop.typeOfHit == MovingObjectType.BLOCK) {
 					Waypoint w = Lanthanoid.inst.waypointManager.getWaypoint(mc.theWorld, mop.blockX, mop.blockY, mop.blockZ);
 					if (w != null) {
