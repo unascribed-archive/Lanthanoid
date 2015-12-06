@@ -7,6 +7,8 @@ import com.google.common.collect.Multimap;
 import com.unascribed.lanthanoid.Lanthanoid;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
@@ -109,6 +111,7 @@ public class ItemEldritchSword extends ItemSword implements IGlyphHolderTool {
 	}
 	
 	@Override
+	@SideOnly(Side.CLIENT)
 	public void registerIcons(IIconRegister register) {
 		super.registerIcons(register);
 		glyphs = register.registerIcon("lanthanoid:eldritch_glyph_kill");
