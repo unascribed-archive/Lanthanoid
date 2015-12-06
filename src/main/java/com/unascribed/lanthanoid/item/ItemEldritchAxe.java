@@ -6,6 +6,7 @@ import java.util.Set;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.unascribed.lanthanoid.Lanthanoid;
+import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
 import com.unascribed.lanthanoid.util.LUtil;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -26,7 +27,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
-public class ItemEldritchAxe extends ItemAxe implements IGlyphHolderTool {
+public class ItemEldritchAxe extends ItemAxe implements IGlyphHolderItem {
 
 	public class BreakTask {
 		public World world;
@@ -51,11 +52,10 @@ public class ItemEldritchAxe extends ItemAxe implements IGlyphHolderTool {
 
 		public void execute() {
 			if (player.isDead) return;
-			System.out.println("Breaking "+x+", "+y+", "+z);
 			breaking = true;
 			Block block = world.getBlock(x, y, z);
 			int meta = world.getBlockMetadata(x, y, z);
-			if (block == expected && meta == expectedMeta && doBlockDestroyed(stack, world, block, x, y, z, player)) {
+			if (block == expected && meta == expectedMeta && GlyphToolHelper.doBlockDestroyed(getOuterType(), stack, world, block, x, y, z, player)) {
 				stack.damageItem(1, player);
 				LUtil.harvest(player, world, x, y, z, true, true, false);
 				if (stack.getMetadata() >= stack.getMaxDurability()) {
@@ -208,7 +208,7 @@ public class ItemEldritchAxe extends ItemAxe implements IGlyphHolderTool {
 	
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced) {
-		doAddInformation(stack, player, list, advanced);
+		GlyphToolHelper.doAddInformation(this, stack, player, list, advanced);
 	}
 	
 	@Override
@@ -218,14 +218,14 @@ public class ItemEldritchAxe extends ItemAxe implements IGlyphHolderTool {
 	
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean equipped) {
-		doUpdate(stack, world, entity, slot, equipped);
+		GlyphToolHelper.doUpdate(this, stack, world, entity, slot, equipped);
 	}
 	
 	private boolean breaking = false;
 	
 	@Override
 	public boolean onBlockDestroyed(ItemStack stack, World world, Block block, int x, int y, int z, EntityLivingBase ent) {
-		if (doBlockDestroyed(stack, world, block, x, y, z, ent) && !breaking && ent instanceof EntityPlayerMP && !ent.isSneaking()) {
+		if (GlyphToolHelper.doBlockDestroyed(this, stack, world, block, x, y, z, ent) && !breaking && ent instanceof EntityPlayerMP && !ent.isSneaking()) {
 			addSurroundings(world, x, y, z, stack, (EntityPlayerMP)ent, block);
 		}
 		return true;

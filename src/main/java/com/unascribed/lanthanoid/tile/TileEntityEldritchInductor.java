@@ -63,7 +63,7 @@ public class TileEntityEldritchInductor extends TileEntityEldritch implements II
 					min.setMilliglyphs(minStack, min.getMilliglyphs(minStack)+transfer);
 					if (!worldObj.isRemote) {
 						setMilliglyphs(getMilliglyphs()-transfer);
-						worldObj.addBlockEvent(xCoord, yCoord, zCoord, getBlockType(), 3, (((transfer/250)&0xFFFF)<<16) | (minI&0xFFFF));
+						addExtendedBlockEvent(3, (((transfer/250)&0xFFFF)<<16) | (minI&0xFFFF));
 					}
 				}
 			}
@@ -120,7 +120,7 @@ public class TileEntityEldritchInductor extends TileEntityEldritch implements II
 
 	@Override
 	public boolean onBlockActivated(EntityPlayer player, int side, float subX, float subY, float subZ) {
-		if (subY >= aabb.maxY) {
+		if (subY >= ((int)(aabb.maxY*16))/16f) {
 			boolean right = (subX < 0.5f);
 			boolean bottom = (subZ < 0.5f);
 			int idx = 0;

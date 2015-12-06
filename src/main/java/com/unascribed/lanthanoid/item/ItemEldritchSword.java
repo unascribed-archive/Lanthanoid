@@ -5,6 +5,7 @@ import java.util.List;
 import com.google.common.base.Strings;
 import com.google.common.collect.Multimap;
 import com.unascribed.lanthanoid.Lanthanoid;
+import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
@@ -23,7 +24,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 
-public class ItemEldritchSword extends ItemSword implements IGlyphHolderTool {
+public class ItemEldritchSword extends ItemSword implements IGlyphHolderItem {
 
 	private IIcon glyphs;
 	
@@ -47,7 +48,7 @@ public class ItemEldritchSword extends ItemSword implements IGlyphHolderTool {
 	
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced) {
-		doAddInformation(stack, player, list, advanced);
+		GlyphToolHelper.doAddInformation(this, stack, player, list, advanced);
 	}
 	
 	@Override
@@ -63,7 +64,7 @@ public class ItemEldritchSword extends ItemSword implements IGlyphHolderTool {
 	
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean equipped) {
-		doUpdate(stack, world, entity, slot, equipped);
+		GlyphToolHelper.doUpdate(this, stack, world, entity, slot, equipped);
 		if (world.isRemote) return;
 		if (entity instanceof EntityPlayer && getHeldDamage(stack) > 0 && !((EntityPlayer) entity).isBlocking()) {
 			List<EntityLivingBase> nearby = world.getEntitiesWithinAABBExcludingEntity(entity, entity.boundingBox.expand(2, 2, 2), e -> e instanceof EntityLivingBase);

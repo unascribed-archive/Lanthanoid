@@ -1,10 +1,13 @@
 package com.unascribed.lanthanoid.tile;
 
+import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.client.SoundEldritch;
 import com.unascribed.lanthanoid.effect.EntityGlyphFX;
 import com.unascribed.lanthanoid.glyph.IGlyphHolder;
-import com.unascribed.lanthanoid.init.LBlocks;
+import com.unascribed.lanthanoid.network.BlockEventMessage;
+
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
@@ -118,7 +121,7 @@ public abstract class TileEntityEldritch extends TileEntity implements IGlyphHol
 		packed |= ((dY&0xFF) << 8);
 		packed |= (dZ&0xFF);
 		
-		worldObj.addBlockEvent(xCoord, yCoord, zCoord, LBlocks.machine, 2, packed);
+		addExtendedBlockEvent(2, packed);
 	}
 
 	@Override
@@ -213,9 +216,19 @@ public abstract class TileEntityEldritch extends TileEntity implements IGlyphHol
 	public void setMilliglyphs(int milliglyphs) {
 		this.milliglyphs = milliglyphs;
 		if (hasWorldObj() && !worldObj.isRemote) {
-			worldObj.addBlockEvent(xCoord, yCoord, zCoord, LBlocks.machine, 1, getMilliglyphs());
+			addExtendedBlockEvent(1, getMilliglyphs());
 		}
 		markDirty();
+	}
+
+	protected void addExtendedBlockEvent(int event, int arg) {
+		BlockEventMessage bem = new BlockEventMessage();
+		bem.x = xCoord;
+		bem.y = yCoord;
+		bem.z = zCoord;
+		bem.event = event;
+		bem.arg = arg;
+		Lanthanoid.inst.network.sendToAllAround(bem, new TargetPoint(getWorld().provider.dimensionId, xCoord+0.5, yCoord+0.5, zCoord+0.5, 64));
 	}
 
 }

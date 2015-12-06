@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.google.common.base.Strings;
 import com.unascribed.lanthanoid.Lanthanoid;
+import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -16,7 +17,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
-public class ItemEldritchPickaxe extends ItemPickaxe implements IGlyphHolderTool {
+public class ItemEldritchPickaxe extends ItemPickaxe implements IGlyphHolderItem {
 
 	private IIcon glyphs;
 	
@@ -51,7 +52,7 @@ public class ItemEldritchPickaxe extends ItemPickaxe implements IGlyphHolderTool
 
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced) {
-		doAddInformation(stack, player, list, advanced);
+		GlyphToolHelper.doAddInformation(this, stack, player, list, advanced);
 	}
 	
 	@Override
@@ -61,7 +62,7 @@ public class ItemEldritchPickaxe extends ItemPickaxe implements IGlyphHolderTool
 	
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean equipped) {
-		doUpdate(stack, world, entity, slot, equipped);
+		GlyphToolHelper.doUpdate(this, stack, world, entity, slot, equipped);
 		if (entity.ticksExisted % 8 == 0 && (entity instanceof EntityPlayer ? !((EntityPlayer)entity).isSwingInProgress : true)) {
 			float boost = getBoost(stack);
 			if (boost > 0) {
@@ -72,7 +73,7 @@ public class ItemEldritchPickaxe extends ItemPickaxe implements IGlyphHolderTool
 	
 	@Override
 	public boolean onBlockDestroyed(ItemStack stack, World world, Block block, int x, int y, int z, EntityLivingBase ent) {
-		if (doBlockDestroyed(stack, world, block, x, y, z, ent)) {
+		if (GlyphToolHelper.doBlockDestroyed(this, stack, world, block, x, y, z, ent)) {
 			setBoost(stack, getBoost(stack)+0.1f);
 		}
 		return true;

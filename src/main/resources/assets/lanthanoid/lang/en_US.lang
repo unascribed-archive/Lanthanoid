@@ -111,7 +111,7 @@ item.eldritch_shears.ability.name=Duplicity
 item.eldritch_shears.ability.desc=Can shear any entity once to drop items as if it were killed
 
 item.eldritch_drill.name=Eldritch Drill
-item.eldritch_drill.ability.name=?
+item.eldritch_drill.ability.name=Giga
 item.eldritch_drill.ability.desc=Breaks the blocks below and above the block broken, unless sneaking
 
 

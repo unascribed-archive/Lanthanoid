@@ -54,6 +54,9 @@ public class TileEntityEldritchDistributor extends TileEntityEldritchWithBooks {
 								double eX = te.xCoord+0.5;
 								double eY = te.yCoord+0.5;
 								double eZ = te.zCoord+0.5;
+								eX += worldObj.rand.nextGaussian()*0.15;
+								eY += worldObj.rand.nextGaussian()*0.15;
+								eZ += worldObj.rand.nextGaussian()*0.15;
 								MovingObjectPosition mop = worldObj.rayTraceBlocks(
 										Vec3.createVectorHelper(sX, sY, sZ),
 										Vec3.createVectorHelper(eX, eY, eZ));
