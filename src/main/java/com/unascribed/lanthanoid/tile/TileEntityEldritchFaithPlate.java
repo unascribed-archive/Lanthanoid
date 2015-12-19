@@ -23,7 +23,7 @@ import net.minecraftforge.common.util.Constants.NBT;
 
 public class TileEntityEldritchFaithPlate extends TileEntityEldritch implements IFallable, IActivatable, IInventory {
 	
-	public static final int LAUNCH_COST = 10000;
+	public static final int LAUNCH_COST = 2500;
 	
 	public int bounceTicks = 40;
 	public int bounceAnimTicks = 40;

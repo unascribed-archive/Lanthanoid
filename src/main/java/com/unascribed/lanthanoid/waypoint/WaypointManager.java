@@ -80,7 +80,7 @@ public class WaypointManager {
 		for (Map.Entry<Integer, Map<Vec3i, Waypoint>> dimEn : waypoints.entrySet()) {
 			List<Waypoint> li = Lists.newArrayList();
 			for (Waypoint w : dimEn.getValue().values()) {
-				if (w.type.isGlobal() || !player.getGameProfile().getId().equals(w.owner)) {
+				if (w.type.isGlobal() || player.getGameProfile().getId().equals(w.owner)) {
 					li.add(w);
 				}
 			}

@@ -90,6 +90,34 @@ public class LRecipes {
 				
 				'y', "ingotYttriumBariumCopperOxide",
 				'/', "stickBarium"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.eldritch_axe, 
+				"yy",
+				"y/",
+				" /",
+				
+				'y', "ingotYttriumBariumCopperOxide",
+				'/', "stickBarium"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.eldritch_axe, 
+				"yy",
+				"/y",
+				"/ ",
+				
+				'y', "ingotYttriumBariumCopperOxide",
+				'/', "stickBarium"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.eldritch_drill, 
+				"yy ",
+				"yyy",
+				" y/",
+				
+				'y', "ingotYttriumBariumCopperOxide",
+				'/', "stickBarium"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.eldritch_sword, 
+				"y",
+				"y",
+				"/",
+				
+				'y', "ingotYttriumBariumCopperOxide",
+				'/', "stickBarium"));
 	}
 
 	private static void initRoseColored() {
