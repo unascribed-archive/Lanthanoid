@@ -52,6 +52,10 @@ public class ItemGlasses extends ItemArmor {
 		return 0;
 	}
 	@Override
+	public int getMaxDurability() {
+		return 0;
+	}
+	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced) {
 		list.add(StatCollector.translateToLocal("item.rcg_"+types[stack.getMetadata()%types.length]+".design"));
 		super.addInformation(stack, player, list, advanced);

@@ -1,7 +1,6 @@
 package com.unascribed.lanthanoid;
 
 import java.util.List;
-import com.unascribed.lanthanoid.client.LClientEventHandler;
 import com.unascribed.lanthanoid.init.LAchievements;
 import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.item.rifle.Variant;
@@ -62,17 +61,9 @@ public class LEventHandler {
 	@SubscribeEvent
 	public void onPlayerTick(PlayerTickEvent e) {
 		LanthanoidProperties props = (LanthanoidProperties)e.player.getExtendedProperties("lanthanoid");
-		Waypoint nearest = null;
-		double minDist = Double.MAX_VALUE;
 		for (Waypoint w : Lanthanoid.inst.waypointManager.allWaypoints(e.player.worldObj)) {
 			double distSq = e.player.getDistanceSq(w.x+0.5, w.y+0.5, w.z+0.5);
 			if (distSq < w.nameDistance*w.nameDistance) {
-				if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
-					if (distSq < minDist) {
-						nearest = w;
-						minDist = distSq;
-					}
-				}
 				if (!w.owner.equals(e.player.getGameProfile().getId())) {
 					e.player.triggerAchievement(LAchievements.usedWaypoint);
 					if (FMLCommonHandler.instance().getEffectiveSide().isServer()) {
@@ -84,9 +75,6 @@ public class LEventHandler {
 					}
 				}
 			}
-		}
-		if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
-			LClientEventHandler.inst.onNearWaypoint(nearest);
 		}
 		if (props.scopeFactor > 1) {
 			ItemStack held = e.player.getHeldItem();

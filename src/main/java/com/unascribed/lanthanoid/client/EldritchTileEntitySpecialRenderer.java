@@ -1,14 +1,19 @@
 package com.unascribed.lanthanoid.client;
 
+import java.util.Collection;
+import java.util.List;
+
 import org.lwjgl.opengl.GL11;
 
 import com.unascribed.lanthanoid.Lanthanoid;
+import com.unascribed.lanthanoid.glyph.IGlyphHolder;
 import com.unascribed.lanthanoid.init.LBlocks;
 import com.unascribed.lanthanoid.tile.TileEntityEldritch;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchDistributor;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchFaithPlate;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchInductor;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchWithBooks;
+import com.unascribed.lanthanoid.util.LVec3;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -24,7 +29,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Vec3;
+import net.minecraft.util.MovingObjectPosition.MovingObjectType;
+import net.minecraft.world.chunk.Chunk;
 
 public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer {
 
@@ -226,40 +235,149 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 				Minecraft.getMinecraft().thePlayer.getDistanceSq(te.xCoord+0.5, te.yCoord+0.5, te.zCoord+0.5) < (64*64));
 		
 		if (Minecraft.getMinecraft().gameSettings.showDebugInfo && Minecraft.getMinecraft().thePlayer.capabilities.isCreativeMode) {
-			String str = (te.getMilliglyphs()/1000)+"."+((te.getMilliglyphs()%1000)/10);
 			FontRenderer fr = Minecraft.getMinecraft().fontRendererObj;
 			
 			GL11.glPushMatrix();
-				GL11.glTranslatef(x+0.5f, y+1.85f, z+0.5f);
-				GL11.glRotatef(t*4, 0, 1, 0);
-				GL11.glScalef(0.025f, -0.025f, 0.025f);
-				fr.drawString(str, -fr.getStringWidth(str)/2, 0, -1);
-				
-				GL11.glRotatef(180, 0, 1, 0);
-				fr.drawString(str, -fr.getStringWidth(str)/2, 0, -1);
+				List<String> li = te.getDebugText();
+				GL11.glDisable(GL11.GL_LIGHTING);
+				GL11.glEnable(GL11.GL_BLEND);
+				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+				GL11.glTranslatef(x+0.5f, y+1.25f, z+0.25f);
+				GL11.glRotatef(45, 1, 0, 0);
+				for (String str : li) {
+					GL11.glPushMatrix();
+						GL11.glRotatef(180, 0, 1, 0);
+						GL11.glScalef(0.0125f, -0.0125f, 0.0125f);
+						fr.drawString(str, -fr.getStringWidth(str)/2, 0, 0xFFFFFFFF);
+					GL11.glPopMatrix();
+					GL11.glTranslatef(0, -0.12f, 0);
+				}
 			GL11.glPopMatrix();
-			
-			String str2 = "[debug]";
-			GL11.glPushMatrix();
-				GL11.glTranslatef(x+0.5f, y+2.0f, z+0.5f);
-				GL11.glRotatef(t*4, 0, 1, 0);
-				GL11.glScalef(0.0125f, -0.0125f, 0.0125f);
-				fr.drawString(str2, -fr.getStringWidth(str2)/2, 0, -1);
+			if (te instanceof TileEntityEldritchDistributor) {
+				GL11.glPushMatrix();
+				GL11.glTranslatef(x+0.5f, y+0.5f, z+0.5f);
 				
-				GL11.glRotatef(180, 0, 1, 0);
-				fr.drawString(str2, -fr.getStringWidth(str2)/2, 0, -1);
-			GL11.glPopMatrix();
-			
-			String str3 = "(max: "+(te.getMaxMilliglyphs()/1000)+"."+((te.getMaxMilliglyphs()%1000)/10)+")";
-			GL11.glPushMatrix();
-				GL11.glTranslatef(x+0.5f, y+1.6f, z+0.5f);
-				GL11.glRotatef(t*4, 0, 1, 0);
-				GL11.glScalef(0.0125f, -0.0125f, 0.0125f);
-				fr.drawString(str3, -fr.getStringWidth(str3)/2, 0, -1);
+				float baseX = te.xCoord+0.5f;
+				float baseY = te.yCoord+0.5f;
+				float baseZ = te.zCoord+0.5f;
 				
-				GL11.glRotatef(180, 0, 1, 0);
-				fr.drawString(str3, -fr.getStringWidth(str3)/2, 0, -1);
-			GL11.glPopMatrix();
+				int minX = te.xCoord-12;
+				int minZ = te.zCoord-12;
+				int maxX = te.xCoord+12;
+				int maxZ = te.zCoord+12;
+				int minY = te.yCoord-12;
+				int maxY = te.yCoord+12;
+				
+				int minCX = (te.xCoord/16)-1;
+				int minCZ = (te.zCoord/16)-1;
+				int maxCX = (te.xCoord/16)+1;
+				int maxCZ = (te.zCoord/16)+1;
+				
+				TileEntity max = null;
+				IGlyphHolder maxHolder = null;
+				int maxDiff = 0;
+				TileEntity min = null;
+				IGlyphHolder minHolder = null;
+				int minDiff = 0;
+				
+				GL11.glLineWidth(2);
+				GL11.glDepthMask(false);
+				GL11.glDisable(GL11.GL_TEXTURE_2D);
+				GL11.glEnable(GL11.GL_LINE_SMOOTH);
+				GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST);
+				GL11.glBegin(GL11.GL_LINES);
+				for (int cX = minCX; cX <= maxCX; cX++) {
+					for (int cZ = minCZ; cZ <= maxCZ; cZ++) {
+						Chunk c = te.getWorld().getChunkFromChunkCoords(cX, cZ);
+						for (TileEntity cur : (Collection<TileEntity>)c.chunkTileEntityMap.values()) {
+							if (cur.xCoord >= minX && cur.xCoord <= maxX
+									&& cur.zCoord >= minZ && cur.zCoord <= maxZ
+									&& cur.yCoord >= minY && cur.yCoord <= maxY) {
+								if (cur instanceof IGlyphHolder && cur != te) {
+									IGlyphHolder holder = (IGlyphHolder) cur;
+									LVec3 dir = new LVec3(cur.xCoord - te.xCoord, cur.yCoord - te.yCoord, cur.zCoord - te.zCoord);
+									dir.normalize();
+									double sX = te.xCoord+0.5+dir.xCoord;
+									double sY = te.yCoord+0.5+dir.yCoord;
+									double sZ = te.zCoord+0.5+dir.zCoord;
+									double eX = cur.xCoord+0.5;
+									double eY = cur.yCoord+0.5;
+									double eZ = cur.zCoord+0.5;
+									MovingObjectPosition mop = te.getWorld().rayTraceBlocks(
+											Vec3.createVectorHelper(sX, sY, sZ),
+											Vec3.createVectorHelper(eX, eY, eZ));
+									if (mop != null) {
+										if (mop.typeOfHit == MovingObjectType.BLOCK && te.getWorld().getTileEntity(mop.blockX, mop.blockY, mop.blockZ) == holder) {
+											GL11.glColor4f(1, 1, 1, 0.15f);
+											GL11.glVertex3d(0, 0, 0);
+											GL11.glVertex3d(eX-baseX, eY-baseY, eZ-baseZ);
+											if (((TileEntityEldritchDistributor) te).drain) {
+												if (holder.canReceiveGlyphs()) {
+													if (minHolder == null || holder.getMilliglyphs() < minHolder.getMilliglyphs() && holder.getMilliglyphs() < holder.getMaxMilliglyphs()) {
+														min = cur;
+														minHolder = holder;
+														minDiff = Integer.MAX_VALUE;
+													}
+												}
+											} else {
+												if (holder.getMilliglyphs() > te.getMilliglyphs() && holder.canSendGlyphs()
+														&& holder.getMilliglyphs() > 0 && te.getMilliglyphs() < te.getMaxMilliglyphs()) {
+													if (maxHolder == null || holder.getMilliglyphs() > maxHolder.getMilliglyphs()) {
+														max = cur;
+														maxHolder = holder;
+														maxDiff = holder.getMilliglyphs()-te.getMilliglyphs();
+													}
+												} else if (holder.getMilliglyphs() < te.getMilliglyphs() && holder.canReceiveGlyphs() && holder.getMilliglyphs() < holder.getMaxMilliglyphs()) {
+													if (minHolder == null || holder.getMilliglyphs() < minHolder.getMilliglyphs()) {
+														min = cur;
+														minHolder = holder;
+														minDiff = te.getMilliglyphs()-holder.getMilliglyphs();
+													}
+												}
+											}
+										} else {
+											GL11.glColor4f(1, 0, 0, 0.5f);
+											GL11.glVertex3d(0, 0, 0);
+											GL11.glVertex3d(mop.hitVec.xCoord-baseX, mop.hitVec.yCoord-baseY, mop.hitVec.zCoord-baseZ);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				GL11.glEnd();
+				if (min != null && minDiff > 0) {
+					if (minDiff != Integer.MAX_VALUE) {
+						GL11.glLineWidth(minDiff/10000f);
+					} else {
+						GL11.glLineWidth(2);
+					}
+					GL11.glBegin(GL11.GL_LINES);
+						GL11.glColor3f(0, 1, 0);
+						GL11.glVertex3d(0, 0, 0);
+						GL11.glVertex3d((min.xCoord+0.5f)-baseX, (min.yCoord+0.5f)-baseY, (min.zCoord+0.5f)-baseZ);
+					GL11.glEnd();
+				}
+				if (max != null && maxDiff > 0) {
+					if (maxDiff != Integer.MAX_VALUE) {
+						GL11.glLineWidth(maxDiff/10000f);
+					} else {
+						GL11.glLineWidth(2);
+					}
+					GL11.glBegin(GL11.GL_LINES);
+						GL11.glColor3f(0, 1, 1);
+						GL11.glVertex3d(0, 0, 0);
+						GL11.glVertex3d((max.xCoord+0.5f)-baseX, (max.yCoord+0.5f)-baseY, (max.zCoord+0.5f)-baseZ);
+					GL11.glEnd();
+				}
+				GL11.glEnable(GL11.GL_TEXTURE_2D);
+				GL11.glPopMatrix();
+			}
+			GL11.glDepthMask(true);
+			GL11.glDisable(GL11.GL_LINE_SMOOTH);
+			GL11.glDisable(GL11.GL_BLEND);
+			GL11.glEnable(GL11.GL_LIGHTING);
 		}
 		
 		if (teraw instanceof TileEntityEldritchFaithPlate) {

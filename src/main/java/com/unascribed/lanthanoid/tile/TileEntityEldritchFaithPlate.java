@@ -91,6 +91,13 @@ public class TileEntityEldritchFaithPlate extends TileEntityEldritch implements 
 		}
 	}
 	
+	@Override
+	protected void addDebugText(List<String> li) {
+		li.add("\u00A77\u00A7l["+Integer.toHexString(getId())+"]");
+		super.addDebugText(li);
+		li.add(getAmountStacked()+"x");
+	}
+	
 	public int getAmountStacked() {
 		return getAmountStacked(null);
 	}

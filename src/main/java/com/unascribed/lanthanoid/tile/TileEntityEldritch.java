@@ -1,5 +1,8 @@
 package com.unascribed.lanthanoid.tile;
 
+import java.util.List;
+
+import com.google.common.collect.Lists;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.client.SoundEldritch;
 import com.unascribed.lanthanoid.effect.EntityGlyphFX;
@@ -23,6 +26,9 @@ import net.minecraft.world.WorldServer;
 
 public abstract class TileEntityEldritch extends TileEntity implements IGlyphHolder, IBreakable {
 
+	private static int nextId = 0;
+	
+	private int id = nextId++;
 	public int ticksExisted;
 	public int playerAnim;
 	public boolean playersNearby;
@@ -34,6 +40,10 @@ public abstract class TileEntityEldritch extends TileEntity implements IGlyphHol
 	
 	protected abstract void doTickLogic();
 	
+	protected String getGlyphString(int milliglyphs) {
+		return (milliglyphs/1000)+"."+((milliglyphs%1000)/10);
+	}
+
 	@Override
 	public void updateEntity() {
 		if (hasWorldObj()) {
@@ -230,5 +240,18 @@ public abstract class TileEntityEldritch extends TileEntity implements IGlyphHol
 		bem.arg = arg;
 		Lanthanoid.inst.network.sendToAllAround(bem, new TargetPoint(getWorld().provider.dimensionId, xCoord+0.5, yCoord+0.5, zCoord+0.5, 64));
 	}
+	
+	public final List<String> getDebugText() {
+		List<String> li = Lists.newArrayList();
+		addDebugText(li);
+		return li;
+	}
 
+	protected void addDebugText(List<String> li) {
+		li.add(getGlyphString(getMilliglyphs())+"/"+getGlyphString(getMaxMilliglyphs())+"g");
+	}
+	
+	public int getId() {
+		return id;
+	}
 }

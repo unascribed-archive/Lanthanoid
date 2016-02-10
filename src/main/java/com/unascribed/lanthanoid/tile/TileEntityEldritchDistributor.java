@@ -1,13 +1,16 @@
 package com.unascribed.lanthanoid.tile;
 
 import java.util.Collection;
+import java.util.List;
 
 import com.unascribed.lanthanoid.glyph.IGlyphHolder;
 import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.util.LVec3;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
@@ -16,6 +19,10 @@ import net.minecraft.world.chunk.Chunk;
 public class TileEntityEldritchDistributor extends TileEntityEldritchWithBooks {
 
 	public boolean drain;
+	private int lastNearby = 0;
+	private int lastSourcesNearby = 0;
+	private int lastSinksNearby = 0;
+	private int lastDistributorsNearby = 0;
 	
 	@Override
 	protected void doTickLogic() {
@@ -36,6 +43,10 @@ public class TileEntityEldritchDistributor extends TileEntityEldritchWithBooks {
 			int maxDiff = 0;
 			IGlyphHolder min = null;
 			int minDiff = 0;
+			int nearby = 0;
+			int sourcesNearby = 0;
+			int sinksNearby = 0;
+			int distributorsNearby = 0;
 			
 			for (int cX = minCX; cX <= maxCX; cX++) {
 				for (int cZ = minCZ; cZ <= maxCZ; cZ++) {
@@ -62,9 +73,17 @@ public class TileEntityEldritchDistributor extends TileEntityEldritchWithBooks {
 										Vec3.createVectorHelper(eX, eY, eZ));
 								if (mop != null) {
 									if (mop.typeOfHit == MovingObjectType.BLOCK && worldObj.getTileEntity(mop.blockX, mop.blockY, mop.blockZ) == holder) {
+										nearby++;
+										if (te instanceof TileEntityEldritchDistributor) {
+											distributorsNearby++;
+										} else if (holder.canReceiveGlyphs() && !holder.canSendGlyphs()) {
+											sinksNearby++;
+										} else if (!holder.canReceiveGlyphs() && holder.canSendGlyphs()) {
+											sourcesNearby++;
+										}
 										if (drain) {
 											if (holder.canReceiveGlyphs()) {
-												if (min == null || holder.getMilliglyphs() < min.getMilliglyphs()) {
+												if (min == null || holder.getMilliglyphs() < min.getMilliglyphs() && holder.getMilliglyphs() < holder.getMaxMilliglyphs()) {
 													min = holder;
 													minDiff = Integer.MAX_VALUE;
 												}
@@ -90,6 +109,23 @@ public class TileEntityEldritchDistributor extends TileEntityEldritchWithBooks {
 				}
 			}
 			
+			if (nearby != lastNearby) {
+				lastNearby = nearby;
+				addExtendedBlockEvent(255, nearby);
+			}
+			if (distributorsNearby != lastDistributorsNearby) {
+				lastDistributorsNearby = distributorsNearby;
+				addExtendedBlockEvent(254, distributorsNearby);
+			}
+			if (sinksNearby != lastSinksNearby) {
+				lastSinksNearby = sinksNearby;
+				addExtendedBlockEvent(253, sinksNearby);
+			}
+			if (sourcesNearby != lastSourcesNearby) {
+				lastSourcesNearby = sourcesNearby;
+				addExtendedBlockEvent(252, sourcesNearby);
+			}
+			
 			if (min == null || maxDiff > minDiff || !min.transferFrom(this, drain)) {
 				if (max != null) {
 					this.transferFrom(max, false);
@@ -98,6 +134,21 @@ public class TileEntityEldritchDistributor extends TileEntityEldritchWithBooks {
 		}
 	}
 
+	@Override
+	public AxisAlignedBB getRenderBoundingBox() {
+		if (Minecraft.getMinecraft().thePlayer != null && Minecraft.getMinecraft().thePlayer.capabilities.isCreativeMode && Minecraft.getMinecraft().gameSettings.showDebugInfo) {
+			return INFINITE_EXTENT_AABB;
+		}
+		return super.getRenderBoundingBox();
+	}
+	
+	@Override
+	protected void addDebugText(List<String> li) {
+		li.add("\u00A76\u00A7l["+Integer.toHexString(getId())+"]");
+		super.addDebugText(li);
+		li.add("nby: "+lastNearby+" (\u00A76"+lastDistributorsNearby+"\u00A7f/\u00A7b"+lastSourcesNearby+"\u00A7f/\u00A7a"+lastSinksNearby+"\u00A7f)");
+	}
+	
 	@Override
 	public boolean onBlockActivated(EntityPlayer player, int side, float subX, float subY, float subZ) {
 		if (player.getHeldItem() != null && player.getHeldItem().getItem() == LItems.spanner) {
@@ -114,6 +165,18 @@ public class TileEntityEldritchDistributor extends TileEntityEldritchWithBooks {
 	public boolean receiveClientEvent(int event, int arg) {
 		if (event == 4) {
 			drain = (arg != 0);
+			return true;
+		} else if (event == 255) {
+			lastNearby = arg;
+			return true;
+		} else if (event == 254) {
+			lastDistributorsNearby = arg;
+			return true;
+		} else if (event == 253) {
+			lastSinksNearby = arg;
+			return true;
+		} else if (event == 252) {
+			lastSourcesNearby = arg;
 			return true;
 		}
 		return super.receiveClientEvent(event, arg);

@@ -179,15 +179,15 @@ public class LClientEventHandler {
 			e.left.add("f: "+idx+" ("+directions[idx]+") / "+yaw);
 			e.left.add("lc: 37 b: null bl: 182 sl: -9 rl: 218");
 			if (SystemUtils.IS_OS_LINUX) {
-				e.left.add("ws: 0.1839, fs: ext4, g: entoo, fl: studio");
+				e.left.add("ws: 0.2812, fs: ext4, g: entoo, fl: studio");
 			} else if (SystemUtils.IS_OS_MAC) {
 				e.left.add("ws: 0.1839, fs: HFS+, g: entoo, fl: studio");
 			} else if (SystemUtils.IS_OS_WINDOWS) {
-				e.left.add("ws: 0.1839, fs: NTFS, g: entoo, fl: studio");
+				e.left.add("ws: 0.5498, fs: NTFS, g: entoo, fl: studio");
 			} else if (SystemUtils.IS_OS_UNIX) {
-				e.left.add("ws: 0.1839, fs: XFS, g: entoo, fl: studio");
+				e.left.add("ws: 0.4900, fs: XFS, g: entoo, fl: studio");
 			} else {
-				e.left.add("ws: 0.1839, fs: null, g: entoo, fl: studio");
+				e.left.add("ws: 0.1384, fs: null, g: entoo, fl: studio");
 			}
 			
 			if (SystemUtils.IS_OS_WINDOWS_XP) {
@@ -228,6 +228,18 @@ public class LClientEventHandler {
 		if (e.phase == Phase.START) {
 			Minecraft mc = Minecraft.getMinecraft();
 			if (mc.thePlayer != null) {
+				Waypoint nearest = null;
+				double minDist = Double.MAX_VALUE;
+				for (Waypoint w : Lanthanoid.inst.waypointManager.allWaypoints(mc.thePlayer.worldObj)) {
+					double distSq = mc.thePlayer.getDistanceSq(w.x+0.5, w.y+0.5, w.z+0.5);
+					if (distSq < w.nameDistance*w.nameDistance) {
+						if (distSq < minDist) {
+							nearest = w;
+							minDist = distSq;
+						}
+					}
+				}
+				onNearWaypoint(nearest);
 				if (ticks % 20 == 0 || oreStacks.isEmpty()) {
 					oreStacks.clear();
 					for (ItemStack is : mc.thePlayer.inventory.mainInventory) {
@@ -554,18 +566,18 @@ public class LClientEventHandler {
 					TileEntity te = mc.theWorld.getTileEntity(mop.blockX, mop.blockY, mop.blockZ);
 					if (te instanceof IGlyphHolder) {
 						IGlyphHolder holder = ((IGlyphHolder)te);
-						String str = (int)Math.round((float)holder.getMilliglyphs()/(float)holder.getMaxMilliglyphs()*100f)+"%";
+						String str = Math.round((float)holder.getMilliglyphs()/(float)holder.getMaxMilliglyphs()*100f)+"%";
 						mc.fontRendererObj.drawStringWithShadow(str, ((e.resolution.getScaledWidth()/2)-(mc.fontRendererObj.getStringWidth(str)/2))+18, (e.resolution.getScaledHeight()/2)-10, -1);
 					}
 				}
 			}
-			if (waypointTicks <= 80) {
+			boolean tabMenuOpen = Minecraft.getMinecraft().gameSettings.keyBindPlayerList.getIsKeyPressed();
+			if (waypointTicks <= 80 || tabMenuOpen) {
 				GL11.glEnable(GL11.GL_BLEND);
 				OpenGlHelper.glBlendFunc(770, 771, 1, 0);
 				GL11.glPushMatrix();
 				GL11.glScalef(2f, 2f, 1f);
-				float t = Math.min(waypointTicks, 80)+e.partialTicks;
-				int opacity = (int)(Math.abs(Math.sin((t/80)*Math.PI))*255);
+				int opacity = tabMenuOpen ? 255 : (int)(Math.abs(Math.sin(((Math.min(waypointTicks, 80)+e.partialTicks)/80)*Math.PI))*255);
 				if (opacity > 5) {
 					mc.fontRendererObj.drawString(waypointName, (e.resolution.getScaledWidth()/4)-(mc.fontRendererObj.getStringWidth(waypointName)/2), 4, waypointColor | (opacity << 24), false);
 				}
@@ -638,6 +650,20 @@ public class LClientEventHandler {
 				secondary.render(p, stack, e.resolution.getScaledWidth(), 0, e.partialTicks);
 				GL11.glDisable(GL12.GL_RESCALE_NORMAL);
 			}
+		}
+	}
+	
+	@SubscribeEvent
+	public void onPreRenderTabMenu(RenderGameOverlayEvent.Pre e) {
+		if (e.type == ElementType.PLAYER_LIST) {
+			GL11.glTranslatef(0, 24, 0);
+		}
+	}
+	
+	@SubscribeEvent
+	public void onPostRenderTabMenu(RenderGameOverlayEvent.Post e) {
+		if (e.type == ElementType.PLAYER_LIST) {
+			GL11.glTranslatef(0, -24, 0);
 		}
 	}
 	
@@ -758,7 +784,7 @@ public class LClientEventHandler {
 	}
 
 	private String waypointName;
-	private int lastWaypointId = -1;
+	private int lastWaypointId = -4;
 	private int waypointTicks;
 	private int waypointColor;
 	

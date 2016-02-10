@@ -1,5 +1,7 @@
 package com.unascribed.lanthanoid.tile;
 
+import java.util.List;
+
 import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
 import com.unascribed.lanthanoid.init.LItems;
 
@@ -68,6 +70,12 @@ public class TileEntityEldritchInductor extends TileEntityEldritch implements II
 				}
 			}
 		}
+	}
+	
+	@Override
+	protected void addDebugText(List<String> li) {
+		li.add("\u00A7a\u00A7l["+Integer.toHexString(getId())+"]");
+		super.addDebugText(li);
 	}
 	
 	@Override
