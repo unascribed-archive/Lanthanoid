@@ -172,6 +172,7 @@ public class EldritchItemRenderer implements IItemRenderer {
 			tess.draw();
 			GL11.glEnable(GL11.GL_CULL_FACE);
 		} else {
+			
 			GL11.glTranslatef(glyphsX, glyphsY, 0.05f);
 			GL11.glScalef(0.33f, 0.33f, 0.33f);
 			GL11.glTranslatef(0.5f, 0.5f, 0.5f);
@@ -184,6 +185,8 @@ public class EldritchItemRenderer implements IItemRenderer {
 			GL11.glRotatef((sin*2)*playerAnim, 0, 0, 1);
 			GL11.glTranslatef(-0.5f, -0.5f, -0.5f);
 			
+			float oldX = OpenGlHelper.lastBrightnessX;
+			float oldY = OpenGlHelper.lastBrightnessY;
 			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240f, 240f);
 			
 			GL11.glDisable(GL11.GL_LIGHTING);
@@ -194,6 +197,7 @@ public class EldritchItemRenderer implements IItemRenderer {
 			GL11.glColor4f(r, g, b, a);
 			GL11.glTranslatef(0.0f, 0.0f, 0.0625f);
 			Rendering.drawExtrudedHalfIcon(glyphs, 0.0625f);
+			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, oldX, oldY);
 		}
 	}
 

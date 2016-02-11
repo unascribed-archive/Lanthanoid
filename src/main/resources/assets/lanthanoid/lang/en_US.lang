@@ -133,7 +133,7 @@ item.eldritch_boots.name=Eldritch Boots
 item.eldritch_boots.ability.name=Acceleration
 item.eldritch_boots.ability.desc=Sprinting slowly increases speed, stopping sprinting resets
 
-ui.eldritch_set_bonus.name=Flight
+ui.eldritch_set_bonus=Set Bonus: Flight
 
 
 item.rcg_glasses.name=Rose-Colored Glasses

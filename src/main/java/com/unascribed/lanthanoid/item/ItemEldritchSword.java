@@ -21,6 +21,7 @@ import net.minecraft.item.ItemSword;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.IIcon;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -72,17 +73,19 @@ public class ItemEldritchSword extends ItemSword implements IGlyphHolderItem {
 			if (getMilliglyphs(stack) == 0 || (entity.onGround && getTicksUntilReady(stack) < 90) || getTicksUntilReady(stack) <= 50) {
 				setCharging(stack, false);
 			} else {
-				if (getMilliglyphs(stack) > 0) {
-					setMilliglyphs(stack, getMilliglyphs(stack)-1);
+				float damage = MathHelper.sqrt_float((float)((entity.motionX * entity.motionX) + (entity.motionY * entity.motionY) + (entity.motionZ * entity.motionZ)));
+				damage *= 4;
+				if (getMilliglyphs(stack) >= damage*10) {
+					setMilliglyphs(stack, getMilliglyphs(stack)-((int)damage*10));
 					if (world instanceof WorldServer) {
-						((WorldServer) world).func_147487_a("enchantmenttable", entity.posX, entity.posY+(entity.height/2), entity.posZ, 2, entity.width/2, entity.height/2, entity.width/2, 0);
+						((WorldServer) world).func_147487_a("enchantmenttable", entity.posX, entity.posY+(entity.height/2), entity.posZ, ((int)damage), entity.width/2, entity.height/2, entity.width/2, 0);
 					}
 				}
 				for (Entity ent : (List<Entity>)world.getEntitiesWithinAABB(Entity.class, entity.boundingBox.expand(2, 2, 2))) {
 					if (ent instanceof EntityLivingBase) {
 						EntityLivingBase elb = (EntityLivingBase)ent;
 						if (elb == entity) continue;
-						elb.attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer)entity), 4);
+						elb.attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer)entity), damage);
 						elb.hurtResistantTime = 4;
 						stack.damageItem(1, (EntityLivingBase)entity);
 						setMilliglyphs(stack, getMilliglyphs(stack)-Math.min(100, getMilliglyphs(stack)));
@@ -94,6 +97,7 @@ public class ItemEldritchSword extends ItemSword implements IGlyphHolderItem {
 						if (!arr.inGround) {
 							ent.motionX = ent.motionY = ent.motionZ = 0;
 							setMilliglyphs(stack, getMilliglyphs(stack)-Math.min(250, getMilliglyphs(stack)));
+							stack.damageItem(1, (EntityLivingBase)entity);
 							if (world instanceof WorldServer) {
 								((WorldServer) world).func_147487_a("enchantmenttable", ent.posX, ent.posY+(ent.height/2), ent.posZ, 8, ent.width/2, ent.height/2, ent.width/2, 0);
 							}

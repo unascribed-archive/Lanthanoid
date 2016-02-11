@@ -3,6 +3,7 @@ package com.unascribed.lanthanoid.init;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.item.ItemChargedBook;
 import com.unascribed.lanthanoid.item.ItemDisabled;
+import com.unascribed.lanthanoid.item.ItemEldritchArmor;
 import com.unascribed.lanthanoid.item.ItemEldritchAxe;
 import com.unascribed.lanthanoid.item.ItemEldritchDrill;
 import com.unascribed.lanthanoid.item.ItemEldritchPickaxe;
@@ -35,6 +36,11 @@ public class LItems {
 	public static ItemEldritchAxe eldritch_axe;
 	public static ItemEldritchSword eldritch_sword;
 	public static ItemEldritchDrill eldritch_drill;
+	
+	public static ItemEldritchArmor eldritch_helmet;
+	public static ItemEldritchArmor eldritch_chestplate;
+	public static ItemEldritchArmor eldritch_leggings;
+	public static ItemEldritchArmor eldritch_boots;
 	
 	public static void init() {
 		GameRegistry.registerItem(ingot = new ItemMulti(Lanthanoid.inst.creativeTabMaterials, LArrays.all(LMaterials.metals, "ingot")), "ingot");
@@ -80,7 +86,6 @@ public class LItems {
 		GameRegistry.registerItem(charged_book, "charged_book");
 		
 		ToolMaterial eldritchTool = EnumHelper.addToolMaterial("ELDRITCH", 3, 1561, 9.0F, 4.0F, 24);
-		ArmorMaterial eldritchArmor = EnumHelper.addArmorMaterial("ELDRITCH", 33, new int[]{3, 8, 6, 3}, 24);
 		
 		eldritch_pickaxe = new ItemEldritchPickaxe(eldritchTool);
 		GameRegistry.registerItem(eldritch_pickaxe, "eldritch_pickaxe");
@@ -96,5 +101,20 @@ public class LItems {
 		
 		eldritch_drill = new ItemEldritchDrill(eldritchTool);
 		GameRegistry.registerItem(eldritch_drill, "eldritch_drill");
+		
+		
+		ArmorMaterial eldritchArmor = EnumHelper.addArmorMaterial("ELDRITCH", 33, new int[]{3, 8, 6, 3}, 24);
+		
+		eldritch_helmet = new ItemEldritchArmor(eldritchArmor, 0);
+		GameRegistry.registerItem(eldritch_helmet, "eldritch_helmet");
+		
+		eldritch_chestplate = new ItemEldritchArmor(eldritchArmor, 1);
+		GameRegistry.registerItem(eldritch_chestplate, "eldritch_chestplate");
+		
+		eldritch_leggings = new ItemEldritchArmor(eldritchArmor, 2);
+		GameRegistry.registerItem(eldritch_leggings, "eldritch_leggings");
+		
+		eldritch_boots = new ItemEldritchArmor(eldritchArmor, 3);
+		GameRegistry.registerItem(eldritch_boots, "eldritch_boots");
 	}
 }
