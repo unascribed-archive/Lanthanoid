@@ -91,8 +91,8 @@ item.dysprosium_wrecking_ball.name=Dysprosium Wrecking Ball
 
 
 item.eldritch_sword.name=Eldritch Sword
-item.eldritch_sword.ability.name=Retribution
-item.eldritch_sword.ability.desc=Damage taken while blocking is released when finishing blocking
+item.eldritch_sword.ability.name=Ferocity
+item.eldritch_sword.ability.desc=Holding right-click allows you to charge forward, breaking arrows and damaging mobs in your path
 
 item.eldritch_shovel.name=Eldritch Shovel
 item.eldritch_shovel.ability.name=Excavation

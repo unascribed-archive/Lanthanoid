@@ -1,15 +1,20 @@
 package com.unascribed.lanthanoid.client;
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 
 import com.google.common.base.Supplier;
 import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
+import com.unascribed.lanthanoid.item.ItemEldritchSword;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
@@ -55,21 +60,6 @@ public class EldritchItemRenderer implements IItemRenderer {
 
 	@Override
 	public void renderItem(ItemRenderType type, ItemStack item, Object... data) {
-		GL11.glEnable(GL11.GL_ALPHA_TEST);
-		if (type == ItemRenderType.INVENTORY) {
-			GL11.glScalef(-16, -16, -1);
-			GL11.glTranslatef(-1.0f, -1.0f, 0f);
-		}
-		if (type == ItemRenderType.ENTITY) {
-			GL11.glTranslatef(0.5f, 0f, 0f);
-		} else {
-			GL11.glTranslatef(1.0f, 0f, 0f);
-		}
-		GL11.glRotatef(180F, 1.0f, 0.0f, 0.0f);
-		GL11.glRotatef(180F, 0.0f, 0.0f, 1.0f);
-		Rendering.renderItemDefault(item);
-		GL11.glEnable(GL11.GL_ALPHA_TEST);
-		
 		if (!(item.getItem() instanceof IGlyphHolderItem)) return;
 		
 		IGlyphHolderItem holder = (IGlyphHolderItem) item.getItem();
@@ -90,6 +80,77 @@ public class EldritchItemRenderer implements IItemRenderer {
 		float g = q-playerAnim;
 		float b = q-(playerAnim*glyphCount);
 		float a = 0.5f;
+
+		
+		GL11.glEnable(GL11.GL_ALPHA_TEST);
+		if (type == ItemRenderType.INVENTORY) {
+			GL11.glScalef(-16, -16, -1);
+			GL11.glTranslatef(-1.0f, -1.0f, 0f);
+		}
+		if (type == ItemRenderType.ENTITY) {
+			GL11.glTranslatef(0.5f, 0f, 0f);
+		} else {
+			GL11.glTranslatef(1.0f, 0f, 0f);
+		}
+		GL11.glRotatef(180F, 1.0f, 0.0f, 0.0f);
+		GL11.glRotatef(180F, 0.0f, 0.0f, 1.0f);
+		if (holder instanceof ItemEldritchSword) {
+			ItemEldritchSword ies = (ItemEldritchSword)holder;
+			float m = 1-(ies.getTicksUntilReady(item)/100f);
+			r *= m;
+			g *= m;
+			b *= m;
+			if (m == 1) {
+				a = 0.5f;
+			} else {
+				a = (m/4)+0.15f;
+			}
+			if ((p.getItemInUse() == item || ies.isCharging(item)) && type == ItemRenderType.EQUIPPED_FIRST_PERSON) {
+				GL11.glPopMatrix();
+				GL11.glPopMatrix();
+				GL11.glPopMatrix();
+				GL11.glPushMatrix();
+				GL11.glPushMatrix();
+				GL11.glPushMatrix();
+				float f1 = 1.0f;
+				float f13 = 0.8f;
+				GL11.glTranslatef(0.7F * f13, -0.65F * f13 - (1.0F - f1) * 0.6F, -0.9F * f13);
+				GL11.glRotatef(45.0F, 0.0F, 1.0F, 0.0F);
+				GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+				float f5 = p.getSwingProgress(Minecraft.getMinecraft().timer.renderPartialTicks);
+				float f6 = MathHelper.sin(f5 * f5 * (float) Math.PI);
+				float f7 = MathHelper.sin(MathHelper.sqrt_float(f5) * (float) Math.PI);
+				GL11.glRotatef(-f6 * 20.0F, 0.0F, 1.0F, 0.0F);
+				GL11.glRotatef(-f7 * 20.0F, 0.0F, 0.0F, 1.0F);
+				GL11.glRotatef(-f7 * 80.0F, 1.0F, 0.0F, 0.0F);
+				float f8 = 0.4F;
+				GL11.glScalef(f8, f8, f8);
+				
+				Minecraft.getMinecraft().renderEngine.bindTexture(p.getLocationSkin());
+				GL11.glPushMatrix();
+					GL11.glTranslatef(-0.3f, 0.15f, -0.1f);
+					GL11.glScalef(1, 1, 1.75f);
+					GL11.glRotatef(-70f, 1, 0, 0);
+					((RenderPlayer)RenderManager.instance.entityRenderMap.get(EntityPlayer.class)).renderFirstPersonArm(p);
+				GL11.glPopMatrix();
+				
+				GL11.glPushMatrix();
+					GL11.glTranslatef(-1.8f, 0.15f, -1f);
+					GL11.glScalef(1.75f, 1f, 1f);
+					GL11.glRotatef(-90f, 0, 1, 0);
+					GL11.glRotatef(-70f, 1, 0, 0);
+					((RenderPlayer)RenderManager.instance.entityRenderMap.get(EntityPlayer.class)).renderFirstPersonArm(p);
+				GL11.glPopMatrix();
+				
+				GL11.glTranslatef(-1.02f, 0.355f, -1f);
+				GL11.glRotatef(90f, 1, 0, 0);
+				GL11.glRotatef(-160f, 0, 1, 0);
+				GL11.glRotatef(180f, 0, 0, 1);
+			}
+		}
+		
+		Rendering.renderItemDefault(item);
+		GL11.glEnable(GL11.GL_ALPHA_TEST);
 		
 		IIcon glyphs = this.glyphs.get();
 		

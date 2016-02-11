@@ -7,7 +7,6 @@ import com.google.common.collect.Multimap;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
 
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
@@ -15,14 +14,17 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.IIcon;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
 
 public class ItemEldritchSword extends ItemSword implements IGlyphHolderItem {
 
@@ -66,44 +68,103 @@ public class ItemEldritchSword extends ItemSword implements IGlyphHolderItem {
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean equipped) {
 		GlyphToolHelper.doUpdate(this, stack, world, entity, slot, equipped);
 		if (world.isRemote) return;
-		if (entity instanceof EntityPlayer && getHeldDamage(stack) > 0 && !((EntityPlayer) entity).isBlocking()) {
-			List<EntityLivingBase> nearby = world.getEntitiesWithinAABBExcludingEntity(entity, entity.boundingBox.expand(2, 2, 2), e -> e instanceof EntityLivingBase);
-			float heldDamage = getHeldDamage(stack);
-			for (EntityLivingBase elb : nearby) {
-				elb.attackEntityFrom(DamageSource.causeThornsDamage(entity), heldDamage/nearby.size());
-			}
-			setHeldDamage(stack, 0);
-			world.playSoundAtEntity(entity, "random.anvil_land", 0.5f, 0.5f);
-		}
-	}
-	
-	@SubscribeEvent
-	public void onAttacked(LivingAttackEvent e) {
-		ItemStack heldItem = e.entityLiving.getHeldItem();
-		if (heldItem != null && heldItem.getItem() == this) {
-			if (e.entityLiving instanceof EntityPlayer) {
-				EntityPlayer p = (EntityPlayer) e.entityLiving;
-				if (p.isBlocking() && !e.source.isUnblockable() && p.hurtResistantTime <= p.maxHurtResistantTime/2f) {
-					int cost = (int)(e.ammount * 1000);
-					if (getMilliglyphs(heldItem) >= cost && getHeldDamage(heldItem) < 40) {
-						setMilliglyphs(heldItem, getMilliglyphs(heldItem)-cost);
-						setHeldDamage(heldItem, getHeldDamage(heldItem)+(e.ammount/3));
-						p.worldObj.playSoundAtEntity(p, "random.anvil_land", 0.5f, (float)(1.75+(Math.random()/4)));
+		if (isCharging(stack) && entity instanceof EntityPlayer) {
+			if (getMilliglyphs(stack) == 0 || (entity.onGround && getTicksUntilReady(stack) < 90) || getTicksUntilReady(stack) <= 50) {
+				setCharging(stack, false);
+			} else {
+				if (getMilliglyphs(stack) > 0) {
+					setMilliglyphs(stack, getMilliglyphs(stack)-1);
+					if (world instanceof WorldServer) {
+						((WorldServer) world).func_147487_a("enchantmenttable", entity.posX, entity.posY+(entity.height/2), entity.posZ, 2, entity.width/2, entity.height/2, entity.width/2, 0);
+					}
+				}
+				for (Entity ent : (List<Entity>)world.getEntitiesWithinAABB(Entity.class, entity.boundingBox.expand(2, 2, 2))) {
+					if (ent instanceof EntityLivingBase) {
+						EntityLivingBase elb = (EntityLivingBase)ent;
+						if (elb == entity) continue;
+						elb.attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer)entity), 4);
+						elb.hurtResistantTime = 4;
+						stack.damageItem(1, (EntityLivingBase)entity);
+						setMilliglyphs(stack, getMilliglyphs(stack)-Math.min(100, getMilliglyphs(stack)));
+						if (world instanceof WorldServer) {
+							((WorldServer) world).func_147487_a("enchantmenttable", entity.posX, entity.posY+(entity.height/2), entity.posZ, 8, entity.width/2, entity.height/2, entity.width/2, 0);
+						}
+					} else if (ent instanceof EntityArrow) {
+						EntityArrow arr = (EntityArrow)ent;
+						if (!arr.inGround) {
+							ent.motionX = ent.motionY = ent.motionZ = 0;
+							setMilliglyphs(stack, getMilliglyphs(stack)-Math.min(250, getMilliglyphs(stack)));
+							if (world instanceof WorldServer) {
+								((WorldServer) world).func_147487_a("enchantmenttable", ent.posX, ent.posY+(ent.height/2), ent.posZ, 8, ent.width/2, ent.height/2, ent.width/2, 0);
+							}
+						}
 					}
 				}
 			}
 		}
+		if (getTicksUntilReady(stack) > 0) {
+			setTicksUntilReady(stack, getTicksUntilReady(stack)-1);
+			if (getTicksUntilReady(stack) == 0) {
+				entity.worldObj.playSoundAtEntity(entity, "mob.zombie.unfect", 0.5f, 2.0f);
+			}
+		}
 	}
 	
-	public float getHeldDamage(ItemStack stack) {
-		return stack.hasTagCompound() ? stack.getTagCompound().getFloat("heldDamage") : 0;
+	@Override
+	public EnumAction getItemUseAction(ItemStack stack) {
+		return EnumAction.bow;
 	}
 	
-	public void setHeldDamage(ItemStack stack, float heldDamage) {
+	@Override
+	public int getMaxItemUseDuration(ItemStack p_77626_1_) {
+		return 30;
+	}
+	
+	@Override
+	public ItemStack onItemUseFinish(ItemStack p_77654_1_, World p_77654_2_, EntityPlayer player) {
+		Vec3 look = player.getLookVec();
+		player.motionX = look.xCoord*2;
+		player.motionY = look.yCoord*2+0.2;
+		player.motionZ = look.zCoord*2;
+		player.isAirBorne = true;
+		setCharging(p_77654_1_, true);
+		player.playSound("lanthanoid:launch", 0.5f, 0.75f);
+		setTicksUntilReady(p_77654_1_, 100);
+		return p_77654_1_;
+	}
+	
+	@Override
+	public ItemStack onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer player) {
+		if (getTicksUntilReady(itemStackIn) <= 0 && getMilliglyphs(itemStackIn) > 2000 && !player.isUsingItem()) {
+			if (worldIn instanceof WorldServer) {
+				((WorldServer) worldIn).func_147487_a("enchantmenttable", player.posX, player.posY+(player.height/2), player.posZ, 20, player.width/2, player.height/2, player.width/2, 0);
+			}
+			setMilliglyphs(itemStackIn, getMilliglyphs(itemStackIn)-2000);
+			player.setItemInUse(itemStackIn, getMaxItemUseDuration(itemStackIn));
+		}
+		return itemStackIn;
+	}
+	
+	public boolean isCharging(ItemStack stack) {
+		return stack.hasTagCompound() ? stack.getTagCompound().getBoolean("charging") : false;
+	}
+	
+	public void setCharging(ItemStack stack, boolean charging) {
 		if (!stack.hasTagCompound()) {
 			stack.setTagCompound(new NBTTagCompound());
 		}
-		stack.getTagCompound().setFloat("heldDamage", heldDamage);
+		stack.getTagCompound().setBoolean("charging", charging);
+	}
+	
+	public int getTicksUntilReady(ItemStack stack) {
+		return stack.hasTagCompound() ? stack.getTagCompound().getInteger("readyTicks") : 0;
+	}
+	
+	public void setTicksUntilReady(ItemStack stack, int readyTicks) {
+		if (!stack.hasTagCompound()) {
+			stack.setTagCompound(new NBTTagCompound());
+		}
+		stack.getTagCompound().setInteger("readyTicks", readyTicks);
 	}
 	
 	@Override

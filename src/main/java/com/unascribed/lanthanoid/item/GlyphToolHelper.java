@@ -19,14 +19,8 @@ import net.minecraft.world.WorldServer;
 public class GlyphToolHelper {
 	public static boolean doBlockDestroyed(IGlyphHolderItem holder, ItemStack stack, World world, Block block, int x, int y, int z, EntityLivingBase ent) {
 		float hardness = block.getBlockHardness(world, x, y, z);
-		int cost = Math.min(holder.getMilliglyphs(stack), (int)(hardness*25f));
+		int cost = Math.min(holder.getMilliglyphs(stack), (int)(hardness*12.5f));
 		holder.setMilliglyphs(stack, holder.getMilliglyphs(stack)-cost);
-		int repair = Math.min(holder.getMilliglyphs(stack)/250, 1);
-		if (repair >= 1) {
-			holder.setMilliglyphs(stack, holder.getMilliglyphs(stack)-(repair*250));
-		} else {
-			stack.damageItem(1, ent);
-		}
 		if (world instanceof WorldServer) {
 			((WorldServer)world).func_147487_a("enchantmenttable", x+0.5, y+0.5, z+0.5, cost/1000, 0.25, 0.25, 0.25, 0);
 		}
