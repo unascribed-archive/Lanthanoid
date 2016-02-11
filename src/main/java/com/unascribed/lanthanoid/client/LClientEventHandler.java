@@ -16,6 +16,7 @@ import com.google.common.collect.Sets;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.glyph.IGlyphHolder;
 import com.unascribed.lanthanoid.init.LItems;
+import com.unascribed.lanthanoid.item.ItemEldritchArmor;
 import com.unascribed.lanthanoid.item.rifle.ItemRifle;
 import com.unascribed.lanthanoid.item.rifle.Mode;
 import com.unascribed.lanthanoid.item.rifle.PrimaryMode;
@@ -51,6 +52,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
@@ -61,6 +63,7 @@ import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.FOVUpdateEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
+import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.oredict.OreDictionary;
@@ -211,6 +214,92 @@ public class LClientEventHandler {
 		return (Double.hashCode(Double.doubleToLongBits(d))^0xDEADBEEF)/50000f;
 	}
 
+	@SubscribeEvent
+	public void onRenderArmor(RenderPlayerEvent.Specials.Post e) {
+		GL11.glDisable(GL11.GL_LIGHTING);
+		GL11.glEnable(GL11.GL_BLEND);
+		OpenGlHelper.glBlendFunc(770, 771, 0, 1);
+		GL11.glDepthMask(false);
+		float oldX = OpenGlHelper.lastBrightnessX;
+		float oldY = OpenGlHelper.lastBrightnessY;
+		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240f, 240f);
+		for (ItemStack is : e.entityPlayer.inventory.armorInventory) {
+			if (is != null && is.getItem() instanceof ItemEldritchArmor) {
+				GL11.glPushMatrix();
+				ItemEldritchArmor iea = (ItemEldritchArmor)is.getItem();
+				switch (iea.armorType) {
+					case 0: // helm
+						e.renderer.modelBipedMain.bipedHead.postRender(0.0625f);
+						break;
+					case 1: // plate
+					case 2: // leggings
+						e.renderer.modelBipedMain.bipedBody.postRender(0.0625f);
+						break;
+					case 3: // boots
+						e.renderer.modelBipedMain.bipedLeftLeg.postRender(0.0625f);
+						break;
+				}
+				
+				float partialTicks = Minecraft.getMinecraft().timer.renderPartialTicks;
+				EntityPlayer p = e.entityPlayer;
+				//ItemRenderer ir = Minecraft.getMinecraft().entityRenderer.itemRenderer;
+				float playerAnim = 1;//(item == p.getHeldItem() ? ir.prevEquippedProgress + (ir.equippedProgress - ir.prevEquippedProgress) * partialTicks : 0);
+				float glyphCount = iea.getMilliglyphs(is) / (float)iea.getMaxMilliglyphs(is);
+				
+				float t = p.ticksExisted+partialTicks;
+				float sin = MathHelper.sin(t/20);
+				
+				float q = Math.max(0.25f, playerAnim);
+				float q2 = Math.max(0.25f, playerAnim*glyphCount);
+				
+				float r = q2;
+				float g = q-playerAnim;
+				float b = q-(playerAnim*glyphCount);
+				float a = 0.5f;
+				
+				Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationItemsTexture);
+				IIcon glyphs = iea.getGlyphs();
+				
+				GL11.glRotatef(180f, 1, 0, 0);
+				GL11.glScalef(1, 0.5f, 1);
+				switch (iea.armorType) {
+					case 0: // helm
+						GL11.glTranslatef(0, 0.9f, 0.475f);
+						break;
+					case 1: // plate
+						GL11.glTranslatef(0, -0.7f, 0.35f);
+						break;
+					case 2: // leggings
+						if (p.inventory.armorItemInSlot(2) != null) {
+							GL11.glTranslatef(0, -1.3f, 0.35f);
+						} else {
+							GL11.glTranslatef(0, -1f, 0.3f);
+						}
+						break;
+					case 3: // boots
+						GL11.glRotatef(90f, 0, 1, 0);
+						GL11.glTranslatef(0, -1.1f, 0.355f);
+						break;
+				}
+				GL11.glRotatef(((sin*2)-5)*playerAnim, 1, 0, 0);
+				GL11.glRotatef((sin*2)*playerAnim, 0, 0, 1);
+				GL11.glScalef(0.25f, 0.25f, 0.25f);
+				GL11.glTranslatef(-0.5f, -0.5f, -0.5f);
+				
+				GL11.glColor4f(r, g, b, a/3);
+				Rendering.drawExtrudedHalfIcon(glyphs, 0.2f);
+				GL11.glColor4f(r, g, b, a);
+				GL11.glTranslatef(0.0f, 0.0f, 0.0625f);
+				Rendering.drawExtrudedHalfIcon(glyphs, 0.0625f);
+				GL11.glPopMatrix();
+			}
+		}
+		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, oldX, oldY);
+		GL11.glDisable(GL11.GL_BLEND);
+		GL11.glDepthMask(true);
+		GL11.glEnable(GL11.GL_LIGHTING);
+	}
+	
 	@SubscribeEvent
 	public void onPreRender(RenderTickEvent e) {
 		if (e.phase == Phase.START) {

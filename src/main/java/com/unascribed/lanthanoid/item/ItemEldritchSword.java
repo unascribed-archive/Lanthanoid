@@ -25,7 +25,6 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.MinecraftForge;
 
 public class ItemEldritchSword extends ItemSword implements IGlyphHolderItem {
 
@@ -36,7 +35,6 @@ public class ItemEldritchSword extends ItemSword implements IGlyphHolderItem {
 		setCreativeTab(Lanthanoid.inst.creativeTabEquipment);
 		setTextureName("lanthanoid:eldritch_sword");
 		setUnlocalizedName("eldritch_sword");
-		MinecraftForge.EVENT_BUS.register(this);
 	}
 	
 	@Override

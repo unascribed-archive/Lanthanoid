@@ -173,6 +173,7 @@ public class EldritchItemRenderer implements IItemRenderer {
 			GL11.glEnable(GL11.GL_CULL_FACE);
 		} else {
 			
+			GL11.glDepthMask(false);
 			GL11.glTranslatef(glyphsX, glyphsY, 0.05f);
 			GL11.glScalef(0.33f, 0.33f, 0.33f);
 			GL11.glTranslatef(0.5f, 0.5f, 0.5f);
@@ -198,6 +199,7 @@ public class EldritchItemRenderer implements IItemRenderer {
 			GL11.glTranslatef(0.0f, 0.0f, 0.0625f);
 			Rendering.drawExtrudedHalfIcon(glyphs, 0.0625f);
 			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, oldX, oldY);
+			GL11.glDepthMask(true);
 		}
 	}
 

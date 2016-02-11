@@ -38,6 +38,7 @@ public class LItems {
 	public static ItemEldritchDrill eldritch_drill;
 	
 	public static ItemEldritchArmor eldritch_helmet;
+	public static ItemEldritchArmor eldritch_helmet_enhanced;
 	public static ItemEldritchArmor eldritch_chestplate;
 	public static ItemEldritchArmor eldritch_leggings;
 	public static ItemEldritchArmor eldritch_boots;
@@ -105,16 +106,19 @@ public class LItems {
 		
 		ArmorMaterial eldritchArmor = EnumHelper.addArmorMaterial("ELDRITCH", 33, new int[]{3, 8, 6, 3}, 24);
 		
-		eldritch_helmet = new ItemEldritchArmor(eldritchArmor, 0);
+		eldritch_helmet = new ItemEldritchArmor(eldritchArmor, 0, false);
 		GameRegistry.registerItem(eldritch_helmet, "eldritch_helmet");
 		
-		eldritch_chestplate = new ItemEldritchArmor(eldritchArmor, 1);
+		eldritch_helmet_enhanced = new ItemEldritchArmor(eldritchArmor, 0, true);
+		GameRegistry.registerItem(eldritch_helmet_enhanced, "eldritch_helmet_enhanced");
+		
+		eldritch_chestplate = new ItemEldritchArmor(eldritchArmor, 1, false);
 		GameRegistry.registerItem(eldritch_chestplate, "eldritch_chestplate");
 		
-		eldritch_leggings = new ItemEldritchArmor(eldritchArmor, 2);
+		eldritch_leggings = new ItemEldritchArmor(eldritchArmor, 2, false);
 		GameRegistry.registerItem(eldritch_leggings, "eldritch_leggings");
 		
-		eldritch_boots = new ItemEldritchArmor(eldritchArmor, 3);
+		eldritch_boots = new ItemEldritchArmor(eldritchArmor, 3, false);
 		GameRegistry.registerItem(eldritch_boots, "eldritch_boots");
 	}
 }
