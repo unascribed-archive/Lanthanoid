@@ -1,43 +1,49 @@
-package com.unascribed.lanthanoid.item;
+package com.unascribed.lanthanoid.item.eldritch.tool;
 
 import java.util.List;
 
 import com.google.common.base.Strings;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
+import com.unascribed.lanthanoid.item.GlyphToolHelper;
 import com.unascribed.lanthanoid.util.LUtil;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemSpade;
+import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
-public class ItemEldritchSpade extends ItemSpade implements IGlyphHolderItem {
+public class ItemEldritchDrill extends ItemPickaxe implements IGlyphHolderItem {
 
 	private IIcon glyphs;
 	
-	public ItemEldritchSpade(ToolMaterial mat) {
+	public ItemEldritchDrill(ToolMaterial mat) {
 		super(mat);
 		setCreativeTab(Lanthanoid.inst.creativeTabEquipment);
-		setTextureName("lanthanoid:eldritch_shovel");
-		setUnlocalizedName("eldritch_shovel");
+		setTextureName("lanthanoid:eldritch_drill");
+		setUnlocalizedName("eldritch_drill");
 	}
 	
 	@Override
 	public int getMaxMilliglyphs(ItemStack stack) {
-		return 500_000;
+		return 400_000;
 	}
 	
 	@Override
 	public float getStrVsBlock(ItemStack stack, Block block) {
-		return getMilliglyphs(stack) > 0 ? super.getStrVsBlock(stack, block) : super.getStrVsBlock(stack, block)/3;
+		return getMilliglyphs(stack) > 0 ? super.getStrVsBlock(stack, block)*0.75f : 0.5f;
+	}
+
+
+	@Override
+	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced) {
+		GlyphToolHelper.doAddInformation(this, stack, player, list, advanced);
 	}
 	
 	@Override
@@ -46,13 +52,13 @@ public class ItemEldritchSpade extends ItemSpade implements IGlyphHolderItem {
 	}
 	
 	@Override
-	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced) {
-		GlyphToolHelper.doAddInformation(this, stack, player, list, advanced);
+	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean equipped) {
+		GlyphToolHelper.doUpdate(this, stack, world, entity, slot, equipped);
 	}
 	
 	@Override
-	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean equipped) {
-		GlyphToolHelper.doUpdate(this, stack, world, entity, slot, equipped);
+	public boolean onBlockStartBreak(ItemStack stack, int x, int y, int z, EntityPlayer player) {
+		return super.onBlockStartBreak(stack, x, y, z, player);
 	}
 	
 	private boolean breaking = false;
@@ -62,21 +68,8 @@ public class ItemEldritchSpade extends ItemSpade implements IGlyphHolderItem {
 		if (GlyphToolHelper.doBlockDestroyed(this, stack, world, block, x, y, z, ent) && !breaking && ent instanceof EntityPlayerMP && !ent.isSneaking()) {
 			try {
 				breaking = true;
-				int iterations = 0;
-				int curY = y+1;
-				while (world.getBlock(x, curY, z) != null &&
-						(world.getBlock(x, curY, z).getMaterial() == Material.sand
-						|| world.getBlock(x, curY, z).getMaterial() == Material.grass
-						|| world.getBlock(x, curY, z).getMaterial() == Material.ground)) {
-					if (iterations > 7) break;
-					if (GlyphToolHelper.doBlockDestroyed(this, stack, world, block, x, curY, z, ent)) {
-						LUtil.harvest((EntityPlayerMP)ent, world, x, curY, z, world.getBlock(x, curY, z).isToolEffective("shovel", world.getBlockMetadata(x, curY, z)), true, false);
-					} else {
-						break;
-					}
-					curY++;
-					iterations++;
-				}
+				LUtil.harvest((EntityPlayerMP)ent, world, x, y-1, z, true, true, false);
+				LUtil.harvest((EntityPlayerMP)ent, world, x, y+1, z, true, true, false);
 			} finally {
 				breaking = false;
 			}
@@ -92,7 +85,7 @@ public class ItemEldritchSpade extends ItemSpade implements IGlyphHolderItem {
 	@Override
 	public void registerIcons(IIconRegister register) {
 		super.registerIcons(register);
-		glyphs = register.registerIcon("lanthanoid:eldritch_glyph_dig");
+		glyphs = register.registerIcon("lanthanoid:eldritch_glyph_mine");
 	}
 	
 	public IIcon getGlyphs() {

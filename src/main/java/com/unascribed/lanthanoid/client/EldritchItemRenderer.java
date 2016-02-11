@@ -5,7 +5,7 @@ import org.lwjgl.opengl.GL12;
 
 import com.google.common.base.Supplier;
 import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
-import com.unascribed.lanthanoid.item.ItemEldritchSword;
+import com.unascribed.lanthanoid.item.eldritch.tool.ItemEldritchSword;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
@@ -160,6 +160,7 @@ public class EldritchItemRenderer implements IItemRenderer {
 		
 		if (type == ItemRenderType.INVENTORY) {
 			GL11.glDisable(GL11.GL_CULL_FACE);
+			GL11.glDisable(GL11.GL_BLEND);
 			GL11.glScalef(1, -1, 1);
 			GL11.glTranslatef(0f, -0.65f, 0);
 			GL11.glColor4f(r, g, b, a);

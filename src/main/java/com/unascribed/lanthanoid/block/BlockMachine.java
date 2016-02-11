@@ -58,6 +58,11 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 	}
 
 	@Override
+	public boolean getUseNeighborBrightness() {
+		return true;
+	}
+	
+	@Override
 	public IIcon getIcon(int side, int meta) {
 		if (side == 0) {
 			return bottoms[meta];

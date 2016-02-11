@@ -16,7 +16,7 @@ import com.google.common.collect.Sets;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.glyph.IGlyphHolder;
 import com.unascribed.lanthanoid.init.LItems;
-import com.unascribed.lanthanoid.item.ItemEldritchArmor;
+import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchArmor;
 import com.unascribed.lanthanoid.item.rifle.ItemRifle;
 import com.unascribed.lanthanoid.item.rifle.Mode;
 import com.unascribed.lanthanoid.item.rifle.PrimaryMode;
@@ -738,6 +738,43 @@ public class LClientEventHandler {
 				primary.render(p, stack, 0, 0, e.partialTicks);
 				secondary.render(p, stack, e.resolution.getScaledWidth(), 0, e.partialTicks);
 				GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+			} else if (p.inventory.armorItemInSlot(3) != null && p.inventory.armorItemInSlot(3).getItem() == LItems.eldritch_helmet_enhanced) {
+				GL11.glPushMatrix();
+				GL11.glTranslatef(2, 2, 0);
+				GL11.glScalef(16, 16, 16);
+				GL11.glColor3f(1, 1, 1);
+				Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationItemsTexture);
+				for (int i = 3; i >= 0; i--) {
+					ItemStack is = p.inventory.armorItemInSlot(i);
+					if (is != null && is.getItem() instanceof ItemEldritchArmor) {
+						ItemEldritchArmor iea = (ItemEldritchArmor)is.getItem();
+						IIcon glyphs = iea.getGlyphs();
+						
+						float glyphCount = iea.getMilliglyphs(is) / (float)iea.getMaxMilliglyphs(is);
+						
+						float r = glyphCount;
+						float g = 0;
+						float b = 1-glyphCount;
+						
+						GL11.glColor3f(r, g, b);
+						
+						GL11.glBegin(GL11.GL_QUADS);
+							GL11.glTexCoord2f(glyphs.getMinU(), glyphs.getMaxV());
+							GL11.glVertex2f(0, 1);
+							
+							GL11.glTexCoord2f(glyphs.getMaxU(), glyphs.getMaxV());
+							GL11.glVertex2f(1, 1);
+							
+							GL11.glTexCoord2f(glyphs.getMaxU(), glyphs.getMinV());
+							GL11.glVertex2f(1, 0);
+							
+							GL11.glTexCoord2f(glyphs.getMinU(), glyphs.getMinV());
+							GL11.glVertex2f(0, 0);
+						GL11.glEnd();
+					}
+					GL11.glTranslatef(0, 0.5f, 0);
+				}
+				GL11.glPopMatrix();
 			}
 		}
 	}

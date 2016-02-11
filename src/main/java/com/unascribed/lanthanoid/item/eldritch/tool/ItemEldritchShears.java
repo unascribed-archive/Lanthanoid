@@ -1,10 +1,11 @@
-package com.unascribed.lanthanoid.item;
+package com.unascribed.lanthanoid.item.eldritch.tool;
 
 import java.util.List;
 
 import com.google.common.base.Strings;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
+import com.unascribed.lanthanoid.item.GlyphToolHelper;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;

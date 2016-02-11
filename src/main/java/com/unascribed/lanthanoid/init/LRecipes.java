@@ -26,6 +26,7 @@ public class LRecipes {
 		initRoseColored();
 		
 		initEldritchTools();
+		initEldritchArmor();
 		
 		for (String s : LMaterials.metals) {
 			GameRegistry.addSmelting(LItems.dust.getStackForName("dust"+s), LItems.ingot.getStackForName("ingot"+s), 0);
@@ -73,6 +74,38 @@ public class LRecipes {
 				'd', "stickDysprosium",
 				'h', "stickHolmium",
 				'B', "blockDysprosium"));
+	}
+
+	private static void initEldritchArmor() {
+		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.eldritch_helmet, 
+				"yyy",
+				"y y",
+				
+				'y', "ingotYttriumBariumCopperOxide"));
+		
+		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.eldritch_chestplate, 
+				"y y",
+				"yty",
+				"yyy",
+				
+				'y', "ingotYttriumBariumCopperOxide",
+				't', "gemThulite"));
+		
+		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.eldritch_leggings, 
+				"yyy",
+				"y y",
+				"y y",
+				
+				'y', "ingotYttriumBariumCopperOxide"));
+		
+		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.eldritch_boots, 
+				"y y",
+				"y y",
+				
+				'y', "ingotYttriumBariumCopperOxide"));
+		
+		GameRegistry.addRecipe(new ShapelessOreRecipe(LItems.eldritch_helmet_enhanced, 
+				LItems.eldritch_helmet, "gemRaspite", "gemRaspite"));
 	}
 	
 	private static void initEldritchTools() {

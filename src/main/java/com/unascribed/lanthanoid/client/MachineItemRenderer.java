@@ -139,7 +139,12 @@ public class MachineItemRenderer implements IItemRenderer {
 			if (glyphs != null) {
 				ItemRenderer ir = Minecraft.getMinecraft().entityRenderer.itemRenderer;
 				EntityClientPlayerMP p = Minecraft.getMinecraft().thePlayer;
-				float ticks = (item == p.getHeldItem() ? ir.prevEquippedProgress + (ir.equippedProgress - ir.prevEquippedProgress) * partialTicks : 0);
+				float ticks;
+				if (type == ItemRenderType.EQUIPPED) {
+					ticks = 1;
+				} else {
+					ticks = (item == p.getHeldItem() ? ir.prevEquippedProgress + (ir.equippedProgress - ir.prevEquippedProgress) * partialTicks : 0);
+				}
 				float x = -0.05f;
 				float y = 0.025f;
 				float z = 0f;

@@ -66,6 +66,8 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 			int j = brightness % 65536;
 			int k = brightness / 65536;
 			
+			float oldX = OpenGlHelper.lastBrightnessX;
+			float oldY = OpenGlHelper.lastBrightnessY;
 			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, j+((240f-j)*playerAnim), k+((240f-k)*playerAnim));
 			
 			Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
@@ -170,6 +172,7 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 				GL11.glDepthMask(false);
 				GL11.glEnable(GL11.GL_LIGHTING);
 			}
+			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, oldX, oldY);
 		GL11.glPopMatrix();
 		GL11.glDepthMask(true);
 	}

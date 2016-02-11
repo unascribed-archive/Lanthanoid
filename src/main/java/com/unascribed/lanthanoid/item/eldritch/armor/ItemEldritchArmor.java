@@ -1,9 +1,10 @@
-package com.unascribed.lanthanoid.item;
+package com.unascribed.lanthanoid.item.eldritch.armor;
 
 import java.util.List;
 
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
+import com.unascribed.lanthanoid.item.GlyphToolHelper;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
@@ -77,11 +78,14 @@ public class ItemEldritchArmor extends ItemArmor implements IGlyphHolderItem {
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean equipped) {
 		GlyphToolHelper.doUpdate(this, stack, world, entity, slot, equipped);
-		if (entity instanceof EntityPlayer && world.isRemote && FMLCommonHandler.instance().getSide().isClient()) {
+		if (entity instanceof EntityPlayer) {
 			EntityPlayer player = (EntityPlayer)entity;
-			if (hasSetBonus(player)) {
-				if (entity == Minecraft.getMinecraft().thePlayer && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0) return;
-				world.spawnParticle("enchantmenttable", entity.posX+(world.rand.nextGaussian()*(entity.width/2)), (entity.posY-0.8)+(world.rand.nextGaussian()*(entity.height/2)), entity.posZ+(world.rand.nextGaussian()*(entity.width/2)), 0, 0, 0);
+			if (world.isRemote && FMLCommonHandler.instance().getSide().isClient()) {
+				if (hasSetBonus(player)) {
+					if (!(entity == Minecraft.getMinecraft().thePlayer && Minecraft.getMinecraft().gameSettings.thirdPersonView == 0)) { 
+						world.spawnParticle("enchantmenttable", entity.posX+(world.rand.nextGaussian()*(entity.width/2)), (entity.posY-0.8)+(world.rand.nextGaussian()*(entity.height/2)), entity.posZ+(world.rand.nextGaussian()*(entity.width/2)), 0, 0, 0);
+					}
+				}
 			}
 		}
 	}

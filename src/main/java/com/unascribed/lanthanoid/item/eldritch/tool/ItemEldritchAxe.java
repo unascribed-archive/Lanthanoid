@@ -1,4 +1,4 @@
-package com.unascribed.lanthanoid.item;
+package com.unascribed.lanthanoid.item.eldritch.tool;
 
 import java.util.List;
 import java.util.Set;
@@ -7,6 +7,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
+import com.unascribed.lanthanoid.item.GlyphToolHelper;
 import com.unascribed.lanthanoid.util.LUtil;
 
 import cpw.mods.fml.common.FMLCommonHandler;
