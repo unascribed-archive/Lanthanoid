@@ -1,6 +1,5 @@
 package com.unascribed.lanthanoid.network;
 
-import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.LanthanoidProperties;
 import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchArmor;
 
@@ -33,13 +32,11 @@ public final class SetFlyingState {
 				if (totalGlyphs < 1000) {
 					if (state != State.NONE) {
 						state = State.NONE;
-						Lanthanoid.log.warn(player.getGameProfile().getName()+" tried to fly without enough glyphs!");
 					}
 				}
 			} else {
 				if (state != State.NONE) {
 					state = State.NONE;
-					Lanthanoid.log.warn(player.getGameProfile().getName()+" tried to fly without a full set of Eldritch armor!");
 				}
 			}
 			LanthanoidProperties props = (LanthanoidProperties) player.getExtendedProperties("lanthanoid");
