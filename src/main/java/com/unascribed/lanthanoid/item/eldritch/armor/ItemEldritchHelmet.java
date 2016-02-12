@@ -2,6 +2,7 @@ package com.unascribed.lanthanoid.item.eldritch.armor;
 
 import com.unascribed.lanthanoid.init.LItems;
 
+import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -14,7 +15,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 
 public class ItemEldritchHelmet extends ItemEldritchArmor {
 
@@ -23,8 +24,8 @@ public class ItemEldritchHelmet extends ItemEldritchArmor {
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 	
-	@SubscribeEvent
-	public void onAttacked(LivingAttackEvent e) {
+	@SubscribeEvent(priority=EventPriority.LOWEST)
+	public void onHurt(LivingHurtEvent e) {
 		if (e.entityLiving instanceof EntityPlayer) {
 			EntityPlayer player = (EntityPlayer)e.entityLiving;
 			ItemStack helm = player.inventory.armorItemInSlot(3);
