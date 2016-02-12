@@ -17,7 +17,6 @@ import com.unascribed.lanthanoid.network.SpawnGlyphParticles;
 import com.unascribed.lanthanoid.network.ToggleRifleBlazeMode;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
 
@@ -44,8 +43,8 @@ public class LNetwork {
 	private static <REQ extends IMessage> void registerMessage(Side side, Class<?> clazz) {
 		try {
 			Lanthanoid.inst.network.registerMessage(
-					(Class<? extends IMessageHandler<REQ, ? extends IMessage>>)Class.forName(clazz.getName()+"$Handler"),
-					(Class<REQ>)Class.forName(clazz.getName()+"$Message"), discriminator, side);
+					(Class)Class.forName(clazz.getName()+"$Handler"),
+					(Class)Class.forName(clazz.getName()+"$Message"), discriminator, side);
 			discriminator++;
 		} catch (ClassNotFoundException e) {
 			Throwables.propagate(e);
