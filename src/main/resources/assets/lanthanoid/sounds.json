@@ -137,5 +137,14 @@
 				"stream": false
 			}
 		]
+	},
+	"nice_meme": {
+		"category": "block",
+		"sounds": [
+			{
+				"name": "nice-meme",
+				"stream": false
+			}
+		]
 	}
 }

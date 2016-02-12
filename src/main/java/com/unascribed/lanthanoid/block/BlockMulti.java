@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.unascribed.lanthanoid.init.LBlocks;
 import com.unascribed.lanthanoid.util.MultiHelper;
 import com.unascribed.lanthanoid.util.NameDelegate;
 
@@ -14,6 +15,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
@@ -164,6 +166,16 @@ public class BlockMulti extends BlockBase implements NameDelegate {
 		return templates[meta].getLightValue();
 	}
 	
+	@Override
+	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float subX, float subY, float subZ) {
+		if (this == LBlocks.storageβ) {
+			if (getNameForMeta(world.getBlockMetadata(x, y, z)).equals("blockDankMeme")) {
+				player.playSound("lanthanoid:nice_meme", 1, 1);
+				return true;
+			}
+		}
+		return super.onBlockActivated(world, x, y, z, player, side, subX, subY, subZ);
+	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
