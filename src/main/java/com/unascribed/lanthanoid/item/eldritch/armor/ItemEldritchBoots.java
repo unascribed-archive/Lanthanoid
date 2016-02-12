@@ -39,7 +39,7 @@ public class ItemEldritchBoots extends ItemEldritchArmor {
 			player.setSprinting(false);
 		}
 		if (!world.isRemote) {
-			if (player.isSprinting() && getMilliglyphs(stack) > 0) {
+			if (player.isSprinting() && player.onGround && getMilliglyphs(stack) > 0) {
 				setSprintingTicks(stack, getSprintingTicks(stack)+1);
 			} else {
 				if (sprintTicks < 0) {
