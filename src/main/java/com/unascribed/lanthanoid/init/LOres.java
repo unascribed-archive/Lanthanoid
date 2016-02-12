@@ -9,6 +9,7 @@ public class LOres {
 		LBlocks.ore_gem.registerOres();
 		LBlocks.ore_other.registerOres();
 		LBlocks.storage.registerOres();
+		LBlocks.storageβ.registerOres();
 		LItems.ingot.registerOres();
 		LItems.stick.registerOres();
 		LItems.nugget.registerOres();

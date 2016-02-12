@@ -357,11 +357,15 @@ public class LClientEventHandler {
 					}
 				}
 				SetFlyingState.State flyingState;
-				if (mc.gameSettings.keyBindJump.getIsKeyPressed()) {
-					if (mc.gameSettings.keyBindSneak.getIsKeyPressed()) {
-						flyingState = State.HOVER;
+				if (ItemEldritchArmor.hasSetBonus(mc.thePlayer)) {
+					if (mc.gameSettings.keyBindJump.getIsKeyPressed()) {
+						if (mc.gameSettings.keyBindSneak.getIsKeyPressed()) {
+							flyingState = State.HOVER;
+						} else {
+							flyingState = State.FLYING;
+						}
 					} else {
-						flyingState = State.FLYING;
+						flyingState = State.NONE;
 					}
 				} else {
 					flyingState = State.NONE;
@@ -758,18 +762,19 @@ public class LClientEventHandler {
 				GL11.glDisable(GL12.GL_RESCALE_NORMAL);
 			} else if (p.inventory.armorItemInSlot(3) != null && p.inventory.armorItemInSlot(3).getItem() == LItems.eldritch_helmet_enhanced) {
 				GL11.glPushMatrix();
-				GL11.glTranslatef(2, 2, 0);
-				GL11.glScalef(16, 16, 16);
+				GL11.glTranslatef(2, 12, 0);
 				GL11.glColor3f(1, 1, 1);
 				GL11.glEnable(GL11.GL_BLEND);
 				OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-				Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationItemsTexture);
+				int totalGlyphs = 0;
+				boolean hasSetBonus = true;
 				for (int i = 3; i >= 0; i--) {
 					ItemStack is = p.inventory.armorItemInSlot(i);
 					if (is != null && is.getItem() instanceof ItemEldritchArmor) {
 						ItemEldritchArmor iea = (ItemEldritchArmor)is.getItem();
 						IIcon glyphs = iea.getGlyphs();
 						
+						totalGlyphs += iea.getMilliglyphs(is);
 						float glyphCount = iea.getMilliglyphs(is) / (float)iea.getMaxMilliglyphs(is);
 						
 						float r = glyphCount;
@@ -782,24 +787,47 @@ public class LClientEventHandler {
 						
 						GL11.glColor4f(r, g, b, a);
 						
+						Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationItemsTexture);
 						GL11.glBegin(GL11.GL_QUADS);
 							GL11.glTexCoord2f(glyphs.getMinU(), glyphs.getMaxV());
-							GL11.glVertex2f(0, 1);
+							GL11.glVertex2f(0, 32);
 							
 							GL11.glTexCoord2f(glyphs.getMaxU(), glyphs.getMaxV());
-							GL11.glVertex2f(1, 1);
+							GL11.glVertex2f(32, 32);
 							
 							GL11.glTexCoord2f(glyphs.getMaxU(), glyphs.getMinV());
-							GL11.glVertex2f(1, 0);
+							GL11.glVertex2f(32, 0);
 							
 							GL11.glTexCoord2f(glyphs.getMinU(), glyphs.getMinV());
 							GL11.glVertex2f(0, 0);
 						GL11.glEnd();
+						GL11.glPushMatrix();
+							int percent = (int)(((float)iea.getMilliglyphs(is)/iea.getMaxMilliglyphs(is))*100f);
+							Minecraft.getMinecraft().fontRendererObj.drawString(percent+"%", 38, 5, -1);
+						GL11.glPopMatrix();
+					} else {
+						hasSetBonus = false;
 					}
-					GL11.glTranslatef(0, 0.5f, 0);
+					GL11.glTranslatef(0, 14, 0);
 				}
 				GL11.glDisable(GL11.GL_BLEND);
 				GL11.glPopMatrix();
+				if (totalGlyphs < 1000) {
+					GL11.glEnable(GL11.GL_BLEND);
+					Minecraft.getMinecraft().standardGalacticFontRenderer.drawString("Glyph level minimal", 2, 2, 0x88542424);
+					GL11.glDisable(GL11.GL_BLEND);
+				} else if (hasSetBonus) {
+					if (totalGlyphs < 100_000) { // 10 seconds of flight
+						float t = p.ticksExisted+Minecraft.getMinecraft().timer.renderPartialTicks;
+						float sin = MathHelper.sin(t*(lastFlyingState != SetFlyingState.State.NONE ? 1 : 0.25f));
+						int col = ((int)(((sin+1)/2)*192)+64) << 16;
+						Minecraft.getMinecraft().standardGalacticFontRenderer.drawString("GLYPH LEVEL CRITICAL", 2, 2, col);
+					} else {
+						Minecraft.getMinecraft().standardGalacticFontRenderer.drawString("Glyph level nominal", 2, 2, 0x00FFAA);
+					}
+				} else {
+					Minecraft.getMinecraft().standardGalacticFontRenderer.drawString("Flight not active", 2, 2, 0x888888);
+				}
 			}
 		}
 	}

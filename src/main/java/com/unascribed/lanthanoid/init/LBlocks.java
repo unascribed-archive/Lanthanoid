@@ -115,8 +115,10 @@ public class LBlocks {
 				Blocks.iron_block,
 				
 				"blockRosasite",
-				"blockYttriumBariumCopperOxide"
-				), ItemBlockWithCustomName.class, "storageβ");
+				"blockYttriumBariumCopperOxide",
+				"blockDankMeme"
+				).setTexture("blockDankMeme", "lanthanoid:dmblock")
+						, ItemBlockWithCustomName.class, "storageβ");
 		
 		GameRegistry.registerBlock(weak_plating = new BlockMulti(
 				Lanthanoid.inst.creativeTabDecorative,

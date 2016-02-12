@@ -11,7 +11,7 @@ public class LanthanoidProperties implements IExtendedEntityProperties {
 	
 	public int scopeFactor = 1;
 	public Entity grabbedEntity;
-	public SetFlyingState.State flyingState;
+	public SetFlyingState.State flyingState = SetFlyingState.State.NONE;
 
 	@Override
 	public void saveNBTData(NBTTagCompound compound) {

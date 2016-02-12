@@ -204,6 +204,7 @@ public class EldritchItemRenderer implements IItemRenderer {
 			GL11.glTranslatef(0.0f, 0.0f, 0.0625f);
 			Rendering.drawExtrudedHalfIcon(glyphs, 0.0625f);
 			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, oldX, oldY);
+			GL11.glEnable(GL11.GL_LIGHTING);
 			GL11.glDepthMask(true);
 		}
 	}

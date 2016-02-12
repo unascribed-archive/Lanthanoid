@@ -74,7 +74,7 @@ public class ItemEldritchLeggings extends ItemEldritchArmor {
 				}
 			}
 			
-			if (maxDist != null || getMilliglyphs(stack) > getMaxMilliglyphs(stack)/2) {
+			if (maxDist != null) {
 				List<ItemStack> itemsNeedingGlyphs = Lists.newArrayList();
 				int freeSpace = 0;
 				if (getMilliglyphs(stack) < (getMaxMilliglyphs(stack)/2)) {
@@ -105,8 +105,8 @@ public class ItemEldritchLeggings extends ItemEldritchArmor {
 					}
 				}
 				if (!itemsNeedingGlyphs.isEmpty()) {
-					int toTransfer = Math.min(freeSpace/4, maxDist != null ? maxDist.getMilliglyphs() : getMilliglyphs(stack));
-					if (!world.isRemote && maxDist != null) {
+					int toTransfer = Math.min(freeSpace/4, maxDist.getMilliglyphs());
+					if (!world.isRemote) {
 						double x = maxDist.xCoord+0.5;
 						double y = maxDist.yCoord+0.5;
 						double z = maxDist.zCoord+0.5;
@@ -114,11 +114,7 @@ public class ItemEldritchLeggings extends ItemEldritchArmor {
 						Lanthanoid.inst.network.sendToAllAround(msg, new TargetPoint(world.provider.dimensionId, player.posX, player.posY, player.posZ, 64));
 					}
 					int buffer = (int)Math.ceil(toTransfer * 0.9f);
-					if (maxDist != null) {
-						maxDist.setMilliglyphs(maxDist.getMilliglyphs()-toTransfer);
-					} else {
-						setMilliglyphs(stack, getMilliglyphs(stack)-toTransfer);
-					}
+					maxDist.setMilliglyphs(maxDist.getMilliglyphs()-toTransfer);
 					for (ItemStack is : itemsNeedingGlyphs) {
 						IGlyphHolderItem holder = (IGlyphHolderItem)is.getItem();
 						
@@ -130,11 +126,7 @@ public class ItemEldritchLeggings extends ItemEldritchArmor {
 						buffer -= toGive;
 					}
 					if (buffer > 0) {
-						if (maxDist != null) {
-							maxDist.setMilliglyphs(maxDist.getMilliglyphs()+buffer);
-						} else {
-							setMilliglyphs(stack, getMilliglyphs(stack)+buffer);
-						}
+						maxDist.setMilliglyphs(maxDist.getMilliglyphs()+buffer);
 					} else if (buffer < 0) {
 						Lanthanoid.log.warn("Accidentally summoned {} glyphs out of thin air!", buffer*-1);
 					}

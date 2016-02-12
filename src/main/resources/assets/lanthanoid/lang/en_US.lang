@@ -41,6 +41,8 @@ material.gypsum=Gypsum
 
 material.yttriumbariumcopperoxide=Yttrium-Barium-Copper Oxide
 
+material.dankmeme=Dank Memes
+
 
 command.lanspike.start=Generating %s block long spike
 command.lannacelle.start=Generating nacelle

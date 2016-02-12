@@ -112,7 +112,7 @@ public class LEventHandler {
 			if (totalGlyphs >= 1000) {
 				int cost = 0;
 				if (flyingState == State.FLYING) {
-					cost = 250;
+					cost = 125;
 					if (e.player instanceof EntityPlayerMP) {
 						((EntityPlayerMP)e.player).playerNetServerHandler.floatingTickCount = 0;
 					}
@@ -122,6 +122,8 @@ public class LEventHandler {
 					}
 					if (e.player.motionY >= 0) {
 						e.player.fallDistance = 0;
+					} else {
+						e.player.fallDistance -= 0.5f;
 					}
 					if (e.player.moveForward > 0) {
 						e.player.moveFlying(0, 1, 0.0075f);
@@ -130,7 +132,7 @@ public class LEventHandler {
 						e.player.worldObj.spawnParticle("enchantmenttable", e.player.posX+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)), e.player.boundingBox.minY, e.player.posZ+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)), 0, -0.5, 0);
 					}
 				} else if (flyingState == State.HOVER) {
-					cost = 100;
+					cost = 50;
 					if (e.player instanceof EntityPlayerMP) {
 						((EntityPlayerMP)e.player).playerNetServerHandler.floatingTickCount = 0;
 					}
@@ -142,6 +144,8 @@ public class LEventHandler {
 					if (Math.abs(e.player.motionY) < 0.1) {
 						e.player.motionY = 0;
 						e.player.fallDistance = 0;
+					} else {
+						e.player.fallDistance -= 0.5f;
 					}
 					if (e.player.moveForward > 0) {
 						e.player.moveFlying(0, 1, 0.005f);
@@ -169,6 +173,8 @@ public class LEventHandler {
 						e.player.motionY += 0.05;
 						if (e.player.motionY >= -0.2) {
 							e.player.fallDistance = 0;
+						} else {
+							e.player.fallDistance -= 0.5f;
 						}
 						for (int i = 0; i < 2; i++) {
 							e.player.worldObj.spawnParticle("enchantmenttable", e.player.posX+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)), e.player.boundingBox.minY, e.player.posZ+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)), 0, 0.5, 0);

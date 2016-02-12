@@ -28,6 +28,7 @@ public class BlockMulti extends BlockBase implements NameDelegate {
 	protected IIcon[] icons;
 	
 	protected boolean useCompositor = true;
+	protected String[] specialIcons;
 	
 	protected float explosionResistance;
 	
@@ -36,6 +37,7 @@ public class BlockMulti extends BlockBase implements NameDelegate {
 		helper = new MultiHelper("tile", names);
 		icons = new IIcon[names.length];
 		templates = new Block[names.length];
+		specialIcons = new String[names.length];
 		Arrays.fill(templates, defaultTemplate);
 		setStepSound(defaultTemplate.stepSound);
 	}
@@ -169,13 +171,17 @@ public class BlockMulti extends BlockBase implements NameDelegate {
 		errorIcon = reg.registerIcon("lanthanoid:error");
 		ImmutableList<String> names = helper.getNames();
 		for (int i = 0; i < names.size(); i++) {
-			String domain;
-			if (useCompositor) {
-				domain = "lanthanoid_compositor";
+			if (specialIcons[i] != null) {
+				icons[i] = reg.registerIcon(specialIcons[i]);
 			} else {
-				domain = "lanthanoid";
+				String domain;
+				if (useCompositor) {
+					domain = "lanthanoid_compositor";
+				} else {
+					domain = "lanthanoid";
+				}
+				icons[i] = reg.registerIcon(domain+":"+names.get(i));
 			}
-			icons[i] = reg.registerIcon(domain+":"+names.get(i));
 		}
 	}
 	
@@ -194,6 +200,22 @@ public class BlockMulti extends BlockBase implements NameDelegate {
 	@Override
 	public String getItemStackDisplayName(ItemStack stack) {
 		return helper.getDisplayNameForMeta(stack.getMetadata());
+	}
+
+	public BlockMulti setTexture(String name, String tex) {
+		int idx = -1;
+		ImmutableList<String> names = helper.getNames();
+		for (int i = 0; i < names.size(); i++) {
+			if (names.get(i).equals(name)) {
+				idx = i;
+				break;
+			}
+		}
+		if (idx == -1) {
+			throw new IllegalArgumentException("No such name '"+name+"'");
+		}
+		specialIcons[idx] = tex;
+		return this;
 	}
 
 }

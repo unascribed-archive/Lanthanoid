@@ -4,8 +4,6 @@ import java.util.List;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.network.BootNoise;
 import com.unascribed.lanthanoid.network.BootZap;
-import com.unascribed.lanthanoid.util.LUtil;
-
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
@@ -48,7 +46,7 @@ public class ItemEldritchBoots extends ItemEldritchArmor {
 					if (getMilliglyphs(stack) <= 0) {
 						setSprintingTicks(stack, -4);
 					} else {
-						MovingObjectPosition mop = LUtil.rayTrace(player, 0.5, false, true, true);
+						MovingObjectPosition mop = collisionRayTrace(player, 0.5);
 						float speed = (float)Math.log(1+(sprintTicks/SPINUP_SPEED));
 						if (mop != null && mop.typeOfHit == MovingObjectType.BLOCK) {
 							if ((speed*40) > 1) {
@@ -108,6 +106,23 @@ public class ItemEldritchBoots extends ItemEldritchArmor {
 			stack.setTagCompound(new NBTTagCompound());
 		}
 		stack.getTagCompound().setInteger("sprintTicks", ticks);
+	}
+	
+	public static MovingObjectPosition collisionRayTrace(EntityPlayer entity, double distance) {
+		MovingObjectPosition a = _rayTrace(entity, distance, 0);
+		if (a == null || a.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK) {
+			MovingObjectPosition b = _rayTrace(entity, distance, -1);
+			return b;
+		}
+		return a;
+	}
+
+	private static MovingObjectPosition _rayTrace(EntityPlayer entity, double distance, double offset) {
+		Vec3 vec3 = Vec3.createVectorHelper(entity.posX, entity.posY + entity.getEyeHeight() + offset, entity.posZ);
+		Vec3 vec31 = entity.getLookVec();
+		vec31.yCoord = 0;
+		Vec3 vec32 = vec3.addVector(vec31.xCoord * distance, vec31.yCoord * distance, vec31.zCoord * distance);
+		return entity.worldObj.rayTraceBlocks(vec3, vec32, false, true, false);
 	}
 
 }

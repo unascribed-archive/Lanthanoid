@@ -84,9 +84,23 @@ public class ItemEldritchPickaxe extends ItemPickaxe implements IGlyphHolderItem
 	
 	@Override
 	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ) {
-		if (player.inventory.consumeInventoryItem(Item.getItemFromBlock(Blocks.torch))) {
-			EnumFacing face = EnumFacing.values()[side];
-			world.setBlock(x+face.getFrontOffsetX(), y+face.getFrontOffsetY(), z+face.getFrontOffsetZ(), Blocks.torch, side, 3);
+		EnumFacing face = EnumFacing.values()[side];
+		int tX = x+face.getFrontOffsetX();
+		int tY = y+face.getFrontOffsetY();
+		int tZ = z+face.getFrontOffsetZ();
+		Block against = world.getBlock(x, y, z);
+		Block cur = world.getBlock(tX, tY, tZ);
+		if (against.isAir(world, tX, tY, tZ) || against.isReplaceable(world, tX, tY, tZ)) {
+			cur = against;
+			tX = x;
+			tY = y;
+			tZ = z;
+		}
+		if (cur.isAir(world, tX, tY, tZ) || cur.isReplaceable(world, tX, tY, tZ)
+				&& player.inventory.consumeInventoryItem(Item.getItemFromBlock(Blocks.torch))) {
+			Block torch = Blocks.torch;
+			int meta = torch.onBlockPlaced(world, tX, tY, tZ, side, hitX, hitY, hitZ, 0);
+			world.setBlock(tX, tY, tZ, torch, meta, 3);
 			return true;
 		}
 		return super.onItemUse(stack, player, world, x, y, z, side, hitX, hitY, hitZ);

@@ -127,7 +127,7 @@ public class ItemEldritchSword extends ItemSword implements IGlyphHolderItem {
 	public ItemStack onItemUseFinish(ItemStack p_77654_1_, World p_77654_2_, EntityPlayer player) {
 		Vec3 look = player.getLookVec();
 		player.motionX = look.xCoord*2;
-		player.motionY = look.yCoord*2+0.2;
+		player.motionY = look.yCoord+0.2;
 		player.motionZ = look.zCoord*2;
 		player.isAirBorne = true;
 		setCharging(p_77654_1_, true);
