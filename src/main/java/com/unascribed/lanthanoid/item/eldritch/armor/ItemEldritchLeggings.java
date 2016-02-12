@@ -62,7 +62,7 @@ public class ItemEldritchLeggings extends ItemEldritchArmor {
 								MovingObjectPosition mop = world.rayTraceBlocks(
 										Vec3.createVectorHelper(player.posX, player.posY, player.posZ),
 										Vec3.createVectorHelper(te.xCoord+0.5, te.yCoord+0.5, te.zCoord+0.5));
-								if (mop.typeOfHit == MovingObjectType.BLOCK && world.getTileEntity(mop.blockX, mop.blockY, mop.blockZ) == te) {
+								if (mop != null && mop.typeOfHit == MovingObjectType.BLOCK && world.getTileEntity(mop.blockX, mop.blockY, mop.blockZ) == te) {
 									if (maxDist == null || max < dist.getMilliglyphs()) {
 										max = dist.getMilliglyphs();
 										maxDist = dist;
