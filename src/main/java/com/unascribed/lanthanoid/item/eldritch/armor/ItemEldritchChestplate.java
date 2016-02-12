@@ -21,7 +21,7 @@ public class ItemEldritchChestplate extends ItemEldritchArmor {
 		if (e.entityLiving instanceof EntityPlayer) {
 			EntityPlayer player = (EntityPlayer)e.entityLiving;
 			ItemStack plate = player.inventory.armorItemInSlot(2);
-			if (plate != null && plate.getItem() == this) {
+			if (plate != null && plate.getItem() == this && !e.source.isDamageAbsolute()) {
 				float min = e.ammount*0.2083333333333333f;
 				float d = e.ammount-min;
 				int cost = Math.min(getMilliglyphs(plate),(int)(d*1000));
