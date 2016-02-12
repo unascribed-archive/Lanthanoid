@@ -7,8 +7,7 @@ import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.client.SoundEldritch;
 import com.unascribed.lanthanoid.effect.EntityGlyphFX;
 import com.unascribed.lanthanoid.glyph.IGlyphHolder;
-import com.unascribed.lanthanoid.network.BlockEventMessage;
-
+import com.unascribed.lanthanoid.network.BlockEvent;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import cpw.mods.fml.relauncher.Side;
@@ -232,7 +231,7 @@ public abstract class TileEntityEldritch extends TileEntity implements IGlyphHol
 	}
 
 	protected void addExtendedBlockEvent(int event, int arg) {
-		BlockEventMessage bem = new BlockEventMessage();
+		BlockEvent.Message bem = new BlockEvent.Message();
 		bem.x = xCoord;
 		bem.y = yCoord;
 		bem.z = zCoord;

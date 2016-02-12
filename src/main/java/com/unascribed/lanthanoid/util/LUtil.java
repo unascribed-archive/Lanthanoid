@@ -56,15 +56,19 @@ public class LUtil {
 	}
 
 	public static MovingObjectPosition rayTrace(EntityLivingBase entity, double distance) {
+		return rayTrace(entity, distance, false, false, true);
+	}
+	
+	public static MovingObjectPosition rayTrace(EntityLivingBase entity, double distance, boolean stopOnLiquid, boolean ignoreBlockWithoutBoundingBox, boolean returnLastUncollidableBlock) {
 		Vec3 vec3;
 		if (entity instanceof EntityPlayer) {
-			vec3 = Vec3.createVectorHelper(entity.posX, entity.posY + (entity.getEyeHeight() - ((EntityPlayer) entity).getDefaultEyeHeight()), entity.posZ);
+			vec3 = Vec3.createVectorHelper(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ);
 		} else {
 			vec3 = Vec3.createVectorHelper(entity.posX, entity.posY, entity.posZ);
 		}
 		Vec3 vec31 = entity.getLookVec();
 		Vec3 vec32 = vec3.addVector(vec31.xCoord * distance, vec31.yCoord * distance, vec31.zCoord * distance);
-		return entity.worldObj.rayTraceBlocks(vec3, vec32, false, false, true);
+		return entity.worldObj.rayTraceBlocks(vec3, vec32, stopOnLiquid, ignoreBlockWithoutBoundingBox, returnLastUncollidableBlock);
 	}
 	
 	public static void breakExtraBlock(World world, int x, int y, int z, int sidehit, EntityPlayer playerEntity, int refX, int refY, int refZ) {

@@ -8,7 +8,10 @@ import com.unascribed.lanthanoid.item.ItemSpanner;
 import com.unascribed.lanthanoid.item.ItemGlasses;
 import com.unascribed.lanthanoid.item.ItemTeleporter;
 import com.unascribed.lanthanoid.item.ItemWreckingBall;
-import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchArmor;
+import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchBoots;
+import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchHelmet;
+import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchChestplate;
+import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchLeggings;
 import com.unascribed.lanthanoid.item.eldritch.tool.ItemEldritchAxe;
 import com.unascribed.lanthanoid.item.eldritch.tool.ItemEldritchDrill;
 import com.unascribed.lanthanoid.item.eldritch.tool.ItemEldritchPickaxe;
@@ -37,11 +40,11 @@ public class LItems {
 	public static ItemEldritchSword eldritch_sword;
 	public static ItemEldritchDrill eldritch_drill;
 	
-	public static ItemEldritchArmor eldritch_helmet;
-	public static ItemEldritchArmor eldritch_helmet_enhanced;
-	public static ItemEldritchArmor eldritch_chestplate;
-	public static ItemEldritchArmor eldritch_leggings;
-	public static ItemEldritchArmor eldritch_boots;
+	public static ItemEldritchHelmet eldritch_helmet;
+	public static ItemEldritchHelmet eldritch_helmet_enhanced;
+	public static ItemEldritchChestplate eldritch_chestplate;
+	public static ItemEldritchLeggings eldritch_leggings;
+	public static ItemEldritchBoots eldritch_boots;
 	
 	public static void init() {
 		GameRegistry.registerItem(ingot = new ItemMulti(Lanthanoid.inst.creativeTabMaterials, LArrays.all(LMaterials.metals, "ingot")), "ingot");
@@ -104,21 +107,21 @@ public class LItems {
 		GameRegistry.registerItem(eldritch_drill, "eldritch_drill");
 		
 		
-		ArmorMaterial eldritchArmor = EnumHelper.addArmorMaterial("ELDRITCH", 33, new int[]{3, 8, 6, 3}, 24);
+		ArmorMaterial eldritchArmor = EnumHelper.addArmorMaterial("ELDRITCH", 33, new int[]{1, 8, 3, 0}, 24);
 		
-		eldritch_helmet = new ItemEldritchArmor(eldritchArmor, 0, false);
+		eldritch_helmet = new ItemEldritchHelmet(eldritchArmor, false);
 		GameRegistry.registerItem(eldritch_helmet, "eldritch_helmet");
 		
-		eldritch_helmet_enhanced = new ItemEldritchArmor(eldritchArmor, 0, true);
+		eldritch_helmet_enhanced = new ItemEldritchHelmet(eldritchArmor, true);
 		GameRegistry.registerItem(eldritch_helmet_enhanced, "eldritch_helmet_enhanced");
 		
-		eldritch_chestplate = new ItemEldritchArmor(eldritchArmor, 1, false);
+		eldritch_chestplate = new ItemEldritchChestplate(eldritchArmor);
 		GameRegistry.registerItem(eldritch_chestplate, "eldritch_chestplate");
 		
-		eldritch_leggings = new ItemEldritchArmor(eldritchArmor, 2, false);
+		eldritch_leggings = new ItemEldritchLeggings(eldritchArmor);
 		GameRegistry.registerItem(eldritch_leggings, "eldritch_leggings");
 		
-		eldritch_boots = new ItemEldritchArmor(eldritchArmor, 3, false);
+		eldritch_boots = new ItemEldritchBoots(eldritchArmor);
 		GameRegistry.registerItem(eldritch_boots, "eldritch_boots");
 	}
 }

@@ -4,8 +4,8 @@ import java.util.List;
 import com.unascribed.lanthanoid.init.LAchievements;
 import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.item.rifle.Variant;
-import com.unascribed.lanthanoid.network.BeamParticleMessage;
-import com.unascribed.lanthanoid.network.SetScopeFactorMessage;
+import com.unascribed.lanthanoid.network.BeamParticle;
+import com.unascribed.lanthanoid.network.SetScopeFactor;
 import com.unascribed.lanthanoid.waypoint.Waypoint;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -81,7 +81,7 @@ public class LEventHandler {
 			if (held == null || held.getItem() != LItems.rifle || LItems.rifle.getVariant(held) != Variant.ZOOM) {
 				props.scopeFactor = 1;
 				if (!e.player.worldObj.isRemote && e.player instanceof EntityPlayerMP) {
-					Lanthanoid.inst.network.sendTo(new SetScopeFactorMessage(props.scopeFactor), (EntityPlayerMP)e.player);
+					Lanthanoid.inst.network.sendTo(new SetScopeFactor.Message(props.scopeFactor), (EntityPlayerMP)e.player);
 				}
 			}
 		} else if (props.scopeFactor == 0) {
@@ -89,7 +89,7 @@ public class LEventHandler {
 			if (held == null || held.getItem() != LItems.rifle || LItems.rifle.getVariant(held) != Variant.NONE) {
 				props.scopeFactor = 1;
 				if (!e.player.worldObj.isRemote && e.player instanceof EntityPlayerMP) {
-					Lanthanoid.inst.network.sendTo(new SetScopeFactorMessage(props.scopeFactor), (EntityPlayerMP)e.player);
+					Lanthanoid.inst.network.sendTo(new SetScopeFactor.Message(props.scopeFactor), (EntityPlayerMP)e.player);
 				}
 			}
 		}
@@ -120,7 +120,7 @@ public class LEventHandler {
 						float rightAdj = 0.25f;
 						start = start.addVector(right.xCoord*rightAdj, right.yCoord*rightAdj, right.zCoord*rightAdj);
 					}
-					Lanthanoid.inst.network.sendToAllAround(new BeamParticleMessage(false, false, start.xCoord, start.yCoord, start.zCoord,
+					Lanthanoid.inst.network.sendToAllAround(new BeamParticle.Message(false, false, start.xCoord, start.yCoord, start.zCoord,
 							ent.posX, ent.posY, ent.posZ, -1/*ItemRifle.PrimaryMode.TRACTOR.color*/),
 							new TargetPoint(
 								player.worldObj.provider.dimensionId,

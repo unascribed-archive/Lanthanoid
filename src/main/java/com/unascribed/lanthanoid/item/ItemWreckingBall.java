@@ -5,7 +5,7 @@ import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.function.IntSupplier;
 import com.unascribed.lanthanoid.init.LAchievements;
 import com.unascribed.lanthanoid.init.LItems;
-import com.unascribed.lanthanoid.network.ItemBreakMessage;
+import com.unascribed.lanthanoid.network.ItemBreak;
 import com.unascribed.lanthanoid.util.LUtil;
 
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
@@ -153,7 +153,7 @@ public class ItemWreckingBall extends ItemBase {
 					}
 				}
 				if (stack.stackSize <= 0) {
-					Lanthanoid.inst.network.sendToAllAround(new ItemBreakMessage(player.getEntityId(), stack.copy()), new TargetPoint(player.worldObj.provider.dimensionId, player.posX, player.posY, player.posZ, 64));
+					Lanthanoid.inst.network.sendToAllAround(new ItemBreak.Message(player.getEntityId(), stack.copy()), new TargetPoint(player.worldObj.provider.dimensionId, player.posX, player.posY, player.posZ, 64));
 					stack.setTagCompound(null);
 					stack.setItem(LItems.stick);
 					stack.setMetadata(LItems.stick.getMetaForName("stickHolmium"));

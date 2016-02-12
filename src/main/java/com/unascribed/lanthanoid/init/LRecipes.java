@@ -100,9 +100,10 @@ public class LRecipes {
 		
 		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.eldritch_boots, 
 				"y y",
-				"y y",
+				"a a",
 				
-				'y', "ingotYttriumBariumCopperOxide"));
+				'y', "ingotYttriumBariumCopperOxide",
+				'a', "gemActinolite"));
 		
 		GameRegistry.addRecipe(new ShapelessOreRecipe(LItems.eldritch_helmet_enhanced, 
 				LItems.eldritch_helmet, "gemRaspite", "gemRaspite"));

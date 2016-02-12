@@ -21,8 +21,8 @@ import com.unascribed.lanthanoid.item.rifle.ItemRifle;
 import com.unascribed.lanthanoid.item.rifle.Mode;
 import com.unascribed.lanthanoid.item.rifle.PrimaryMode;
 import com.unascribed.lanthanoid.item.rifle.SecondaryMode;
-import com.unascribed.lanthanoid.network.ModifyRifleModeMessage;
-import com.unascribed.lanthanoid.network.ToggleRifleBlazeModeMessage;
+import com.unascribed.lanthanoid.network.ModifyRifleMode;
+import com.unascribed.lanthanoid.network.ToggleRifleBlazeMode;
 import com.unascribed.lanthanoid.util.LUtil;
 import com.unascribed.lanthanoid.waypoint.Waypoint;
 import com.unascribed.lanthanoid.waypoint.Waypoint.Type;
@@ -743,6 +743,8 @@ public class LClientEventHandler {
 				GL11.glTranslatef(2, 2, 0);
 				GL11.glScalef(16, 16, 16);
 				GL11.glColor3f(1, 1, 1);
+				GL11.glEnable(GL11.GL_BLEND);
+				OpenGlHelper.glBlendFunc(770, 771, 1, 0);
 				Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationItemsTexture);
 				for (int i = 3; i >= 0; i--) {
 					ItemStack is = p.inventory.armorItemInSlot(i);
@@ -755,8 +757,12 @@ public class LClientEventHandler {
 						float r = glyphCount;
 						float g = 0;
 						float b = 1-glyphCount;
+						float a = 0.5f;
+						if (glyphCount >= 1) {
+							a = 1;
+						}
 						
-						GL11.glColor3f(r, g, b);
+						GL11.glColor4f(r, g, b, a);
 						
 						GL11.glBegin(GL11.GL_QUADS);
 							GL11.glTexCoord2f(glyphs.getMinU(), glyphs.getMaxV());
@@ -774,6 +780,7 @@ public class LClientEventHandler {
 					}
 					GL11.glTranslatef(0, 0.5f, 0);
 				}
+				GL11.glDisable(GL11.GL_BLEND);
 				GL11.glPopMatrix();
 			}
 		}
@@ -843,35 +850,35 @@ public class LClientEventHandler {
 							}
 							if (Keyboard.getEventCharacter() == '@') {
 								while (mc.gameSettings.keyBindsHotbar[1].isPressed()) {}
-								Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, 1));
+								Lanthanoid.inst.network.sendToServer(new ModifyRifleMode.Message(true, primary, 1));
 								return;
 							}
 							if (Keyboard.getEventCharacter() == '^') {
 								while (mc.gameSettings.keyBindsHotbar[5].isPressed()) {}
-								Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, 5));
+								Lanthanoid.inst.network.sendToServer(new ModifyRifleMode.Message(true, primary, 5));
 								return;
 							}
 						}
 						if (Keyboard.getEventKey() == Keyboard.KEY_0 && Keyboard.getEventKeyState()) {
-							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, 9));
+							Lanthanoid.inst.network.sendToServer(new ModifyRifleMode.Message(true, primary, 9));
 							return;
 						}
 						if (Keyboard.getEventKey() == Keyboard.KEY_UNDERLINE && Keyboard.getEventKeyState()) {
-							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, 10));
+							Lanthanoid.inst.network.sendToServer(new ModifyRifleMode.Message(true, primary, 10));
 							return;
 						}
 						if (Keyboard.getEventKey() == Keyboard.KEY_EQUALS && Keyboard.getEventKeyState()) {
-							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, 11));
+							Lanthanoid.inst.network.sendToServer(new ModifyRifleMode.Message(true, primary, 11));
 							return;
 						}
 						if (Keyboard.getEventKey() == Keyboard.KEY_GRAVE && Keyboard.getEventKeyState()) {
-							Lanthanoid.inst.network.sendToServer(new ToggleRifleBlazeModeMessage());
+							Lanthanoid.inst.network.sendToServer(new ToggleRifleBlazeMode.Message());
 							return;
 						}
 						for (int i = 0; i < 9; i++) {
 							if (mc.gameSettings.keyBindsHotbar[i].isPressed()) {
 								while (mc.gameSettings.keyBindsHotbar[i].isPressed()) {} // drain pressTicks to zero to suppress vanilla behavior
-								Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(true, primary, i));
+								Lanthanoid.inst.network.sendToServer(new ModifyRifleMode.Message(true, primary, i));
 							}
 						}
 						return;
@@ -899,7 +906,7 @@ public class LClientEventHandler {
 							if (dWheel < 0) {
 								dWheel = -1;
 							}
-							Lanthanoid.inst.network.sendToServer(new ModifyRifleModeMessage(false, primary, dWheel*-1));
+							Lanthanoid.inst.network.sendToServer(new ModifyRifleMode.Message(false, primary, dWheel*-1));
 							return;
 						}
 					}

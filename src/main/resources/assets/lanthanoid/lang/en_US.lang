@@ -92,7 +92,7 @@ item.dysprosium_wrecking_ball.name=Dysprosium Wrecking Ball
 
 item.eldritch_sword.name=Eldritch Sword
 item.eldritch_sword.ability.name=Ferocity
-item.eldritch_sword.ability.desc=Holding right-click allows you to charge forward, breaking arrows and damaging mobs in your path
+item.eldritch_sword.ability.desc=Holding right-click allows you to charge forward, stopping arrows and damaging mobs in your path
 
 item.eldritch_shovel.name=Eldritch Shovel
 item.eldritch_shovel.ability.name=Excavation
@@ -119,7 +119,7 @@ ui.eldritch_ability=Ability: %s
 
 item.eldritch_helmet.name=Eldritch Helmet
 item.eldritch_helmet.ability.name=Mending
-item.eldritch_helmet.ability.desc=Glyphs are taken from nearby Distributors to heal the wearer
+item.eldritch_helmet.ability.desc=Fatal damage gives absorption dependent on the amount of Glyphs remaining in the helmet. Also heals over time
 
 item.eldritch_chestplate.name=Eldritch Chestplate
 item.eldritch_chestplate.ability.name=Aegis
@@ -131,7 +131,7 @@ item.eldritch_leggings.ability.desc=Glyphs are taken from nearby Distributors to
 
 item.eldritch_boots.name=Eldritch Boots
 item.eldritch_boots.ability.name=Acceleration
-item.eldritch_boots.ability.desc=Sprinting slowly increases speed, stopping sprinting resets
+item.eldritch_boots.ability.desc=Sprinting slowly increases speed, stopping sprinting resets. When paired with the helmet, food will automatically be consumed while sprinting
 
 ui.eldritch_set_bonus=Set Bonus: Flight
 
@@ -213,6 +213,10 @@ death.attack.telefrag=%1$s was telefragged by %2$s
 death.attack.telefrag.item=%1$s was telefragged by %2$s using %3$s
 
 death.attack.zap=%1$s was electrocuted
+
+death.attack.wall=%1$s hit the wall too hard
+
+death.attack.collision=%1$s got run over by %2$s
 
 
 achievement.craftWaypoint=A Beacon of Hope

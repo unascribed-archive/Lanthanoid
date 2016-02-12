@@ -17,7 +17,6 @@ import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -178,7 +177,7 @@ public class ItemEldritchAxe extends ItemAxe implements IGlyphHolderItem {
 					int cZ = z+oZ;
 					Block b = world.getBlock(cX, cY, cZ);
 					int meta = world.getBlockMetadata(cX, cY, cZ);
-					if (b == initial && b.getMaterial() == Material.wood && b.isToolEffective("axe", meta)) {
+					if (b == initial && b.isToolEffective("axe", meta)) {
 						breakTasks.add(new BreakTask(world, cX, cY, cZ, stack, player, b, meta, initial));
 					}
 				}

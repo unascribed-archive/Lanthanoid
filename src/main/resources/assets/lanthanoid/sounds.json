@@ -128,5 +128,14 @@
 				"stream": false
 			}
 		]
+	},
+	"whoosh": {
+		"category": "player",
+		"sounds": [
+			{
+				"name": "whoosh",
+				"stream": false
+			}
+		]
 	}
 }

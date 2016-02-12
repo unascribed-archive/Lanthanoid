@@ -13,8 +13,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.Vec3i;
-import com.unascribed.lanthanoid.network.ModifyWaypointListMessage;
-import com.unascribed.lanthanoid.network.ModifyWaypointListMessage.Mode;
+import com.unascribed.lanthanoid.network.ModifyWaypointList;
 import com.unascribed.lanthanoid.util.Functional;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
@@ -52,7 +51,7 @@ public class WaypointManager {
 		}
 		Map<Integer, List<Vec3i>> removalsClone = Maps.newHashMap(removals);
 		for (EntityPlayerMP p : (List<EntityPlayerMP>)MinecraftServer.getServer().getConfigurationManager().playerEntityList) {
-			ModifyWaypointListMessage mwlm = new ModifyWaypointListMessage();
+			ModifyWaypointList.Message mwlm = new ModifyWaypointList.Message();
 			mwlm.add = Maps.newHashMap();
 			for (Map.Entry<Integer, List<Waypoint>> dimEn : additions.entrySet()) {
 				List<Waypoint> li = Lists.newArrayList();
@@ -73,10 +72,10 @@ public class WaypointManager {
 	
 	
 	public void sendAll(EntityPlayerMP player, boolean patch) {
-		ModifyWaypointListMessage msg = new ModifyWaypointListMessage();
+		ModifyWaypointList.Message msg = new ModifyWaypointList.Message();
 		msg.remove = Maps.newHashMap();
 		msg.add = Maps.newHashMap();
-		msg.mode = patch ? Mode.PATCH : Mode.PUT;
+		msg.mode = patch ? ModifyWaypointList.Mode.PATCH : ModifyWaypointList.Mode.PUT;
 		for (Map.Entry<Integer, Map<Vec3i, Waypoint>> dimEn : waypoints.entrySet()) {
 			List<Waypoint> li = Lists.newArrayList();
 			for (Waypoint w : dimEn.getValue().values()) {
@@ -125,8 +124,8 @@ public class WaypointManager {
 	
 	public void clear() {
 		if (FMLCommonHandler.instance().getSide().isServer()) {
-			ModifyWaypointListMessage mwlm = new ModifyWaypointListMessage();
-			mwlm.mode = ModifyWaypointListMessage.Mode.RESET;
+			ModifyWaypointList.Message mwlm = new ModifyWaypointList.Message();
+			mwlm.mode = ModifyWaypointList.Mode.RESET;
 			Lanthanoid.inst.network.sendToAll(mwlm);
 		}
 		additions.clear();

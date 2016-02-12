@@ -77,7 +77,10 @@ public abstract class TileEntityEldritchWithBooks extends TileEntityEldritch imp
 				return true;
 			}
 		} else if (player.getHeldItem() != null && (player.getHeldItem().getItem() == Items.book || player.getHeldItem().getItem() == LItems.charged_book)) {
-			if (getBookCount() < 5) {
+			int x = xCoord;
+			int y = yCoord+1;
+			int z = zCoord;
+			if (getBookCount() < 5 && (worldObj.getBlock(x, y, z) == null || !worldObj.getBlock(x, y, z).isOpaqueCube())) {
 				if (!worldObj.isRemote) {
 					if (!player.capabilities.isCreativeMode) {
 						player.getHeldItem().stackSize--;

@@ -81,6 +81,9 @@ public class EldritchItemRenderer implements IItemRenderer {
 		float b = q-(playerAnim*glyphCount);
 		float a = 0.5f;
 
+		if (glyphCount >= 1) {
+			a = 1;
+		}
 		
 		GL11.glEnable(GL11.GL_ALPHA_TEST);
 		if (type == ItemRenderType.INVENTORY) {
@@ -159,8 +162,9 @@ public class EldritchItemRenderer implements IItemRenderer {
 		GL11.glDisable(GL11.GL_LIGHTING);
 		
 		if (type == ItemRenderType.INVENTORY) {
+			GL11.glEnable(GL11.GL_BLEND);
+			OpenGlHelper.glBlendFunc(770, 771, 0, 1);
 			GL11.glDisable(GL11.GL_CULL_FACE);
-			GL11.glDisable(GL11.GL_BLEND);
 			GL11.glScalef(1, -1, 1);
 			GL11.glTranslatef(0f, -0.65f, 0);
 			GL11.glColor4f(r, g, b, a);

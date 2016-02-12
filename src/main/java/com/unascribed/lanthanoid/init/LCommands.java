@@ -3,8 +3,7 @@ package com.unascribed.lanthanoid.init;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.function.Consumer;
 import com.unascribed.lanthanoid.gen.Generate;
-import com.unascribed.lanthanoid.network.SpaceShipCrashMessage;
-
+import com.unascribed.lanthanoid.network.SpaceShipCrash;
 import net.minecraft.block.Block;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -122,8 +121,8 @@ public class LCommands {
 				if (args.length != 1) {
 					throw new CommandException(getCommandUsage(sender));
 				}
-				SpaceShipCrashMessage.Type type = SpaceShipCrashMessage.Type.valueOf(args[0]);
-				SpaceShipCrashMessage msg = new SpaceShipCrashMessage(type);
+				SpaceShipCrash.Type type = SpaceShipCrash.Type.valueOf(args[0]);
+				SpaceShipCrash.Message msg = new SpaceShipCrash.Message(type);
 				Lanthanoid.inst.network.sendToDimension(msg, sender.getEntityWorld().provider.dimensionId);
 			}
 			

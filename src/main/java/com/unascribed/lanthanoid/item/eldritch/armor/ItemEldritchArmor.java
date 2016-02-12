@@ -19,7 +19,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
-public class ItemEldritchArmor extends ItemArmor implements IGlyphHolderItem {
+public abstract class ItemEldritchArmor extends ItemArmor implements IGlyphHolderItem {
 
 	private boolean enhanced;
 	
@@ -73,6 +73,11 @@ public class ItemEldritchArmor extends ItemArmor implements IGlyphHolderItem {
 		GlyphToolHelper.doAddInformation(this, stack, player, list, advanced);
 		list.add("");
 		list.add((hasSetBonus(player) ? "\u00A79" : "\u00A78")+StatCollector.translateToLocal("ui.eldritch_set_bonus"));
+	}
+	
+	@Override
+	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
+		GlyphToolHelper.doUpdate(this, stack, world, player, 3-armorType, true);
 	}
 	
 	@Override

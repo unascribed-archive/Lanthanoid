@@ -6,15 +6,17 @@ import com.google.common.base.Strings;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
 import com.unascribed.lanthanoid.item.GlyphToolHelper;
-
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
@@ -31,7 +33,7 @@ public class ItemEldritchPickaxe extends ItemPickaxe implements IGlyphHolderItem
 	
 	@Override
 	public int getMaxMilliglyphs(ItemStack stack) {
-		return 400_000;
+		return 500_000;
 	}
 	
 	@Override
@@ -78,6 +80,16 @@ public class ItemEldritchPickaxe extends ItemPickaxe implements IGlyphHolderItem
 			setBoost(stack, getBoost(stack)+0.1f);
 		}
 		return true;
+	}
+	
+	@Override
+	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ) {
+		if (player.inventory.consumeInventoryItem(Item.getItemFromBlock(Blocks.torch))) {
+			EnumFacing face = EnumFacing.values()[side];
+			world.setBlock(x+face.getFrontOffsetX(), y+face.getFrontOffsetY(), z+face.getFrontOffsetZ(), Blocks.torch, side, 3);
+			return true;
+		}
+		return super.onItemUse(stack, player, world, x, y, z, side, hitX, hitY, hitZ);
 	}
 	
 	@Override

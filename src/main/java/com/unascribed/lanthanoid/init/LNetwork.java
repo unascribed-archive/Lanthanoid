@@ -1,40 +1,52 @@
 package com.unascribed.lanthanoid.init;
 
+import com.google.common.base.Throwables;
 import com.unascribed.lanthanoid.Lanthanoid;
-import com.unascribed.lanthanoid.network.BeamParticleHandler;
-import com.unascribed.lanthanoid.network.BeamParticleMessage;
-import com.unascribed.lanthanoid.network.BlockEventHandler;
-import com.unascribed.lanthanoid.network.BlockEventMessage;
-import com.unascribed.lanthanoid.network.ItemBreakHandler;
-import com.unascribed.lanthanoid.network.ItemBreakMessage;
-import com.unascribed.lanthanoid.network.ModifyRifleModeHandler;
-import com.unascribed.lanthanoid.network.ModifyRifleModeMessage;
-import com.unascribed.lanthanoid.network.ModifyWaypointListHandler;
-import com.unascribed.lanthanoid.network.ModifyWaypointListMessage;
-import com.unascribed.lanthanoid.network.RifleChargingSoundHandler;
-import com.unascribed.lanthanoid.network.RifleChargingSoundRequest;
-import com.unascribed.lanthanoid.network.SetScopeFactorHandler;
-import com.unascribed.lanthanoid.network.SetScopeFactorMessage;
-import com.unascribed.lanthanoid.network.SpaceShipCrashHandler;
-import com.unascribed.lanthanoid.network.SpaceShipCrashMessage;
-import com.unascribed.lanthanoid.network.ToggleRifleBlazeModeHandler;
-import com.unascribed.lanthanoid.network.ToggleRifleBlazeModeMessage;
+import com.unascribed.lanthanoid.network.BeamParticle;
+import com.unascribed.lanthanoid.network.BlockEvent;
+import com.unascribed.lanthanoid.network.BootNoise;
+import com.unascribed.lanthanoid.network.BootZap;
+import com.unascribed.lanthanoid.network.ItemBreak;
+import com.unascribed.lanthanoid.network.ModifyRifleMode;
+import com.unascribed.lanthanoid.network.ModifyWaypointList;
+import com.unascribed.lanthanoid.network.RifleChargingSound;
+import com.unascribed.lanthanoid.network.SetScopeFactor;
+import com.unascribed.lanthanoid.network.SpaceShipCrash;
+import com.unascribed.lanthanoid.network.SpawnGlyphParticles;
+import com.unascribed.lanthanoid.network.ToggleRifleBlazeMode;
 
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
 
 public class LNetwork {
+	private static int discriminator = 0;
 	public static void init() {
 		SimpleNetworkWrapper network = new SimpleNetworkWrapper("Lanthanoid");
-		network.registerMessage(RifleChargingSoundHandler.class, RifleChargingSoundRequest.class, 0, Side.CLIENT);
-		network.registerMessage(ModifyRifleModeHandler.class, ModifyRifleModeMessage.class, 1, Side.SERVER);
-		network.registerMessage(BeamParticleHandler.class, BeamParticleMessage.class, 2, Side.CLIENT);
-		network.registerMessage(SetScopeFactorHandler.class, SetScopeFactorMessage.class, 3, Side.CLIENT);
-		network.registerMessage(SpaceShipCrashHandler.class, SpaceShipCrashMessage.class, 4, Side.CLIENT);
-		network.registerMessage(ToggleRifleBlazeModeHandler.class, ToggleRifleBlazeModeMessage.class, 5, Side.SERVER);
-		network.registerMessage(ModifyWaypointListHandler.class, ModifyWaypointListMessage.class, 6, Side.CLIENT);
-		network.registerMessage(ItemBreakHandler.class, ItemBreakMessage.class, 7, Side.CLIENT);
-		network.registerMessage(BlockEventHandler.class, BlockEventMessage.class, 8, Side.CLIENT);
 		Lanthanoid.inst.network = network;
+		registerMessage(Side.CLIENT, RifleChargingSound.class);
+		registerMessage(Side.SERVER, ModifyRifleMode.class);
+		registerMessage(Side.CLIENT, BeamParticle.class);
+		registerMessage(Side.CLIENT, SetScopeFactor.class);
+		registerMessage(Side.CLIENT, SpaceShipCrash.class);
+		registerMessage(Side.SERVER, ToggleRifleBlazeMode.class);
+		registerMessage(Side.CLIENT, ModifyWaypointList.class);
+		registerMessage(Side.CLIENT, ItemBreak.class);
+		registerMessage(Side.CLIENT, BlockEvent.class);
+		registerMessage(Side.CLIENT, BootNoise.class);
+		registerMessage(Side.CLIENT, SpawnGlyphParticles.class);
+		registerMessage(Side.CLIENT, BootZap.class);
+	}
+
+	private static <REQ extends IMessage> void registerMessage(Side side, Class<?> clazz) {
+		try {
+			Lanthanoid.inst.network.registerMessage(
+					(Class<? extends IMessageHandler<REQ, ? extends IMessage>>)Class.forName(clazz.getName()+"$Handler"),
+					(Class<REQ>)Class.forName(clazz.getName()+"$Message"), discriminator, side);
+			discriminator++;
+		} catch (ClassNotFoundException e) {
+			Throwables.propagate(e);
+		}
 	}
 }

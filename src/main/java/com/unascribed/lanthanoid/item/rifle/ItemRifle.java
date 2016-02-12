@@ -13,9 +13,9 @@ import com.unascribed.lanthanoid.init.LBlocks;
 import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.init.LMaterials;
 import com.unascribed.lanthanoid.item.ItemBase;
-import com.unascribed.lanthanoid.network.BeamParticleMessage;
-import com.unascribed.lanthanoid.network.RifleChargingSoundRequest;
-import com.unascribed.lanthanoid.network.SetScopeFactorMessage;
+import com.unascribed.lanthanoid.network.BeamParticle;
+import com.unascribed.lanthanoid.network.RifleChargingSound;
+import com.unascribed.lanthanoid.network.SetScopeFactor;
 import com.unascribed.lanthanoid.util.LVectors;
 
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
@@ -348,7 +348,7 @@ public class ItemRifle extends ItemBase {
 					return false;
 				}
 				if (!player.worldObj.isRemote && player instanceof EntityPlayerMP) {
-					Lanthanoid.inst.network.sendTo(new SetScopeFactorMessage(props.scopeFactor), ((EntityPlayerMP)player));
+					Lanthanoid.inst.network.sendTo(new SetScopeFactor.Message(props.scopeFactor), ((EntityPlayerMP)player));
 				}
 				return true;
 			}
@@ -359,7 +359,7 @@ public class ItemRifle extends ItemBase {
 	@Override
 	public void onPlayerStoppedUsing(ItemStack stack, World world, EntityPlayer player, int useRemaining) {
 		if (!world.isRemote) {
-			Lanthanoid.inst.network.sendToAllAround(new RifleChargingSoundRequest(player.getEntityId(), getVariant(stack).getSpeedMultiplier(), false),
+			Lanthanoid.inst.network.sendToAllAround(new RifleChargingSound.Message(player.getEntityId(), getVariant(stack).getSpeedMultiplier(), false),
 					new TargetPoint(player.worldObj.provider.dimensionId, player.posX, player.posY, player.posZ, 64));
 		}
 		if (useRemaining <= (50/getVariant(stack).getSpeedMultiplier())) {
@@ -814,7 +814,7 @@ public class ItemRifle extends ItemBase {
 	}
 
 	private void spawnParticles(World world, PrimaryMode mode, boolean fire, double startX, double startY, double startZ, double endX, double endY, double endZ) {
-		Lanthanoid.inst.network.sendToAllAround(new BeamParticleMessage(fire, mode.doesPoof(), startX, startY, startZ, endX, endY, endZ, mode.color), new TargetPoint(
+		Lanthanoid.inst.network.sendToAllAround(new BeamParticle.Message(fire, mode.doesPoof(), startX, startY, startZ, endX, endY, endZ, mode.color), new TargetPoint(
 				world.provider.dimensionId,
 				startX,
 				startY,
@@ -893,7 +893,7 @@ public class ItemRifle extends ItemBase {
 		if (hasAmmoFor(player, stack, getPrimaryMode(stack))) {
 			player.setItemInUse(stack, getMaxItemUseDuration(stack));
 			if (!world.isRemote) {
-				Lanthanoid.inst.network.sendToAllAround(new RifleChargingSoundRequest(player.getEntityId(), getVariant(stack).getSpeedMultiplier(), true),
+				Lanthanoid.inst.network.sendToAllAround(new RifleChargingSound.Message(player.getEntityId(), getVariant(stack).getSpeedMultiplier(), true),
 						new TargetPoint(player.worldObj.provider.dimensionId, player.posX, player.posY, player.posZ, 64));
 			}
 		}

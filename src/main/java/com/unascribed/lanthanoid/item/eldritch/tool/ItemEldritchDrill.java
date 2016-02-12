@@ -32,7 +32,7 @@ public class ItemEldritchDrill extends ItemPickaxe implements IGlyphHolderItem {
 	
 	@Override
 	public int getMaxMilliglyphs(ItemStack stack) {
-		return 400_000;
+		return 500_000;
 	}
 	
 	@Override
