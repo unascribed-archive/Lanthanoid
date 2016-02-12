@@ -1,10 +1,15 @@
 package com.unascribed.lanthanoid;
 
 import java.util.List;
+
+import com.unascribed.lanthanoid.client.LClientEventHandler;
 import com.unascribed.lanthanoid.init.LAchievements;
 import com.unascribed.lanthanoid.init.LItems;
+import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchArmor;
 import com.unascribed.lanthanoid.item.rifle.Variant;
 import com.unascribed.lanthanoid.network.BeamParticle;
+import com.unascribed.lanthanoid.network.SetFlyingState;
+import com.unascribed.lanthanoid.network.SetFlyingState.State;
 import com.unascribed.lanthanoid.network.SetScopeFactor;
 import com.unascribed.lanthanoid.waypoint.Waypoint;
 
@@ -90,6 +95,85 @@ public class LEventHandler {
 				props.scopeFactor = 1;
 				if (!e.player.worldObj.isRemote && e.player instanceof EntityPlayerMP) {
 					Lanthanoid.inst.network.sendTo(new SetScopeFactor.Message(props.scopeFactor), (EntityPlayerMP)e.player);
+				}
+			}
+		}
+		if (ItemEldritchArmor.hasSetBonus(e.player)) {
+			SetFlyingState.State flyingState;
+			if (e.player.worldObj.isRemote) {
+				flyingState = LClientEventHandler.inst.lastFlyingState;
+			} else {
+				flyingState = props.flyingState;
+			}
+			int totalGlyphs = 0;
+			for (ItemStack is : e.player.inventory.armorInventory) {
+				totalGlyphs += ((ItemEldritchArmor)is.getItem()).getMilliglyphs(is);
+			}
+			if (totalGlyphs >= 1000) {
+				int cost = 0;
+				if (flyingState == State.FLYING) {
+					cost = 250;
+					if (e.player instanceof EntityPlayerMP) {
+						((EntityPlayerMP)e.player).playerNetServerHandler.floatingTickCount = 0;
+					}
+					e.player.motionY += 0.05;
+					if (e.player.motionY > 0.4) {
+						e.player.motionY = 0.4;
+					}
+					if (e.player.motionY >= 0) {
+						e.player.fallDistance = 0;
+					}
+					if (e.player.moveForward > 0) {
+						e.player.moveFlying(0, 1, 0.0075f);
+					}
+					for (int i = 0; i < 5; i++) {
+						e.player.worldObj.spawnParticle("enchantmenttable", e.player.posX+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)), e.player.boundingBox.minY, e.player.posZ+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)), 0, -0.5, 0);
+					}
+				} else if (flyingState == State.HOVER) {
+					cost = 100;
+					if (e.player instanceof EntityPlayerMP) {
+						((EntityPlayerMP)e.player).playerNetServerHandler.floatingTickCount = 0;
+					}
+					if (e.player.motionY > 0) {
+						e.player.motionY -= 0.05;
+					} else if (e.player.motionY < 0) {
+						e.player.motionY += 0.05;
+					}
+					if (Math.abs(e.player.motionY) < 0.1) {
+						e.player.motionY = 0;
+						e.player.fallDistance = 0;
+					}
+					if (e.player.moveForward > 0) {
+						e.player.moveFlying(0, 1, 0.005f);
+					}
+					for (int i = 0; i < 8; i++) {
+						e.player.worldObj.spawnParticle("enchantmenttable", e.player.posX+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)), e.player.boundingBox.minY, e.player.posZ+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)), 0, 0, 0);
+					}
+				}
+				int loops = 0;
+				while (cost > 0) {
+					for (ItemStack is : e.player.inventory.armorInventory) {
+						int mg = ((ItemEldritchArmor)is.getItem()).getMilliglyphs(is);
+						int c = Math.min((int)Math.ceil(cost/4f), mg);
+						cost -= c;
+						((ItemEldritchArmor)is.getItem()).setMilliglyphs(is, mg-c);
+					}
+					loops++;
+					if (loops > 20) {
+						Lanthanoid.log.warn("Tried to decrement cost too many times!");
+						break;
+					}
+				}
+				if (!e.player.onGround && e.player.isSneaking()) {
+					if (e.player.motionY < -0.2) {
+						e.player.motionY += 0.05;
+						if (e.player.motionY >= -0.2) {
+							e.player.fallDistance = 0;
+						}
+						for (int i = 0; i < 2; i++) {
+							e.player.worldObj.spawnParticle("enchantmenttable", e.player.posX+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)), e.player.boundingBox.minY, e.player.posZ+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)), 0, 0.5, 0);
+						}
+					}
 				}
 			}
 		}

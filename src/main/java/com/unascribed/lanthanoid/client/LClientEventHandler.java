@@ -22,6 +22,8 @@ import com.unascribed.lanthanoid.item.rifle.Mode;
 import com.unascribed.lanthanoid.item.rifle.PrimaryMode;
 import com.unascribed.lanthanoid.item.rifle.SecondaryMode;
 import com.unascribed.lanthanoid.network.ModifyRifleMode;
+import com.unascribed.lanthanoid.network.SetFlyingState;
+import com.unascribed.lanthanoid.network.SetFlyingState.State;
 import com.unascribed.lanthanoid.network.ToggleRifleBlazeMode;
 import com.unascribed.lanthanoid.util.LUtil;
 import com.unascribed.lanthanoid.waypoint.Waypoint;
@@ -95,6 +97,8 @@ public class LClientEventHandler {
 	
 	private boolean lastBlaze = false;
 	private int blazeTicks = 0;
+	
+	public SetFlyingState.State lastFlyingState = SetFlyingState.State.NONE;
 	
 	public LClientEventHandler() {
 		inst = this;
@@ -351,6 +355,20 @@ public class LClientEventHandler {
 							oreStacks.put(id, is.get(0));
 						}
 					}
+				}
+				SetFlyingState.State flyingState;
+				if (mc.gameSettings.keyBindJump.getIsKeyPressed()) {
+					if (mc.gameSettings.keyBindSneak.getIsKeyPressed()) {
+						flyingState = State.HOVER;
+					} else {
+						flyingState = State.FLYING;
+					}
+				} else {
+					flyingState = State.NONE;
+				}
+				if (flyingState != lastFlyingState) {
+					lastFlyingState = flyingState;
+					Lanthanoid.inst.network.sendToServer(new SetFlyingState.Message(flyingState));
 				}
 				ticks++;
 			} else {

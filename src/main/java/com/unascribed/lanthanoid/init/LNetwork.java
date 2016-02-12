@@ -10,6 +10,7 @@ import com.unascribed.lanthanoid.network.ItemBreak;
 import com.unascribed.lanthanoid.network.ModifyRifleMode;
 import com.unascribed.lanthanoid.network.ModifyWaypointList;
 import com.unascribed.lanthanoid.network.RifleChargingSound;
+import com.unascribed.lanthanoid.network.SetFlyingState;
 import com.unascribed.lanthanoid.network.SetScopeFactor;
 import com.unascribed.lanthanoid.network.SpaceShipCrash;
 import com.unascribed.lanthanoid.network.SpawnGlyphParticles;
@@ -37,6 +38,7 @@ public class LNetwork {
 		registerMessage(Side.CLIENT, BootNoise.class);
 		registerMessage(Side.CLIENT, SpawnGlyphParticles.class);
 		registerMessage(Side.CLIENT, BootZap.class);
+		registerMessage(Side.SERVER, SetFlyingState.class);
 	}
 
 	private static <REQ extends IMessage> void registerMessage(Side side, Class<?> clazz) {
