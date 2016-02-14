@@ -6,7 +6,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Multimap;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
-import com.unascribed.lanthanoid.item.GlyphToolHelper;
+import com.unascribed.lanthanoid.item.GlyphItemHelper;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -50,7 +50,7 @@ public class ItemEldritchSword extends ItemSword implements IGlyphHolderItem {
 	
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced) {
-		GlyphToolHelper.doAddInformation(this, stack, player, list, advanced);
+		GlyphItemHelper.doAddInformation(this, stack, player, list, advanced);
 	}
 	
 	@Override
@@ -66,7 +66,7 @@ public class ItemEldritchSword extends ItemSword implements IGlyphHolderItem {
 	
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean equipped) {
-		GlyphToolHelper.doUpdate(this, stack, world, entity, slot, equipped);
+		GlyphItemHelper.doUpdate(this, stack, world, entity, slot, equipped);
 		if (world.isRemote) return;
 		if (isCharging(stack) && entity instanceof EntityPlayer) {
 			if (getMilliglyphs(stack) == 0 || (entity.onGround && getTicksUntilReady(stack) < 90) || getTicksUntilReady(stack) <= 50) {
@@ -182,8 +182,33 @@ public class ItemEldritchSword extends ItemSword implements IGlyphHolderItem {
 		glyphs = register.registerIcon("lanthanoid:eldritch_glyph_kill");
 	}
 	
-	public IIcon getGlyphs() {
+	@Override
+	public IIcon getGlyphs(ItemStack is) {
 		return glyphs;
+	}
+	
+	public float getReadyMult(ItemStack is) {
+		return 1-(getTicksUntilReady(is)/100f);
+	}
+	
+	@Override
+	public float getGlyphColorRed(ItemStack is) {
+		return GlyphItemHelper.getDefaultGlyphColorRed(this, is) * getReadyMult(is);
+	}
+	
+	@Override
+	public float getGlyphColorGreen(ItemStack is) {
+		return GlyphItemHelper.getDefaultGlyphColorGreen(this, is) * getReadyMult(is);
+	}
+	
+	@Override
+	public float getGlyphColorBlue(ItemStack is) {
+		return GlyphItemHelper.getDefaultGlyphColorBlue(this, is) * getReadyMult(is);
+	}
+	
+	@Override
+	public float getGlyphColorAlpha(ItemStack is) {
+		return GlyphItemHelper.getDefaultGlyphColorAlpha(this, is) * ((getReadyMult(is)*0.85f)+0.15f);
 	}
 	
 }

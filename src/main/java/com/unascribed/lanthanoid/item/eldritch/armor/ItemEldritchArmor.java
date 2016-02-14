@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
-import com.unascribed.lanthanoid.item.GlyphToolHelper;
+import com.unascribed.lanthanoid.item.GlyphItemHelper;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchInductor;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -22,7 +22,6 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 public abstract class ItemEldritchArmor extends ItemArmor implements IGlyphHolderItem {
-
 	private boolean enhanced;
 	
 	public ItemEldritchArmor(ArmorMaterial material, int armorType, boolean enhanced) {
@@ -49,7 +48,8 @@ public abstract class ItemEldritchArmor extends ItemArmor implements IGlyphHolde
 		}
 	}
 	
-	public IIcon getGlyphs() {
+	@Override
+	public IIcon getGlyphs(ItemStack stack) {
 		return glyphs;
 	}
 	
@@ -72,19 +72,19 @@ public abstract class ItemEldritchArmor extends ItemArmor implements IGlyphHolde
 	
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced) {
-		GlyphToolHelper.doAddInformation(this, stack, player, list, advanced);
+		GlyphItemHelper.doAddInformation(this, stack, player, list, advanced);
 		list.add("");
 		list.add((hasSetBonus(player) ? "\u00A79" : "\u00A78")+StatCollector.translateToLocal("ui.eldritch_set_bonus"));
 	}
 	
 	@Override
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
-		GlyphToolHelper.doUpdate(this, stack, world, player, 3-armorType, true);
+		GlyphItemHelper.doUpdate(this, stack, world, player, 3-armorType, true);
 	}
 	
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean equipped) {
-		GlyphToolHelper.doUpdate(this, stack, world, entity, slot, equipped);
+		GlyphItemHelper.doUpdate(this, stack, world, entity, slot, equipped);
 		if (entity instanceof EntityPlayer) {
 			EntityPlayer player = (EntityPlayer)entity;
 			if (world.isRemote && FMLCommonHandler.instance().getSide().isClient()) {
@@ -146,6 +146,26 @@ public abstract class ItemEldritchArmor extends ItemArmor implements IGlyphHolde
 				break;
 			}
 		}
+	}
+
+	@Override
+	public float getGlyphColorRed(ItemStack is) {
+		return GlyphItemHelper.getDefaultGlyphColorRed(this, is);
+	}
+	
+	@Override
+	public float getGlyphColorGreen(ItemStack is) {
+		return GlyphItemHelper.getDefaultGlyphColorGreen(this, is);
+	}
+	
+	@Override
+	public float getGlyphColorBlue(ItemStack is) {
+		return GlyphItemHelper.getDefaultGlyphColorBlue(this, is);
+	}
+	
+	@Override
+	public float getGlyphColorAlpha(ItemStack is) {
+		return GlyphItemHelper.getDefaultGlyphColorAlpha(this, is);
 	}
 
 }

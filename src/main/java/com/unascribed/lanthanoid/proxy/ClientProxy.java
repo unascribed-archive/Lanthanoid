@@ -55,16 +55,16 @@ public class ClientProxy implements Proxy {
 		MinecraftForgeClient.registerItemRenderer(LItems.erbium_wrecking_ball, new WreckingBallItemRenderer());
 		MinecraftForgeClient.registerItemRenderer(LItems.dysprosium_wrecking_ball, new WreckingBallItemRenderer());
 		
-		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_pickaxe, new EldritchItemRenderer(0.625f, 0.625f, -30f, LItems.eldritch_pickaxe::getGlyphs));
-		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_shovel, new EldritchItemRenderer(0.5f, 0.565f, 45f, LItems.eldritch_shovel::getGlyphs));
-		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_axe, new EldritchItemRenderer(0.585f, 0.585f, -30f, LItems.eldritch_axe::getGlyphs));
-		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_sword, new EldritchItemRenderer(0.65f, 0.5f, 225f, LItems.eldritch_sword::getGlyphs));
-		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_drill, new EldritchItemRenderer(0.35f, 0.5f, -45f, LItems.eldritch_drill::getGlyphs));
+		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_pickaxe, new EldritchItemRenderer(0.625f, 0.625f, -30f));
+		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_shovel, new EldritchItemRenderer(0.5f, 0.565f, 45f));
+		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_axe, new EldritchItemRenderer(0.585f, 0.585f, -30f));
+		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_sword, new EldritchItemRenderer(0.65f, 0.5f, 225f));
+		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_drill, new EldritchItemRenderer(0.35f, 0.5f, -45f));
 		
-		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_helmet, new EldritchItemRenderer(0.35f, 0.6f, 0f, LItems.eldritch_helmet::getGlyphs));
-		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_helmet_enhanced, new EldritchItemRenderer(0.35f, 0.6f, 0f, LItems.eldritch_helmet_enhanced::getGlyphs));
-		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_chestplate, new EldritchItemRenderer(0.35f, 0.35f, 0f, LItems.eldritch_chestplate::getGlyphs));
-		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_leggings, new EldritchItemRenderer(0.35f, 0.7f, 0f, LItems.eldritch_leggings::getGlyphs));
-		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_boots, new EldritchItemRenderer(0.4f, 0.4f, 90f, LItems.eldritch_boots::getGlyphs));
+		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_helmet, new EldritchItemRenderer(0.35f, 0.6f, 0f));
+		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_helmet_enhanced, new EldritchItemRenderer(0.35f, 0.6f, 0f));
+		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_chestplate, new EldritchItemRenderer(0.35f, 0.35f, 0f));
+		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_leggings, new EldritchItemRenderer(0.35f, 0.7f, 0f));
+		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_boots, new EldritchItemRenderer(0.4f, 0.4f, 90f));
 	}
 }

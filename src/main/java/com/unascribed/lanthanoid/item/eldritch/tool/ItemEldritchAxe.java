@@ -7,7 +7,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
-import com.unascribed.lanthanoid.item.GlyphToolHelper;
+import com.unascribed.lanthanoid.item.GlyphItemHelper;
 import com.unascribed.lanthanoid.util.LUtil;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -55,7 +55,7 @@ public class ItemEldritchAxe extends ItemAxe implements IGlyphHolderItem {
 			breaking = true;
 			Block block = world.getBlock(x, y, z);
 			int meta = world.getBlockMetadata(x, y, z);
-			if (block == expected && meta == expectedMeta && GlyphToolHelper.doBlockDestroyed(getOuterType(), stack, world, block, x, y, z, player)) {
+			if (block == expected && meta == expectedMeta && GlyphItemHelper.doBlockDestroyed(getOuterType(), stack, world, block, x, y, z, player)) {
 				stack.damageItem(1, player);
 				LUtil.harvest(player, world, x, y, z, true, true, false);
 				if (stack.getMetadata() >= stack.getMaxDurability()) {
@@ -208,7 +208,7 @@ public class ItemEldritchAxe extends ItemAxe implements IGlyphHolderItem {
 	
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced) {
-		GlyphToolHelper.doAddInformation(this, stack, player, list, advanced);
+		GlyphItemHelper.doAddInformation(this, stack, player, list, advanced);
 	}
 	
 	@Override
@@ -218,14 +218,14 @@ public class ItemEldritchAxe extends ItemAxe implements IGlyphHolderItem {
 	
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean equipped) {
-		GlyphToolHelper.doUpdate(this, stack, world, entity, slot, equipped);
+		GlyphItemHelper.doUpdate(this, stack, world, entity, slot, equipped);
 	}
 	
 	private boolean breaking = false;
 	
 	@Override
 	public boolean onBlockDestroyed(ItemStack stack, World world, Block block, int x, int y, int z, EntityLivingBase ent) {
-		if (GlyphToolHelper.doBlockDestroyed(this, stack, world, block, x, y, z, ent) && !breaking && ent instanceof EntityPlayerMP && !ent.isSneaking()) {
+		if (GlyphItemHelper.doBlockDestroyed(this, stack, world, block, x, y, z, ent) && !breaking && ent instanceof EntityPlayerMP && !ent.isSneaking()) {
 			addSurroundings(world, x, y, z, stack, (EntityPlayerMP)ent, block);
 		}
 		return true;
@@ -243,8 +243,29 @@ public class ItemEldritchAxe extends ItemAxe implements IGlyphHolderItem {
 		glyphs = register.registerIcon("lanthanoid:eldritch_glyph_chop");
 	}
 	
-	public IIcon getGlyphs() {
+	@Override
+	public IIcon getGlyphs(ItemStack is) {
 		return glyphs;
+	}
+	
+	@Override
+	public float getGlyphColorRed(ItemStack is) {
+		return GlyphItemHelper.getDefaultGlyphColorRed(this, is);
+	}
+	
+	@Override
+	public float getGlyphColorGreen(ItemStack is) {
+		return GlyphItemHelper.getDefaultGlyphColorGreen(this, is);
+	}
+	
+	@Override
+	public float getGlyphColorBlue(ItemStack is) {
+		return GlyphItemHelper.getDefaultGlyphColorBlue(this, is);
+	}
+	
+	@Override
+	public float getGlyphColorAlpha(ItemStack is) {
+		return GlyphItemHelper.getDefaultGlyphColorAlpha(this, is);
 	}
 	
 }

@@ -3,6 +3,7 @@ package com.unascribed.lanthanoid.item;
 import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IIcon;
 
 public class ItemChargedBook extends ItemBase implements IGlyphHolderItem {
 
@@ -31,6 +32,31 @@ public class ItemChargedBook extends ItemBase implements IGlyphHolderItem {
 	@Override
 	public int getMaxMilliglyphs(ItemStack stack) {
 		return 20_000;
+	}
+	
+	@Override
+	public IIcon getGlyphs(ItemStack is) {
+		return null;
+	}
+	
+	@Override
+	public float getGlyphColorRed(ItemStack is) {
+		return GlyphItemHelper.getDefaultGlyphColorRed(this, is);
+	}
+	
+	@Override
+	public float getGlyphColorGreen(ItemStack is) {
+		return GlyphItemHelper.getDefaultGlyphColorGreen(this, is);
+	}
+	
+	@Override
+	public float getGlyphColorBlue(ItemStack is) {
+		return GlyphItemHelper.getDefaultGlyphColorBlue(this, is);
+	}
+	
+	@Override
+	public float getGlyphColorAlpha(ItemStack is) {
+		return GlyphItemHelper.getDefaultGlyphColorAlpha(this, is);
 	}
 
 }

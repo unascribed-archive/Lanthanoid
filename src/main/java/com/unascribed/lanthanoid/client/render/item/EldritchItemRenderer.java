@@ -3,7 +3,6 @@ package com.unascribed.lanthanoid.client.render.item;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-import com.google.common.base.Supplier;
 import com.unascribed.lanthanoid.client.Rendering;
 import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
 import com.unascribed.lanthanoid.item.eldritch.tool.ItemEldritchSword;
@@ -37,15 +36,13 @@ public class EldritchItemRenderer implements IItemRenderer {
 	}
 	
 	private float glyphsX, glyphsY, glyphsAngle;
-	private Supplier<IIcon> glyphs;
 	private GlyphEmitter[] emitters;
 	
-	public EldritchItemRenderer(float glyphsX, float glyphsY, float glyphsAngle, Supplier<IIcon> glyphs, GlyphEmitter... emitters) {
+	public EldritchItemRenderer(float glyphsX, float glyphsY, float glyphsAngle, GlyphEmitter... emitters) {
 		super();
 		this.glyphsX = glyphsX;
 		this.glyphsY = glyphsY;
 		this.glyphsAngle = glyphsAngle;
-		this.glyphs = glyphs;
 		this.emitters = emitters;
 	}
 
@@ -67,25 +64,15 @@ public class EldritchItemRenderer implements IItemRenderer {
 		
 		float partialTicks = Minecraft.getMinecraft().timer.renderPartialTicks;
 		EntityClientPlayerMP p = Minecraft.getMinecraft().thePlayer;
-		//ItemRenderer ir = Minecraft.getMinecraft().entityRenderer.itemRenderer;
-		float playerAnim = 1;//(item == p.getHeldItem() ? ir.prevEquippedProgress + (ir.equippedProgress - ir.prevEquippedProgress) * partialTicks : 0);
-		float glyphCount = holder.getMilliglyphs(item) / (float)holder.getMaxMilliglyphs(item);
 		
 		float t = p.ticksExisted+partialTicks;
 		float sin = MathHelper.sin(t/20);
 		
-		float q = Math.max(0.25f, playerAnim);
-		float q2 = Math.max(0.25f, playerAnim*glyphCount);
-		
-		float r = q2;
-		float g = q-playerAnim;
-		float b = q-(playerAnim*glyphCount);
-		float a = 0.5f;
+		float r = holder.getGlyphColorRed(item);
+		float g = holder.getGlyphColorGreen(item);
+		float b = holder.getGlyphColorBlue(item);
+		float a = holder.getGlyphColorAlpha(item);
 
-		if (glyphCount >= 0.99f) {
-			a = 1;
-		}
-		
 		GL11.glEnable(GL11.GL_ALPHA_TEST);
 		if (type == ItemRenderType.INVENTORY) {
 			GL11.glScalef(-16, -16, -1);
@@ -100,11 +87,6 @@ public class EldritchItemRenderer implements IItemRenderer {
 		GL11.glRotatef(180F, 0.0f, 0.0f, 1.0f);
 		if (holder instanceof ItemEldritchSword) {
 			ItemEldritchSword ies = (ItemEldritchSword)holder;
-			float m = 1-(ies.getTicksUntilReady(item)/100f);
-			r *= m;
-			g *= m;
-			b *= m;
-			a *= ((m*0.85f)+0.15f);
 			if ((p.getItemInUse() == item || ies.isCharging(item)) && type == ItemRenderType.EQUIPPED_FIRST_PERSON) {
 				GL11.glPopMatrix();
 				GL11.glPopMatrix();
@@ -152,57 +134,58 @@ public class EldritchItemRenderer implements IItemRenderer {
 		Rendering.renderItemDefault(item);
 		GL11.glEnable(GL11.GL_ALPHA_TEST);
 		
-		IIcon glyphs = this.glyphs.get();
-		
-		Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationItemsTexture);
-		
-		GL11.glDisable(GL11.GL_LIGHTING);
-		
-		if (type == ItemRenderType.INVENTORY) {
-			GL11.glEnable(GL11.GL_BLEND);
-			OpenGlHelper.glBlendFunc(770, 771, 0, 1);
-			GL11.glDisable(GL11.GL_CULL_FACE);
-			GL11.glScalef(1, -1, 1);
-			GL11.glTranslatef(0f, -0.65f, 0);
-			GL11.glColor4f(r, g, b, a);
-			Tessellator tess = Tessellator.instance;
-			tess.startDrawingQuads();
-			tess.addVertexWithUV(0, 0, 0, glyphs.getMinU(), glyphs.getMinV());
-			tess.addVertexWithUV(1, 0, 0, glyphs.getMaxU(), glyphs.getMinV());
-			tess.addVertexWithUV(1, 1, 0, glyphs.getMaxU(), glyphs.getMaxV());
-			tess.addVertexWithUV(0, 1, 0, glyphs.getMinU(), glyphs.getMaxV());
-			tess.draw();
-			GL11.glEnable(GL11.GL_CULL_FACE);
-		} else {
-			
-			GL11.glDepthMask(false);
-			GL11.glTranslatef(glyphsX, glyphsY, 0.05f);
-			GL11.glScalef(0.33f, 0.33f, 0.33f);
-			GL11.glTranslatef(0.5f, 0.5f, 0.5f);
-			GL11.glRotatef(glyphsAngle, 0, 0, 1);
-			GL11.glTranslatef(-0.5f, -0.5f, -0.5f);
-			
-			GL11.glScalef(1, 0.5f, 1);
-			GL11.glTranslatef(0.5f, 0.5f, 0.5f);
-			GL11.glRotatef(((sin*2)-5)*playerAnim, 1, 0, 0);
-			GL11.glRotatef((sin*2)*playerAnim, 0, 0, 1);
-			GL11.glTranslatef(-0.5f, -0.5f, -0.5f);
-			
-			float oldX = OpenGlHelper.lastBrightnessX;
-			float oldY = OpenGlHelper.lastBrightnessY;
-			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240f, 240f);
+		IIcon glyphs = holder.getGlyphs(item);
+		if (glyphs != null) {
+			Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationItemsTexture);
 			
 			GL11.glDisable(GL11.GL_LIGHTING);
-			GL11.glEnable(GL11.GL_BLEND);
-			OpenGlHelper.glBlendFunc(770, 771, 0, 1);
-			GL11.glColor4f(r, g, b, a/3);
-			Rendering.drawExtrudedHalfIcon(glyphs, 0.2f);
-			GL11.glColor4f(r, g, b, a);
-			GL11.glTranslatef(0.0f, 0.0f, 0.0625f);
-			Rendering.drawExtrudedHalfIcon(glyphs, 0.0625f);
-			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, oldX, oldY);
-			GL11.glEnable(GL11.GL_LIGHTING);
-			GL11.glDepthMask(true);
+			
+			if (type == ItemRenderType.INVENTORY) {
+				GL11.glEnable(GL11.GL_BLEND);
+				OpenGlHelper.glBlendFunc(770, 771, 0, 1);
+				GL11.glDisable(GL11.GL_CULL_FACE);
+				GL11.glScalef(1, -1, 1);
+				GL11.glTranslatef(0f, -0.65f, 0);
+				GL11.glColor4f(r, g, b, a);
+				Tessellator tess = Tessellator.instance;
+				tess.startDrawingQuads();
+				tess.addVertexWithUV(0, 0, 0, glyphs.getMinU(), glyphs.getMinV());
+				tess.addVertexWithUV(1, 0, 0, glyphs.getMaxU(), glyphs.getMinV());
+				tess.addVertexWithUV(1, 1, 0, glyphs.getMaxU(), glyphs.getMaxV());
+				tess.addVertexWithUV(0, 1, 0, glyphs.getMinU(), glyphs.getMaxV());
+				tess.draw();
+				GL11.glEnable(GL11.GL_CULL_FACE);
+			} else {
+				
+				GL11.glDepthMask(false);
+				GL11.glTranslatef(glyphsX, glyphsY, 0.05f);
+				GL11.glScalef(0.33f, 0.33f, 0.33f);
+				GL11.glTranslatef(0.5f, 0.5f, 0.5f);
+				GL11.glRotatef(glyphsAngle, 0, 0, 1);
+				GL11.glTranslatef(-0.5f, -0.5f, -0.5f);
+				
+				GL11.glScalef(1, 0.5f, 1);
+				GL11.glTranslatef(0.5f, 0.5f, 0.5f);
+				GL11.glRotatef(((sin*2)-5), 1, 0, 0);
+				GL11.glRotatef((sin*2), 0, 0, 1);
+				GL11.glTranslatef(-0.5f, -0.5f, -0.5f);
+				
+				float oldX = OpenGlHelper.lastBrightnessX;
+				float oldY = OpenGlHelper.lastBrightnessY;
+				OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240f, 240f);
+				
+				GL11.glDisable(GL11.GL_LIGHTING);
+				GL11.glEnable(GL11.GL_BLEND);
+				OpenGlHelper.glBlendFunc(770, 771, 0, 1);
+				GL11.glColor4f(r, g, b, a/3);
+				Rendering.drawExtrudedHalfIcon(glyphs, 0.2f);
+				GL11.glColor4f(r, g, b, a);
+				GL11.glTranslatef(0.0f, 0.0f, 0.0625f);
+				Rendering.drawExtrudedHalfIcon(glyphs, 0.0625f);
+				OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, oldX, oldY);
+				GL11.glEnable(GL11.GL_LIGHTING);
+				GL11.glDepthMask(true);
+			}
 		}
 	}
 

@@ -152,9 +152,8 @@ public class LClientEventHandler {
 			EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
 			if (ClientConfig.bootsChangeFov) {
 				ItemStack boots = player.inventory.armorItemInSlot(0);
-				if (boots != null && boots.getItem() == LItems.eldritch_boots) {
-					int sprintTicks = LItems.eldritch_boots.getSprintingTicks(boots);
-					float speed = (float)Math.log(1+(sprintTicks/ItemEldritchBoots.SPINUP_SPEED));
+				if (boots != null && boots.getItem() instanceof ItemEldritchBoots) {
+					float speed = ((ItemEldritchBoots)boots.getItem()).getSpeed(boots);
 					e.newfov += (speed/2);
 				}
 			}
@@ -272,55 +271,51 @@ public class LClientEventHandler {
 				float partialTicks = Minecraft.getMinecraft().timer.renderPartialTicks;
 				EntityPlayer p = e.entityPlayer;
 				//ItemRenderer ir = Minecraft.getMinecraft().entityRenderer.itemRenderer;
-				float playerAnim = 1;//(item == p.getHeldItem() ? ir.prevEquippedProgress + (ir.equippedProgress - ir.prevEquippedProgress) * partialTicks : 0);
-				float glyphCount = iea.getMilliglyphs(is) / (float)iea.getMaxMilliglyphs(is);
 				
 				float t = p.ticksExisted+partialTicks;
 				float sin = MathHelper.sin(t/20);
 				
-				float q = Math.max(0.25f, playerAnim);
-				float q2 = Math.max(0.25f, playerAnim*glyphCount);
-				
-				float r = q2;
-				float g = q-playerAnim;
-				float b = q-(playerAnim*glyphCount);
-				float a = 0.5f;
+				float r = iea.getGlyphColorRed(is);
+				float g = iea.getGlyphColorGreen(is);
+				float b = iea.getGlyphColorBlue(is);
+				float a = iea.getGlyphColorAlpha(is);
 				
 				Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationItemsTexture);
-				IIcon glyphs = iea.getGlyphs();
-				
-				GL11.glRotatef(180f, 1, 0, 0);
-				GL11.glScalef(1, 0.5f, 1);
-				switch (iea.armorType) {
-					case 0: // helm
-						GL11.glTranslatef(0, 0.9f, 0.475f);
-						break;
-					case 1: // plate
-						GL11.glTranslatef(0, -0.7f, 0.35f);
-						break;
-					case 2: // leggings
-						if (p.inventory.armorItemInSlot(2) != null) {
-							GL11.glTranslatef(0, -1.3f, 0.35f);
-						} else {
-							GL11.glTranslatef(0, -1f, 0.3f);
-						}
-						break;
-					case 3: // boots
-						GL11.glRotatef(90f, 0, 1, 0);
-						GL11.glTranslatef(0, -1.1f, 0.355f);
-						break;
+				IIcon glyphs = iea.getGlyphs(is);
+				if (glyphs != null) {
+					GL11.glRotatef(180f, 1, 0, 0);
+					GL11.glScalef(1, 0.5f, 1);
+					switch (iea.armorType) {
+						case 0: // helm
+							GL11.glTranslatef(0, 0.9f, 0.475f);
+							break;
+						case 1: // plate
+							GL11.glTranslatef(0, -0.7f, 0.35f);
+							break;
+						case 2: // leggings
+							if (p.inventory.armorItemInSlot(2) != null) {
+								GL11.glTranslatef(0, -1.3f, 0.35f);
+							} else {
+								GL11.glTranslatef(0, -1f, 0.3f);
+							}
+							break;
+						case 3: // boots
+							GL11.glRotatef(90f, 0, 1, 0);
+							GL11.glTranslatef(0, -1.1f, 0.355f);
+							break;
+					}
+					GL11.glRotatef(((sin*2)-5), 1, 0, 0);
+					GL11.glRotatef((sin*2), 0, 0, 1);
+					GL11.glScalef(0.25f, 0.25f, 0.25f);
+					GL11.glTranslatef(-0.5f, -0.5f, -0.5f);
+					
+					GL11.glColor4f(r, g, b, a/3);
+					Rendering.drawExtrudedHalfIcon(glyphs, 0.2f);
+					GL11.glColor4f(r, g, b, a);
+					GL11.glTranslatef(0.0f, 0.0f, 0.0625f);
+					Rendering.drawExtrudedHalfIcon(glyphs, 0.0625f);
+					GL11.glPopMatrix();
 				}
-				GL11.glRotatef(((sin*2)-5)*playerAnim, 1, 0, 0);
-				GL11.glRotatef((sin*2)*playerAnim, 0, 0, 1);
-				GL11.glScalef(0.25f, 0.25f, 0.25f);
-				GL11.glTranslatef(-0.5f, -0.5f, -0.5f);
-				
-				GL11.glColor4f(r, g, b, a/3);
-				Rendering.drawExtrudedHalfIcon(glyphs, 0.2f);
-				GL11.glColor4f(r, g, b, a);
-				GL11.glTranslatef(0.0f, 0.0f, 0.0625f);
-				Rendering.drawExtrudedHalfIcon(glyphs, 0.0625f);
-				GL11.glPopMatrix();
 			}
 		}
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, oldX, oldY);
@@ -813,39 +808,37 @@ public class LClientEventHandler {
 					ItemStack is = p.inventory.armorItemInSlot(i);
 					if (is != null && is.getItem() instanceof ItemEldritchArmor) {
 						ItemEldritchArmor iea = (ItemEldritchArmor)is.getItem();
-						IIcon glyphs = iea.getGlyphs();
+						IIcon glyphs = iea.getGlyphs(is);
 						
 						totalGlyphs += iea.getMilliglyphs(is);
-						float glyphCount = iea.getMilliglyphs(is) / (float)iea.getMaxMilliglyphs(is);
 						
-						float r = glyphCount;
-						float g = 0;
-						float b = 1-glyphCount;
-						float a = 0.5f;
-						if (glyphCount >= 1) {
-							a = 1;
+						float r = iea.getGlyphColorRed(is);
+						float g = iea.getGlyphColorGreen(is);
+						float b = iea.getGlyphColorBlue(is);
+						float a = iea.getGlyphColorAlpha(is);
+						
+						if (glyphs != null) {
+							GL11.glColor4f(r, g, b, a);
+							
+							Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationItemsTexture);
+							GL11.glBegin(GL11.GL_QUADS);
+								GL11.glTexCoord2f(glyphs.getMinU(), glyphs.getMaxV());
+								GL11.glVertex2f(0, 32);
+								
+								GL11.glTexCoord2f(glyphs.getMaxU(), glyphs.getMaxV());
+								GL11.glVertex2f(32, 32);
+								
+								GL11.glTexCoord2f(glyphs.getMaxU(), glyphs.getMinV());
+								GL11.glVertex2f(32, 0);
+								
+								GL11.glTexCoord2f(glyphs.getMinU(), glyphs.getMinV());
+								GL11.glVertex2f(0, 0);
+							GL11.glEnd();
+							GL11.glPushMatrix();
+								int percent = (int)(((float)iea.getMilliglyphs(is)/iea.getMaxMilliglyphs(is))*100f);
+								Minecraft.getMinecraft().fontRendererObj.drawString(percent+"%", 38, 5, -1);
+							GL11.glPopMatrix();
 						}
-						
-						GL11.glColor4f(r, g, b, a);
-						
-						Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationItemsTexture);
-						GL11.glBegin(GL11.GL_QUADS);
-							GL11.glTexCoord2f(glyphs.getMinU(), glyphs.getMaxV());
-							GL11.glVertex2f(0, 32);
-							
-							GL11.glTexCoord2f(glyphs.getMaxU(), glyphs.getMaxV());
-							GL11.glVertex2f(32, 32);
-							
-							GL11.glTexCoord2f(glyphs.getMaxU(), glyphs.getMinV());
-							GL11.glVertex2f(32, 0);
-							
-							GL11.glTexCoord2f(glyphs.getMinU(), glyphs.getMinV());
-							GL11.glVertex2f(0, 0);
-						GL11.glEnd();
-						GL11.glPushMatrix();
-							int percent = (int)(((float)iea.getMilliglyphs(is)/iea.getMaxMilliglyphs(is))*100f);
-							Minecraft.getMinecraft().fontRendererObj.drawString(percent+"%", 38, 5, -1);
-						GL11.glPopMatrix();
 					} else {
 						hasSetBonus = false;
 					}

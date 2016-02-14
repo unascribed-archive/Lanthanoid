@@ -5,7 +5,7 @@ import java.util.List;
 import com.google.common.base.Strings;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
-import com.unascribed.lanthanoid.item.GlyphToolHelper;
+import com.unascribed.lanthanoid.item.GlyphItemHelper;
 import com.unascribed.lanthanoid.util.LUtil;
 
 import net.minecraft.block.Block;
@@ -48,19 +48,19 @@ public class ItemEldritchSpade extends ItemSpade implements IGlyphHolderItem {
 	
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced) {
-		GlyphToolHelper.doAddInformation(this, stack, player, list, advanced);
+		GlyphItemHelper.doAddInformation(this, stack, player, list, advanced);
 	}
 	
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean equipped) {
-		GlyphToolHelper.doUpdate(this, stack, world, entity, slot, equipped);
+		GlyphItemHelper.doUpdate(this, stack, world, entity, slot, equipped);
 	}
 	
 	private boolean breaking = false;
 	
 	@Override
 	public boolean onBlockDestroyed(ItemStack stack, World world, Block block, int x, int y, int z, EntityLivingBase ent) {
-		if (GlyphToolHelper.doBlockDestroyed(this, stack, world, block, x, y, z, ent) && !breaking && ent instanceof EntityPlayerMP && !ent.isSneaking()) {
+		if (GlyphItemHelper.doBlockDestroyed(this, stack, world, block, x, y, z, ent) && !breaking && ent instanceof EntityPlayerMP && !ent.isSneaking()) {
 			try {
 				breaking = true;
 				int iterations = 0;
@@ -70,7 +70,7 @@ public class ItemEldritchSpade extends ItemSpade implements IGlyphHolderItem {
 						|| world.getBlock(x, curY, z).getMaterial() == Material.grass
 						|| world.getBlock(x, curY, z).getMaterial() == Material.ground)) {
 					if (iterations > 7) break;
-					if (GlyphToolHelper.doBlockDestroyed(this, stack, world, block, x, curY, z, ent)) {
+					if (GlyphItemHelper.doBlockDestroyed(this, stack, world, block, x, curY, z, ent)) {
 						LUtil.harvest((EntityPlayerMP)ent, world, x, curY, z, world.getBlock(x, curY, z).isToolEffective("shovel", world.getBlockMetadata(x, curY, z)), true, false);
 					} else {
 						break;
@@ -96,8 +96,29 @@ public class ItemEldritchSpade extends ItemSpade implements IGlyphHolderItem {
 		glyphs = register.registerIcon("lanthanoid:eldritch_glyph_dig");
 	}
 	
-	public IIcon getGlyphs() {
+	@Override
+	public IIcon getGlyphs(ItemStack is) {
 		return glyphs;
+	}
+	
+	@Override
+	public float getGlyphColorRed(ItemStack is) {
+		return GlyphItemHelper.getDefaultGlyphColorRed(this, is);
+	}
+	
+	@Override
+	public float getGlyphColorGreen(ItemStack is) {
+		return GlyphItemHelper.getDefaultGlyphColorGreen(this, is);
+	}
+	
+	@Override
+	public float getGlyphColorBlue(ItemStack is) {
+		return GlyphItemHelper.getDefaultGlyphColorBlue(this, is);
+	}
+	
+	@Override
+	public float getGlyphColorAlpha(ItemStack is) {
+		return GlyphItemHelper.getDefaultGlyphColorAlpha(this, is);
 	}
 	
 }

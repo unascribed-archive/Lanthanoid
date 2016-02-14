@@ -17,7 +17,7 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 
-public class GlyphToolHelper {
+public class GlyphItemHelper {
 	public static boolean doBlockDestroyed(IGlyphHolderItem holder, ItemStack stack, World world, Block block, int x, int y, int z, EntityLivingBase ent) {
 		float hardness = block.getBlockHardness(world, x, y, z);
 		int cost = Math.min(holder.getMilliglyphs(stack), (int)(hardness*12.5f));
@@ -46,5 +46,21 @@ public class GlyphToolHelper {
 			list.add("");
 			list.add(StatCollector.translateToLocalFormatted("ui.glyph_level", ((int)(((float)holder.getMilliglyphs(stack)/holder.getMaxMilliglyphs(stack))*100))+"%"));
 		}
+	}
+
+	public static float getDefaultGlyphColorRed(IGlyphHolderItem holder, ItemStack is) {
+		return Math.max(0.25f, holder.getMilliglyphs(is)/(float)holder.getMaxMilliglyphs(is));
+	}
+	
+	public static float getDefaultGlyphColorGreen(IGlyphHolderItem holder, ItemStack is) {
+		return 0;
+	}
+	
+	public static float getDefaultGlyphColorBlue(IGlyphHolderItem holder, ItemStack is) {
+		return 1-(holder.getMilliglyphs(is)/(float)holder.getMaxMilliglyphs(is));
+	}
+	
+	public static float getDefaultGlyphColorAlpha(IGlyphHolderItem holder, ItemStack is) {
+		return (holder.getMilliglyphs(is) == holder.getMaxMilliglyphs(is)) ? 1 : 0.5f;
 	}
 }

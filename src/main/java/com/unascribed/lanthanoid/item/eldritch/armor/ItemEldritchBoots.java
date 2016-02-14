@@ -23,7 +23,6 @@ import net.minecraft.world.WorldServer;
 public class ItemEldritchBoots extends ItemEldritchArmor {
 
 	public static final DamageSource wall = new DamageSource("wall");
-	public static final float SPINUP_SPEED = 800f;
 	
 	public ItemEldritchBoots(ArmorMaterial material) {
 		super(material, 3, false);
@@ -36,7 +35,7 @@ public class ItemEldritchBoots extends ItemEldritchArmor {
 		int sprintTicks = getSprintingTicks(stack);
 		if (sprintTicks < 0) {
 			player.setSprinting(false);
-			float speed = (float)Math.log(1+((sprintTicks*-1)/SPINUP_SPEED));
+			float speed = getSpeed(stack);
 			if (!world.isRemote) {
 				Lanthanoid.inst.network.sendToAllAround(new BootZap.Message(player.posX-(player.width/2), player.boundingBox.minY, player.posZ-(player.width/2), -0.5f), new TargetPoint(
 						world.provider.dimensionId,
@@ -55,12 +54,12 @@ public class ItemEldritchBoots extends ItemEldritchArmor {
 				if (sprintTicks < 0) {
 					setSprintingTicks(stack, sprintTicks + 1);
 				} else if (sprintTicks > 0) {
-					float speed = (float)Math.log(1+(sprintTicks/SPINUP_SPEED));
+					float speed = getSpeed(stack);
 					if (getMilliglyphs(stack) > 0) {
 						MovingObjectPosition mop = collisionRayTrace(player, 0.5);
 						if (mop != null && mop.typeOfHit == MovingObjectType.BLOCK) {
 							if ((speed*40) > 1) {
-								player.attackEntityFrom(wall, speed*40);
+								player.attackEntityFrom(wall, speed*60);
 							}
 						}
 					}
@@ -73,7 +72,7 @@ public class ItemEldritchBoots extends ItemEldritchArmor {
 			Lanthanoid.inst.network.sendToDimension(new BootNoise.Message(player.getEntityId()), world.provider.dimensionId);
 		}
 		if (sprintTicks > 0 && (player.onGround || player.capabilities.isFlying) && !player.isInsideOfMaterial(Material.water)) {
-			float speed = (float)Math.log(1+(sprintTicks/SPINUP_SPEED));
+			float speed = getSpeed(stack);
 			int glyphCost = (int)(speed * 500);
 			if (getMilliglyphs(stack) < glyphCost) {
 				setMilliglyphs(stack, 0);
@@ -122,6 +121,29 @@ public class ItemEldritchBoots extends ItemEldritchArmor {
 				}
 			}
 		}
+	}
+	
+	public float getSpeed(ItemStack stack) {
+		return (float)Math.log(1+(getSprintingTicks(stack)/getSpinupSpeed(stack)));
+	}
+
+	@Override
+	public float getGlyphColorRed(ItemStack is) {
+		return super.getGlyphColorRed(is) * (1-getGlyphColorGreen(is));
+	}
+	
+	@Override
+	public float getGlyphColorGreen(ItemStack is) {
+		return Math.min(1, getSpeed(is)/2);
+	}
+	
+	@Override
+	public float getGlyphColorBlue(ItemStack is) {
+		return super.getGlyphColorBlue(is);
+	}
+	
+	public float getSpinupSpeed(ItemStack stack) {
+		return 800;
 	}
 	
 	public int getSprintingTicks(ItemStack stack) {
