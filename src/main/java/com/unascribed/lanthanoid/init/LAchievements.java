@@ -37,7 +37,13 @@ public class LAchievements {
 							usedWaypoint,
 							
 							craftWreckingBall,
-							craftDysWreckingBall
+							craftDysWreckingBall,
+							
+							goFast,
+							
+							setBonus,
+							flyHigh,
+							dieWall
 	;
 	
 	
@@ -81,6 +87,12 @@ public class LAchievements {
 		
 		addAchievement("craftWreckingBall", -1, 2, LItems.ytterbium_wrecking_ball, null);
 		addAchievement("craftDysWreckingBall", -2, 4, LItems.dysprosium_wrecking_ball, craftWreckingBall);
+		
+		
+		addAchievement("goFast", 2, 5, LItems.eldritch_boots, null).setSpecial();
+		addAchievement("setBonus", -3, 6, Items.feather, null);
+		addAchievement("flyHigh", -1, 7, Items.fireworks, setBonus).setSpecial();
+		addAchievement("dieWall", 0, 5, Blocks.obsidian, null);
 		
 		for (Achievement a : li) {
 			a.registerStat();

@@ -15,7 +15,8 @@ public final class SetFlyingState {
 	public enum State {
 		NONE,
 		HOVER,
-		FLYING
+		FLYING,
+		FALLING
 	}
 	
 	public static class Handler implements IMessageHandler<Message, IMessage> {

@@ -1,13 +1,14 @@
 package com.unascribed.lanthanoid.proxy;
 
-import com.unascribed.lanthanoid.client.EldritchItemRenderer;
-import com.unascribed.lanthanoid.client.EldritchTileEntitySpecialRenderer;
+import com.unascribed.lanthanoid.client.ClientConfig;
 import com.unascribed.lanthanoid.client.LClientEventHandler;
-import com.unascribed.lanthanoid.client.MachineItemRenderer;
-import com.unascribed.lanthanoid.client.RifleItemRenderer;
 import com.unascribed.lanthanoid.client.TextureCompositorImpl;
-import com.unascribed.lanthanoid.client.WaypointTileEntitySpecialRenderer;
-import com.unascribed.lanthanoid.client.WreckingBallItemRenderer;
+import com.unascribed.lanthanoid.client.render.item.EldritchItemRenderer;
+import com.unascribed.lanthanoid.client.render.item.MachineItemRenderer;
+import com.unascribed.lanthanoid.client.render.item.RifleItemRenderer;
+import com.unascribed.lanthanoid.client.render.item.WreckingBallItemRenderer;
+import com.unascribed.lanthanoid.client.render.tile.EldritchTileEntitySpecialRenderer;
+import com.unascribed.lanthanoid.client.render.tile.WaypointTileEntitySpecialRenderer;
 import com.unascribed.lanthanoid.init.LBlocks;
 import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.tile.TileEntityEldritch;
@@ -39,6 +40,7 @@ public class ClientProxy implements Proxy {
 	}
 	@Override
 	public void init() {
+		ClientConfig.load();
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityWaypoint.class, new WaypointTileEntitySpecialRenderer());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityEldritch.class, new EldritchTileEntitySpecialRenderer());
 		LClientEventHandler ceh = new LClientEventHandler();

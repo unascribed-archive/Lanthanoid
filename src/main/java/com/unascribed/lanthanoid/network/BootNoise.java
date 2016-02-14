@@ -1,6 +1,6 @@
 package com.unascribed.lanthanoid.network;
 
-import com.unascribed.lanthanoid.client.SoundEldritchBootNoise;
+import com.unascribed.lanthanoid.client.sound.SoundEldritchBootNoise;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;

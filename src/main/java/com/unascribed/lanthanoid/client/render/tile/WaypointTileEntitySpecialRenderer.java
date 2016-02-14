@@ -1,4 +1,4 @@
-package com.unascribed.lanthanoid.client;
+package com.unascribed.lanthanoid.client.render.tile;
 
 import org.lwjgl.opengl.GL11;
 

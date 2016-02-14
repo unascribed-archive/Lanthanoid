@@ -3,9 +3,11 @@ package com.unascribed.lanthanoid;
 import java.util.List;
 
 import com.unascribed.lanthanoid.client.LClientEventHandler;
+import com.unascribed.lanthanoid.effect.EntityGlyphFX;
 import com.unascribed.lanthanoid.init.LAchievements;
 import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchArmor;
+import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchBoots;
 import com.unascribed.lanthanoid.item.rifle.Variant;
 import com.unascribed.lanthanoid.network.BeamParticle;
 import com.unascribed.lanthanoid.network.SetFlyingState;
@@ -14,12 +16,16 @@ import com.unascribed.lanthanoid.network.SetScopeFactor;
 import com.unascribed.lanthanoid.waypoint.Waypoint;
 
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 import cpw.mods.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent;
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityFallingBlock;
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,6 +34,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 
 public class LEventHandler {
@@ -61,6 +68,16 @@ public class LEventHandler {
 			return;
 		}
 		Lanthanoid.inst.waypointManager.sendAll((EntityPlayerMP)e.player, false);
+	}
+	
+	@SubscribeEvent(priority=EventPriority.LOWEST)
+	public void onDeath(LivingDeathEvent e) {
+		if (!e.isCanceled() && e.entity instanceof EntityPlayer) {
+			EntityPlayer player = (EntityPlayer)e.entity;
+			if (e.source == ItemEldritchBoots.wall) {
+				player.triggerAchievement(LAchievements.dieWall);
+			}
+		}
 	}
 	
 	@SubscribeEvent
@@ -99,11 +116,15 @@ public class LEventHandler {
 			}
 		}
 		if (ItemEldritchArmor.hasSetBonus(e.player)) {
+			e.player.triggerAchievement(LAchievements.setBonus);
 			SetFlyingState.State flyingState;
 			if (e.player.worldObj.isRemote) {
 				flyingState = LClientEventHandler.inst.lastFlyingState;
 			} else {
 				flyingState = props.flyingState;
+			}
+			if (flyingState == State.FLYING && e.player.posY > 400) {
+				e.player.triggerAchievement(LAchievements.flyHigh);
 			}
 			int totalGlyphs = 0;
 			for (ItemStack is : e.player.inventory.armorInventory) {
@@ -128,9 +149,7 @@ public class LEventHandler {
 					if (e.player.moveForward > 0) {
 						e.player.moveFlying(0, 1, 0.0075f);
 					}
-					for (int i = 0; i < 5; i++) {
-						e.player.worldObj.spawnParticle("enchantmenttable", e.player.posX+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)), e.player.boundingBox.minY, e.player.posZ+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)), 0, -0.5, 0);
-					}
+					emit(e.player, 0.3);
 				} else if (flyingState == State.HOVER) {
 					cost = 50;
 					if (e.player instanceof EntityPlayerMP) {
@@ -150,8 +169,85 @@ public class LEventHandler {
 					if (e.player.moveForward > 0) {
 						e.player.moveFlying(0, 1, 0.005f);
 					}
+					emit(e.player, 0);
+				} else if (flyingState == State.FALLING) {
+					if (e.player.motionY < -0.2) {
+						e.player.motionY += 0.05;
+						if (e.player.motionY >= -0.2) {
+							e.player.fallDistance = 0;
+						} else {
+							e.player.fallDistance -= 0.5f;
+						}
+						for (int i = 0; i < 2; i++) {
+							e.player.worldObj.spawnParticle("enchantmenttable", e.player.posX+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)), e.player.boundingBox.minY, e.player.posZ+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)), 0, 0.5, 0);
+						}
+					}
+				}
+				if (e.player.posY > 960) {
+					cost *= 64;
+					for (int i = 0; i < 64; i++) {
+						e.player.worldObj.spawnParticle("enchantmenttable",
+								e.player.posX+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)),
+								e.player.boundingBox.minY,
+								e.player.posZ+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)),
+								e.player.worldObj.rand.nextGaussian()*4,
+								0,
+								e.player.worldObj.rand.nextGaussian()*4);
+					}
+				} else if (e.player.posY > 800) {
+					cost *= 32;
+					for (int i = 0; i < 32; i++) {
+						e.player.worldObj.spawnParticle("enchantmenttable",
+								e.player.posX+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)),
+								e.player.boundingBox.minY,
+								e.player.posZ+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)),
+								e.player.worldObj.rand.nextGaussian()*2,
+								0,
+								e.player.worldObj.rand.nextGaussian()*0.5);
+					}
+				} else if (e.player.posY > 640) {
+					cost *= 16;
+					for (int i = 0; i < 16; i++) {
+						e.player.worldObj.spawnParticle("enchantmenttable",
+								e.player.posX+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)),
+								e.player.boundingBox.minY,
+								e.player.posZ+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)),
+								e.player.worldObj.rand.nextGaussian()*1,
+								0,
+								e.player.worldObj.rand.nextGaussian()*0.25);
+					}
+				} else if (e.player.posY > 512) {
+					cost *= 8;
 					for (int i = 0; i < 8; i++) {
-						e.player.worldObj.spawnParticle("enchantmenttable", e.player.posX+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)), e.player.boundingBox.minY, e.player.posZ+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)), 0, 0, 0);
+						e.player.worldObj.spawnParticle("enchantmenttable",
+								e.player.posX+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)),
+								e.player.boundingBox.minY,
+								e.player.posZ+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)),
+								e.player.worldObj.rand.nextGaussian()*0.5,
+								0,
+								e.player.worldObj.rand.nextGaussian()*0.5);
+					}
+				} else if (e.player.posY > 384) {
+					cost *= 4;
+					for (int i = 0; i < 4; i++) {
+						e.player.worldObj.spawnParticle("enchantmenttable",
+								e.player.posX+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)),
+								e.player.boundingBox.minY,
+								e.player.posZ+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)),
+								e.player.worldObj.rand.nextGaussian()*0.25,
+								0,
+								e.player.worldObj.rand.nextGaussian()*0.25);
+					}
+				} else if (e.player.posY > 256) {
+					cost *= 2;
+					for (int i = 0; i < 2; i++) {
+						e.player.worldObj.spawnParticle("enchantmenttable",
+								e.player.posX+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)),
+								e.player.boundingBox.minY,
+								e.player.posZ+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)),
+								e.player.worldObj.rand.nextGaussian()*0.125,
+								0,
+								e.player.worldObj.rand.nextGaussian()*0.125);
 					}
 				}
 				int loops = 0;
@@ -164,21 +260,7 @@ public class LEventHandler {
 					}
 					loops++;
 					if (loops > 20) {
-						Lanthanoid.log.warn("Tried to decrement cost too many times!");
 						break;
-					}
-				}
-				if (!e.player.onGround && e.player.isSneaking()) {
-					if (e.player.motionY < -0.2) {
-						e.player.motionY += 0.05;
-						if (e.player.motionY >= -0.2) {
-							e.player.fallDistance = 0;
-						} else {
-							e.player.fallDistance -= 0.5f;
-						}
-						for (int i = 0; i < 2; i++) {
-							e.player.worldObj.spawnParticle("enchantmenttable", e.player.posX+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)), e.player.boundingBox.minY, e.player.posZ+(e.player.worldObj.rand.nextGaussian()*(e.player.width/2)), 0, 0.5, 0);
-						}
 					}
 				}
 			}
@@ -221,6 +303,33 @@ public class LEventHandler {
 							));
 				}
 			}
+		}
+	}
+
+	private void emit(EntityPlayer player, double height) {
+		if (player.worldObj.isRemote && FMLCommonHandler.instance().getSide() == Side.CLIENT) {
+			Vec3 right = player.getLookVec();
+			right.rotateAroundY(90);
+			right.yCoord = 0;
+			_emit(player, right, 0.2, height);
+			_emit(player, right, -0.2, height);
+		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	private void _emit(EntityPlayer player, Vec3 mod, double d, double height) {
+		double sX = player.posX;
+		double sY = player.boundingBox.minY;
+		double sZ = player.posZ;
+		sX += (mod.xCoord*d);
+		sY += (mod.yCoord*d);
+		sZ += (mod.zCoord*d);
+		for (int i = 0; i < 4; i++) {
+			double eX = sX+(player.worldObj.rand.nextGaussian()*(player.width/2));
+			double eY = sY-height;
+			double eZ = sZ+(player.worldObj.rand.nextGaussian()*(player.width/2));
+			EntityGlyphFX fx = new EntityGlyphFX(player.worldObj, eX, eY, eZ, sX-eX, sY-eY, sZ-eZ);
+			Minecraft.getMinecraft().effectRenderer.addEffect(fx);
 		}
 	}
 	

@@ -1,4 +1,4 @@
-package com.unascribed.lanthanoid.client;
+package com.unascribed.lanthanoid.client.render.item;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.IItemRenderer;

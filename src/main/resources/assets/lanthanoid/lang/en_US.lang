@@ -7,12 +7,26 @@ itemGroup.lanthanoid_decorative=Lanthanoid Decorative
 itemGroup.lanthanoid_machines=Lanthanoid Machines
 itemGroup.lanthanoid_materials=Lanthanoid Materials
 
+gui.lanthanoid.eager=Eager
+gui.lanthanoid.lazy=Lazy
+
+gui.lanthanoid.flight_scheme=Flight Scheme: 
+gui.lanthanoid.invert_slowfall=Invert Slowfall: 
+gui.lanthanoid.invert_hover=Invert Hover: 
+gui.lanthanoid.waypoint_scale=Waypoint Scale: 
+gui.lanthanoid.hud_glyph_scale=HUD Glyph Scale: 
+gui.lanthanoid.boots_change_fov=Boots Change FOV: 
+
+gui.lanthanoid.true=Yes
+gui.lanthanoid.false=No
+
 ui.lore_hint=Hold %s for lore
 ui.help_hint=Hold %s for help
 ui.no_ammo_hint=No ammunition
 chat.waypoint_hint=Name this waypoint on an anvil, first.
 ui.waypoint_hint=Must be named on an anvil before use
 ui.wilderness=Wilderness
+ui.glyph_level=Glyph Level: %s
 
 material.copper=Copper
 material.yttrium=Yttrium
@@ -286,3 +300,16 @@ achievement.telesnipe.desc=Score a telefrag using the Dysprosium Spelunker's Tel
 
 achievement.telefragMount=Collateral Damage
 achievement.telefragMount.desc=What teleporters decide to teleport isn't entirely precise...
+
+
+achievement.goFast=Literally Sanic
+achievement.goFast.desc=Go §lextremely§r fast with the Eldritch Boots.
+
+achievement.setBonus=To Infinity...
+achievement.setBonus.desc=Craft and wear a full set of Eldritch Armor, gaining the set bonus: flight.
+
+achievement.flyHigh=...And Beyond!
+achievement.flyHigh.desc=Fly really high with the Eldritch Armor.
+
+achievement.dieWall=Inertia Sucks
+achievement.dieWall.desc=Die by running face-first into a wall while going fast with the Eldritch Boots.

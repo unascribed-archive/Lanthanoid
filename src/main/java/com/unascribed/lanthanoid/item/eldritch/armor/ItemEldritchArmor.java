@@ -5,6 +5,7 @@ import java.util.List;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
 import com.unascribed.lanthanoid.item.GlyphToolHelper;
+import com.unascribed.lanthanoid.tile.TileEntityEldritchInductor;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
@@ -15,6 +16,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
@@ -93,6 +95,24 @@ public abstract class ItemEldritchArmor extends ItemArmor implements IGlyphHolde
 				}
 			}
 		}
+	}
+	
+	@Override
+	public ItemStack onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer player) {
+		return itemStackIn;
+	}
+	
+	@Override
+	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float subX, float subY, float subZ) {
+		TileEntity te = world.getTileEntity(x, y, z);
+		if (te instanceof TileEntityEldritchInductor) {
+			TileEntityEldritchInductor inductor = (TileEntityEldritchInductor)te;
+			if (subY >= ((int)(inductor.getBoundingBox().maxY*16))/16f) {
+				return false;
+			}
+		}
+		player.setCurrentItemOrArmor(0, super.onItemRightClick(stack, world, player));
+		return false;
 	}
 	
 	public static boolean hasSetBonus(EntityPlayer player) {

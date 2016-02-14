@@ -1,7 +1,9 @@
-package com.unascribed.lanthanoid.client;
+package com.unascribed.lanthanoid.client.render.item;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+
+import com.unascribed.lanthanoid.client.Rendering;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;

@@ -1,4 +1,4 @@
-package com.unascribed.lanthanoid.client;
+package com.unascribed.lanthanoid.client.render.item;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
@@ -9,6 +9,8 @@ import net.minecraftforge.client.IItemRenderer;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
+import com.unascribed.lanthanoid.client.LClientEventHandler;
+import com.unascribed.lanthanoid.client.Rendering;
 import com.unascribed.lanthanoid.init.LItems;
 
 public class RifleItemRenderer implements IItemRenderer {

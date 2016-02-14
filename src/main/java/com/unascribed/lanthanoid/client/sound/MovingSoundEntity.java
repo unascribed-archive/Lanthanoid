@@ -1,4 +1,4 @@
-package com.unascribed.lanthanoid.client;
+package com.unascribed.lanthanoid.client.sound;
 
 import java.util.Map;
 

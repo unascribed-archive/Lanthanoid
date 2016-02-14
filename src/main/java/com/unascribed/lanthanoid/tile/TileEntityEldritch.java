@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.unascribed.lanthanoid.Lanthanoid;
-import com.unascribed.lanthanoid.client.SoundEldritch;
+import com.unascribed.lanthanoid.client.sound.SoundEldritch;
 import com.unascribed.lanthanoid.effect.EntityGlyphFX;
 import com.unascribed.lanthanoid.glyph.IGlyphHolder;
 import com.unascribed.lanthanoid.network.BlockEvent;

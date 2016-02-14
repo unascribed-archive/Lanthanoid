@@ -23,10 +23,12 @@ public final class BootZap {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public IMessage onMessage(Message message, MessageContext ctx) {
-			Minecraft.getMinecraft().getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation("lanthanoid", "spark"),
-					message.magnitude, 1.0f+(r.nextFloat()/4),
-					message.x+0.5f, message.y+0.5f, message.z+0.5f));
-			for (int i = 0; i < Math.ceil(message.magnitude*20); i++) {
+			if (message.magnitude > 0) {
+				Minecraft.getMinecraft().getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation("lanthanoid", "spark"),
+						message.magnitude, 1.0f+(r.nextFloat()/4),
+						message.x+0.5f, message.y+0.5f, message.z+0.5f));
+			}
+			for (int i = 0; i < Math.ceil(Math.abs(message.magnitude)*20); i++) {
 				LightningFX fx = new LightningFX(Minecraft.getMinecraft().theWorld, message.x+0.5, message.y+0.5, message.z+0.5, 64/255D, 255/255D, 128/255D);
 				Minecraft.getMinecraft().effectRenderer.addEffect(fx);
 			}

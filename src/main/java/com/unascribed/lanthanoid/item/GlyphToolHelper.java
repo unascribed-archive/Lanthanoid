@@ -3,6 +3,7 @@ package com.unascribed.lanthanoid.item;
 import java.util.List;
 
 import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
+import com.unascribed.lanthanoid.init.LItems;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -41,5 +42,9 @@ public class GlyphToolHelper {
 	public static void doAddInformation(IGlyphHolderItem holder, ItemStack stack, EntityPlayer player, List list, boolean advanced) {
 		list.add("\u00A79"+StatCollector.translateToLocalFormatted("ui.eldritch_ability", StatCollector.translateToLocal(stack.getUnlocalizedName()+".ability.name")));
 		list.addAll(Minecraft.getMinecraft().fontRendererObj.listFormattedStringToWidth(StatCollector.translateToLocal(stack.getUnlocalizedName()+".ability.desc"), 240));
+		if (player.inventory.armorItemInSlot(3) != null && player.inventory.armorItemInSlot(3).getItem() == LItems.eldritch_helmet_enhanced) {
+			list.add("");
+			list.add(StatCollector.translateToLocalFormatted("ui.glyph_level", ((int)(((float)holder.getMilliglyphs(stack)/holder.getMaxMilliglyphs(stack))*100))+"%"));
+		}
 	}
 }

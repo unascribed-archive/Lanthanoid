@@ -1,9 +1,10 @@
-package com.unascribed.lanthanoid.client;
+package com.unascribed.lanthanoid.client.render.item;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import com.google.common.base.Supplier;
+import com.unascribed.lanthanoid.client.Rendering;
 import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
 import com.unascribed.lanthanoid.item.eldritch.tool.ItemEldritchSword;
 
@@ -81,7 +82,7 @@ public class EldritchItemRenderer implements IItemRenderer {
 		float b = q-(playerAnim*glyphCount);
 		float a = 0.5f;
 
-		if (glyphCount >= 1) {
+		if (glyphCount >= 0.99f) {
 			a = 1;
 		}
 		
@@ -103,11 +104,7 @@ public class EldritchItemRenderer implements IItemRenderer {
 			r *= m;
 			g *= m;
 			b *= m;
-			if (m == 1) {
-				a = 0.5f;
-			} else {
-				a = (m/4)+0.15f;
-			}
+			a *= ((m*0.85f)+0.15f);
 			if ((p.getItemInUse() == item || ies.isCharging(item)) && type == ItemRenderType.EQUIPPED_FIRST_PERSON) {
 				GL11.glPopMatrix();
 				GL11.glPopMatrix();

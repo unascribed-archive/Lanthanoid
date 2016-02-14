@@ -14,9 +14,14 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.unascribed.lanthanoid.Lanthanoid;
+import com.unascribed.lanthanoid.client.ClientConfig.Eagerness;
+import com.unascribed.lanthanoid.client.gui.GuiLanthanoidAchievements;
+import com.unascribed.lanthanoid.client.gui.GuiLanthanoidButton;
+import com.unascribed.lanthanoid.client.gui.GuiLanthanoidOptions;
 import com.unascribed.lanthanoid.glyph.IGlyphHolder;
 import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchArmor;
+import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchBoots;
 import com.unascribed.lanthanoid.item.rifle.ItemRifle;
 import com.unascribed.lanthanoid.item.rifle.Mode;
 import com.unascribed.lanthanoid.item.rifle.PrimaryMode;
@@ -42,7 +47,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiOptions;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.gui.achievement.GuiAchievements;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
@@ -52,6 +60,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.stats.StatFileWriter;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
@@ -63,11 +72,13 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.client.event.FOVUpdateEvent;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
+import net.minecraftforge.common.AchievementPage;
 import net.minecraftforge.oredict.OreDictionary;
 
 @SideOnly(Side.CLIENT)
@@ -97,6 +108,9 @@ public class LClientEventHandler {
 	
 	private boolean lastBlaze = false;
 	private int blazeTicks = 0;
+	
+	private boolean jumpTainted = false;
+	private boolean lastOnGround = false;
 	
 	public SetFlyingState.State lastFlyingState = SetFlyingState.State.NONE;
 	
@@ -133,6 +147,17 @@ public class LClientEventHandler {
 			e.newfov /= scopeFactor;
 		} else if (scopeFactor == 0) {
 			e.newfov *= 0.75f;
+		}
+		if (Minecraft.getMinecraft().thePlayer != null) {
+			EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
+			if (ClientConfig.bootsChangeFov) {
+				ItemStack boots = player.inventory.armorItemInSlot(0);
+				if (boots != null && boots.getItem() == LItems.eldritch_boots) {
+					int sprintTicks = LItems.eldritch_boots.getSprintingTicks(boots);
+					float speed = (float)Math.log(1+(sprintTicks/ItemEldritchBoots.SPINUP_SPEED));
+					e.newfov += (speed/2);
+				}
+			}
 		}
 	}
 	
@@ -356,24 +381,39 @@ public class LClientEventHandler {
 						}
 					}
 				}
-				SetFlyingState.State flyingState;
-				if (ItemEldritchArmor.hasSetBonus(mc.thePlayer)) {
-					if (mc.gameSettings.keyBindJump.getIsKeyPressed()) {
-						if (mc.gameSettings.keyBindSneak.getIsKeyPressed()) {
-							flyingState = State.HOVER;
+				if (ClientConfig.flightScheme == Eagerness.EAGER || !mc.gameSettings.keyBindJump.getIsKeyPressed()) {
+					jumpTainted = false;
+				}
+				State flyingState;
+				if (mc.gameSettings.keyBindJump.getIsKeyPressed() && !jumpTainted) {
+					if (ClientConfig.flightScheme == Eagerness.EAGER) {
+						flyingState = State.FLYING;
+					} else {
+						if (lastOnGround) {
+							jumpTainted = true;
+							flyingState = State.NONE;
 						} else {
 							flyingState = State.FLYING;
 						}
-					} else {
-						flyingState = State.NONE;
 					}
+				} else if (lastFlyingState == State.FLYING || lastFlyingState == State.HOVER) {
+					flyingState = State.NONE;
 				} else {
+					flyingState = lastFlyingState;
+				}
+				if (flyingState == State.FLYING && mc.gameSettings.keyBindSneak.getIsKeyPressed() != ClientConfig.invertHover) {
+					flyingState = State.HOVER;
+				} else if (flyingState == State.NONE && mc.gameSettings.keyBindSneak.getIsKeyPressed() != ClientConfig.invertSlowfall) {
+					flyingState = State.FALLING;
+				} else if (flyingState == State.FALLING && mc.gameSettings.keyBindSneak.getIsKeyPressed() == ClientConfig.invertSlowfall) {
 					flyingState = State.NONE;
 				}
 				if (flyingState != lastFlyingState) {
 					lastFlyingState = flyingState;
-					Lanthanoid.inst.network.sendToServer(new SetFlyingState.Message(flyingState));
+					SetFlyingState.Message msg = new SetFlyingState.Message(flyingState);
+					Lanthanoid.inst.network.sendToServer(msg);
 				}
+				lastOnGround = mc.thePlayer.onGround;
 				ticks++;
 			} else {
 				ticks = 0;
@@ -516,7 +556,7 @@ public class LClientEventHandler {
 					
 					String distStr = Integer.toString((int) dist);
 					ScaledResolution res = new ScaledResolution(Minecraft.getMinecraft(), Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
-					float f8 = res.getScaleFactor()/2f;
+					float f8 = (res.getScaleFactor()/2f)*ClientConfig.waypointScale;
 					GL11.glTranslatef(nX, nY, nZ);
 					GL11.glNormal3f(0.0F, 1.0F, 0.0F);
 					GL11.glRotatef(-RenderManager.instance.playerViewY, 0.0F, 1.0F, 0.0F);
@@ -533,7 +573,7 @@ public class LClientEventHandler {
 					vec31 = vec31.normalize();
 					double d1 = vec3.dotProduct(vec31);
 					GL11.glDisable(GL11.GL_TEXTURE_2D);
-					if (d1 > 1.0D - Math.max(0.025D, dist/1200) / d0) {
+					if (d1 > 1.0D - Math.max(0.025D, dist/1200) * ClientConfig.waypointScale / d0) {
 						GL11.glScalef(0.5f, 0.5f, 0.5f);
 						tess.startDrawingQuads();
 						int w = Math.max((fontrenderer.getStringWidth(distStr) / 2) + (fontrenderer.getStringWidth(owner) / 2) + 8, fontrenderer.getStringWidth(name));
@@ -766,6 +806,7 @@ public class LClientEventHandler {
 				GL11.glColor3f(1, 1, 1);
 				GL11.glEnable(GL11.GL_BLEND);
 				OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+				GL11.glScalef(ClientConfig.hudGlyphScale, ClientConfig.hudGlyphScale, 1);
 				int totalGlyphs = 0;
 				boolean hasSetBonus = true;
 				for (int i = 3; i >= 0; i--) {
@@ -817,13 +858,35 @@ public class LClientEventHandler {
 					Minecraft.getMinecraft().standardGalacticFontRenderer.drawString("Glyph level minimal", 2, 2, 0x88542424);
 					GL11.glDisable(GL11.GL_BLEND);
 				} else if (hasSetBonus) {
-					if (totalGlyphs < 100_000) { // 10 seconds of flight
+					int heightMult = 1;
+					if (p.posY > 960) {
+						heightMult = 64;
+					} else if (p.posY > 800) {
+						heightMult *= 32;
+					} else if (p.posY > 640) {
+						heightMult *= 16;
+					} else if (p.posY > 512) {
+						heightMult *= 8;
+					} else if (p.posY > 384) {
+						heightMult *= 4;
+					} else if (p.posY > 256) {
+						heightMult *= 2;
+					}
+					int w;
+					if (totalGlyphs < 100_000*heightMult) { // 10 seconds of flight
 						float t = p.ticksExisted+Minecraft.getMinecraft().timer.renderPartialTicks;
 						float sin = MathHelper.sin(t*(lastFlyingState != SetFlyingState.State.NONE ? 1 : 0.25f));
 						int col = ((int)(((sin+1)/2)*192)+64) << 16;
-						Minecraft.getMinecraft().standardGalacticFontRenderer.drawString("GLYPH LEVEL CRITICAL", 2, 2, col);
+						String str = "GLYPH LEVEL CRITICAL";
+						Minecraft.getMinecraft().standardGalacticFontRenderer.drawString(str, 2, 2, col);
+						w = Minecraft.getMinecraft().standardGalacticFontRenderer.getStringWidth(str);
 					} else {
-						Minecraft.getMinecraft().standardGalacticFontRenderer.drawString("Glyph level nominal", 2, 2, 0x00FFAA);
+						String str = "Glyph level nominal";
+						Minecraft.getMinecraft().standardGalacticFontRenderer.drawString(str, 2, 2, 0x00FFAA);
+						w = Minecraft.getMinecraft().standardGalacticFontRenderer.getStringWidth(str);
+					}
+					if (heightMult > 1) {
+						Minecraft.getMinecraft().fontRendererObj.drawString("x"+heightMult, 8+w, 2, 0xFFAA00);
 					}
 				} else {
 					Minecraft.getMinecraft().standardGalacticFontRenderer.drawString("Flight not active", 2, 2, 0x888888);
@@ -843,6 +906,40 @@ public class LClientEventHandler {
 	public void onPostRenderTabMenu(RenderGameOverlayEvent.Post e) {
 		if (e.type == ElementType.PLAYER_LIST) {
 			GL11.glTranslatef(0, -24, 0);
+		}
+	}
+	
+	@SubscribeEvent
+	public void onGuiDraw(GuiScreenEvent.DrawScreenEvent e) {
+		if (e.gui instanceof GuiAchievements && !(e.gui instanceof GuiLanthanoidAchievements)) {
+			GuiAchievements ga = (GuiAchievements)e.gui;
+			try {
+				int currentPage = GuiLanthanoidAchievements.currentPageField.getInt(ga);
+				if (currentPage != -1) {
+					if (AchievementPage.getAchievementPage(currentPage).getName().equals("Lanthanoid")) {
+						GuiLanthanoidAchievements gla = new GuiLanthanoidAchievements((GuiScreen)GuiLanthanoidAchievements.parentScreenField.get(ga), (StatFileWriter)GuiLanthanoidAchievements.statFileWriterField.get(ga));
+						GuiLanthanoidAchievements.currentPageField.set(gla, currentPage);
+						gla.doneLoading();
+						Minecraft.getMinecraft().displayGuiScreen(gla);
+					}
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+	
+	@SubscribeEvent
+	public void onInitGui(GuiScreenEvent.InitGuiEvent e) {
+		if (e.gui instanceof GuiOptions) {
+			e.buttonList.add(new GuiLanthanoidButton(e.gui.width / 2 - 125, e.gui.height / 6 + 168));
+		}
+	}
+	
+	@SubscribeEvent
+	public void onActionPerformed(GuiScreenEvent.ActionPerformedEvent e) {
+		if (e.button instanceof GuiLanthanoidButton) {
+			Minecraft.getMinecraft().displayGuiScreen(new GuiLanthanoidOptions(e.gui));
 		}
 	}
 	
@@ -879,12 +976,12 @@ public class LClientEventHandler {
 	public void onKeyboardInput(KeyInputEvent e) {
 		Minecraft mc = Minecraft.getMinecraft();
 		if (mc.thePlayer != null) {
-			boolean primary = Keyboard.isKeyDown(Minecraft.getMinecraft().gameSettings.keyBindSneak.getKeyCode());
-			boolean secondary = Keyboard.isKeyDown(Minecraft.getMinecraft().gameSettings.keyBindSprint.getKeyCode());
-			if (primary || secondary) {
-				if (mc.thePlayer.getHeldItem() != null) {
-					ItemStack held = mc.thePlayer.getHeldItem();
-					if (held.getItem() == LItems.rifle) {
+			if (mc.thePlayer.getHeldItem() != null) {
+				ItemStack held = mc.thePlayer.getHeldItem();
+				if (held.getItem() == LItems.rifle) {
+					boolean primary = Keyboard.isKeyDown(Minecraft.getMinecraft().gameSettings.keyBindSneak.getKeyCode());
+					boolean secondary = Keyboard.isKeyDown(Minecraft.getMinecraft().gameSettings.keyBindSprint.getKeyCode());
+					if (primary || secondary) {
 						// on Linux, Shift+2 and Shift+6 do not work. This is an LWJGL bug.
 						// This is a QWERTY-only workaround.
 						if (SystemUtils.IS_OS_LINUX) {

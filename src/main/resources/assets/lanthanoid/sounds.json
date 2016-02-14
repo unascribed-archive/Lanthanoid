@@ -85,7 +85,7 @@
 		"sounds": [
 			{
 				"name": "spaceship-crash",
-				"stream": false
+				"stream": true
 			}
 		]
 	},
@@ -103,7 +103,7 @@
 		"sounds": [
 			{
 				"name": "pulsating",
-				"stream": true
+				"stream": false
 			}
 		]
 	},

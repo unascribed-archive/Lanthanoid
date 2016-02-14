@@ -1,4 +1,4 @@
-package com.unascribed.lanthanoid.client;
+package com.unascribed.lanthanoid.client.sound;
 
 import com.unascribed.lanthanoid.init.LBlocks;
 import com.unascribed.lanthanoid.tile.TileEntityEldritch;

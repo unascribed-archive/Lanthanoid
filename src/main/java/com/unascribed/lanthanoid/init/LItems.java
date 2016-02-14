@@ -107,7 +107,7 @@ public class LItems {
 		GameRegistry.registerItem(eldritch_drill, "eldritch_drill");
 		
 		
-		ArmorMaterial eldritchArmor = EnumHelper.addArmorMaterial("ELDRITCH", 33, new int[]{1, 8, 3, 0}, 24);
+		ArmorMaterial eldritchArmor = EnumHelper.addArmorMaterial("ELDRITCH", 33, new int[]{3, 4, 3, 2}, 24);
 		
 		eldritch_helmet = new ItemEldritchHelmet(eldritchArmor, false);
 		GameRegistry.registerItem(eldritch_helmet, "eldritch_helmet");

@@ -1,4 +1,4 @@
-package com.unascribed.lanthanoid.client;
+package com.unascribed.lanthanoid.client.render.tile;
 
 import java.util.Collection;
 import java.util.List;
@@ -6,6 +6,8 @@ import java.util.List;
 import org.lwjgl.opengl.GL11;
 
 import com.unascribed.lanthanoid.Lanthanoid;
+import com.unascribed.lanthanoid.client.ModelSimpleBook;
+import com.unascribed.lanthanoid.client.Rendering;
 import com.unascribed.lanthanoid.glyph.IGlyphHolder;
 import com.unascribed.lanthanoid.init.LBlocks;
 import com.unascribed.lanthanoid.tile.TileEntityEldritch;

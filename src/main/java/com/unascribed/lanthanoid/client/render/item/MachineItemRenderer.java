@@ -1,7 +1,9 @@
-package com.unascribed.lanthanoid.client;
+package com.unascribed.lanthanoid.client.render.item;
 
 import org.lwjgl.opengl.GL11;
 
+import com.unascribed.lanthanoid.client.RingRenderer;
+import com.unascribed.lanthanoid.client.render.tile.EldritchTileEntitySpecialRenderer;
 import com.unascribed.lanthanoid.init.LBlocks;
 
 import net.minecraft.client.Minecraft;
