@@ -11,7 +11,9 @@ import net.minecraft.util.ResourceLocation;
 @SideOnly(Side.CLIENT)
 public class SoundEldritch extends MovingSound {
 	
+	public static int amountPlaying = 0;
 	private TileEntityEldritch te;
+	private boolean counted = true;
 	
 	public SoundEldritch(ResourceLocation loc, TileEntityEldritch te) {
 		super(loc);
@@ -22,10 +24,15 @@ public class SoundEldritch extends MovingSound {
 		this.pitch = (te.playerAnim/40f)+0.5f;
 		this.volume = te.playerAnim/20f;
 		this.repeat = true;
+		amountPlaying++;
 	}
 
 	@Override
 	public void update() {
+		if (donePlaying && counted) {
+			counted = false;
+			amountPlaying--;
+		}
 		if (te == null || !te.hasWorldObj() || te.getWorld().getBlock(te.xCoord, te.yCoord, te.zCoord) != LBlocks.machine) {
 			stop();
 			return;
@@ -48,6 +55,19 @@ public class SoundEldritch extends MovingSound {
 	
 	public void stop() {
 		this.donePlaying = true;
+		if (counted) {
+			counted = false;
+			amountPlaying--;
+		}
+	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		super.finalize();
+		if (counted) {
+			counted = false;
+			amountPlaying--;
+		}
 	}
 
 }

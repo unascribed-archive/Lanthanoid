@@ -177,7 +177,7 @@ public class ItemEldritchAxe extends ItemAxe implements IGlyphHolderItem {
 					int cZ = z+oZ;
 					Block b = world.getBlock(cX, cY, cZ);
 					int meta = world.getBlockMetadata(cX, cY, cZ);
-					if (b == initial && b.isToolEffective("axe", meta)) {
+					if (b == initial && b.isWood(world, cX, cY, cZ)) {
 						breakTasks.add(new BreakTask(world, cX, cY, cZ, stack, player, b, meta, initial));
 					}
 				}

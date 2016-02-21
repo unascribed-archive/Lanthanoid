@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
 import com.unascribed.lanthanoid.init.LItems;
+import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchBoots;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
@@ -19,7 +20,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.common.util.Constants.NBT;
 
-public class TileEntityEldritchInductor extends TileEntityEldritch implements IInventory, IActivatable, IBounded {
+public class TileEntityEldritchInductor extends TileEntityEldritch implements IInventory, IActivatable {
 
 	private InventoryBasic inv = new InventoryBasic("eldritch_inductor", false, 4) {
 		@Override
@@ -27,7 +28,6 @@ public class TileEntityEldritchInductor extends TileEntityEldritch implements II
 			return 1;
 		}
 	};
-	private AxisAlignedBB aabb = AxisAlignedBB.getBoundingBox(0, 0, 0, 1, 31/32D, 1);
 	
 	
 	@Override
@@ -66,6 +66,24 @@ public class TileEntityEldritchInductor extends TileEntityEldritch implements II
 					if (!worldObj.isRemote) {
 						setMilliglyphs(getMilliglyphs()-transfer);
 						addExtendedBlockEvent(3, (((transfer/250)&0xFFFF)<<16) | (minI&0xFFFF));
+					}
+				}
+			}
+		}
+		AxisAlignedBB aabb = getBlockType().getCollisionBoundingBoxFromPool(worldObj, xCoord, yCoord, zCoord).expand(0, 0.5, 0);
+		for (EntityPlayer ep : (List<EntityPlayer>)worldObj.getEntitiesWithinAABB(EntityPlayer.class, aabb)) {
+			if (ep.isSprinting()) {
+				ItemStack boots = ep.inventory.armorItemInSlot(0);
+				if (boots != null && boots.getItem() instanceof ItemEldritchBoots) {
+					ItemEldritchBoots ieb = (ItemEldritchBoots)boots.getItem();
+					int space = ieb.getMaxMilliglyphs(boots)-ieb.getMilliglyphs(boots);
+					int move = Math.min(getMilliglyphs(), space/4);
+					if (getMilliglyphs() >= move) {
+						setMilliglyphs(getMilliglyphs()-move);
+						ieb.setMilliglyphs(boots, ieb.getMilliglyphs(boots)+move);
+					}
+					for (int i = 0; i < move/1000; i++) {
+						worldObj.spawnParticle("enchantmenttable", ep.posX+worldObj.rand.nextGaussian()/4, yCoord+1.5, ep.posZ+worldObj.rand.nextGaussian()/4, 0, -0.5, 0);
 					}
 				}
 			}
@@ -128,7 +146,7 @@ public class TileEntityEldritchInductor extends TileEntityEldritch implements II
 
 	@Override
 	public boolean onBlockActivated(EntityPlayer player, int side, float subX, float subY, float subZ) {
-		if (subY >= ((int)(aabb.maxY*16))/16f) {
+		if (subY >= ((int)((31/32D)*16))/16f) {
 			boolean right = (subX < 0.5f);
 			boolean bottom = (subZ < 0.5f);
 			int idx = 0;
@@ -208,11 +226,6 @@ public class TileEntityEldritchInductor extends TileEntityEldritch implements II
 	public void writeToNBT(NBTTagCompound tag) {
 		super.writeToNBT(tag);
 		writeInventory(tag);
-	}
-	
-	@Override
-	public AxisAlignedBB getBoundingBox() {
-		return aabb;
 	}
 	
 

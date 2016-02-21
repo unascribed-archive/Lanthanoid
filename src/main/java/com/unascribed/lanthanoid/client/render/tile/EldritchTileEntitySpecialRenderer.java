@@ -201,6 +201,9 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 			case 7:
 				glyphs = LBlocks.machine.collectorGlyphs;
 				break;
+			case 8:
+				glyphs = LBlocks.machine.boostPadGlyphs;
+				break;
 		}
 		if (glyphs == null || !(teraw instanceof TileEntityEldritch)) {
 			if (teraw.hasWorldObj()) {
@@ -308,6 +311,9 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 									double eX = cur.xCoord+0.5;
 									double eY = cur.yCoord+0.5;
 									double eZ = cur.zCoord+0.5;
+									eX += te.getWorld().rand.nextGaussian()*0.15;
+									eY += te.getWorld().rand.nextGaussian()*0.15;
+									eZ += te.getWorld().rand.nextGaussian()*0.15;
 									MovingObjectPosition mop = te.getWorld().rayTraceBlocks(
 											Vec3.createVectorHelper(sX, sY, sZ),
 											Vec3.createVectorHelper(eX, eY, eZ));
@@ -315,7 +321,7 @@ public class EldritchTileEntitySpecialRenderer extends TileEntitySpecialRenderer
 										if (mop.typeOfHit == MovingObjectType.BLOCK && te.getWorld().getTileEntity(mop.blockX, mop.blockY, mop.blockZ) == holder) {
 											GL11.glColor4f(1, 1, 1, 0.15f);
 											GL11.glVertex3d(0, 0, 0);
-											GL11.glVertex3d(eX-baseX, eY-baseY, eZ-baseZ);
+											GL11.glVertex3d((cur.xCoord+0.5f)-baseX, (cur.yCoord+0.5f)-baseY, (cur.zCoord+0.5f)-baseZ);
 											if (((TileEntityEldritchDistributor) te).drain) {
 												if (holder.canReceiveGlyphs()) {
 													if (minHolder == null || holder.getMilliglyphs() < minHolder.getMilliglyphs() && holder.getMilliglyphs() < holder.getMaxMilliglyphs()) {

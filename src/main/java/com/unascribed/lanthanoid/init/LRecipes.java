@@ -223,17 +223,24 @@ public class LRecipes {
 				'y', "ingotYttriumBariumCopperOxide",
 				'n', "ingotYtterbium"));
 		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LBlocks.machine, 1, 5), 
+				"nnn",
 				"yyy",
-				"yny",
 				"yyy",
 				'y', "ingotYttriumBariumCopperOxide",
 				'n', "ingotPraseodymium"));
 		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LBlocks.machine, 1, 6), 
+				"nnn",
 				"yyy",
-				"yny",
 				"yyy",
 				'y', "ingotYttriumBariumCopperOxide",
 				'n', "ingotHolmium"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LBlocks.machine, 1, 8), 
+				"121",
+				"yyy",
+				"yyy",
+				'y', "ingotYttriumBariumCopperOxide",
+				'1', "ingotPraseodymium",
+				'2', "ingotYtterbium"));
 	}
 
 	private static void initStopgap() {

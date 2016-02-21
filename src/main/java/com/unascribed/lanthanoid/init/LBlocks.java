@@ -9,6 +9,7 @@ import com.unascribed.lanthanoid.block.BlockMulti;
 import com.unascribed.lanthanoid.block.BlockTechnical;
 import com.unascribed.lanthanoid.item.ItemBlockMachine;
 import com.unascribed.lanthanoid.item.ItemBlockWithCustomName;
+import com.unascribed.lanthanoid.tile.TileEntityEldritchBoostPad;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchCollector;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchDistributor;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchFaithPlate;
@@ -166,6 +167,7 @@ public class LBlocks {
 		GameRegistry.registerTileEntity(TileEntityEldritchDistributor.class, "lanthanoid:eldritch_distributor");
 		GameRegistry.registerTileEntity(TileEntityEldritchInductor.class, "lanthanoid:eldritch_inductor");
 		GameRegistry.registerTileEntity(TileEntityEldritchInfiniteSource.class, "lanthanoid:eldritch_cheat_device");
+		GameRegistry.registerTileEntity(TileEntityEldritchBoostPad.class, "lanthanoid:eldritch_boost_pad");
 	}
 
 }

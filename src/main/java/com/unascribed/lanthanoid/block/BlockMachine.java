@@ -11,6 +11,9 @@ import com.unascribed.lanthanoid.tile.IActivatable;
 import com.unascribed.lanthanoid.tile.IBounded;
 import com.unascribed.lanthanoid.tile.IBreakable;
 import com.unascribed.lanthanoid.tile.IFallable;
+import com.unascribed.lanthanoid.tile.IIconProvider;
+import com.unascribed.lanthanoid.tile.IPlaceable;
+import com.unascribed.lanthanoid.tile.TileEntityEldritchBoostPad;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchCollector;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchDistributor;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchFaithPlate;
@@ -48,7 +51,9 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 	private IIcon[] tops = new IIcon[16];
 	private IIcon[] sides = new IIcon[16];
 
-	public IIcon collectorGlyphs, distributorGlyphs, chargerGlyphs, coil, faithPlateGlyphs;
+	public IIcon collectorGlyphs, distributorGlyphs, chargerGlyphs, coil, faithPlateGlyphs, boostPadGlyphs;
+	public IIcon boost_pad_noanim, boost_pad_90_noanim, boost_pad_180_noanim, boost_pad_270_noanim;
+	public IIcon boost_pad, boost_pad_90, boost_pad_180, boost_pad_270;
 
 	public BlockMachine() {
 		super(Lanthanoid.inst.creativeTabMachines, Material.iron);
@@ -65,12 +70,24 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 	@Override
 	public IIcon getIcon(int side, int meta) {
 		if (side == 0) {
+			if (meta == 8) return boost_pad_noanim;
 			return bottoms[meta];
 		}
 		if (side == 1) {
+			if (meta == 8) return boost_pad_noanim;
 			return tops[meta];
 		}
 		return sides[meta];
+	}
+	
+	@Override
+	public IIcon getIcon(IBlockAccess world, int x, int y, int z, int side) {
+		TileEntity te = world.getTileEntity(x, y, z);
+		if (te instanceof IIconProvider) {
+			IIcon fromTe = ((IIconProvider)te).getIcon(side);
+			if (fromTe != null) return fromTe;
+		}
+		return super.getIcon(world, x, y, z, side);
 	}
 
 	@Override
@@ -107,6 +124,9 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 		if (meta == 7) {
 			return 0xFF00FF;
 		}
+		if (meta == 8) {
+			return 0x00FFAA;
+		}
 		return super.getRenderColor(meta);
 	}
 
@@ -122,7 +142,7 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 
 	@Override
 	public boolean hasTileEntity(int metadata) {
-		return metadata >= 0 && metadata <= 7;
+		return metadata >= 0 && metadata <= 8;
 	}
 
 	@Override
@@ -142,6 +162,8 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 				return new TileEntityEldritchFaithPlate();
 			case 7:
 				return new TileEntityEldritchInfiniteSource();
+			case 8:
+				return new TileEntityEldritchBoostPad();
 			default:
 				return null;
 		}
@@ -149,19 +171,26 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 
 	@Override
 	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase placer, ItemStack stack) {
-		if (!world.isRemote && (stack.getMetadata() == 0 || stack.getMetadata() == 1 || stack.getMetadata() == 2)) {
-			Waypoint waypoint = new Waypoint();
-			waypoint.setId();
-			waypoint.x = x;
-			waypoint.y = y;
-			waypoint.z = z;
-			waypoint.name = stack.getDisplayName();
-			waypoint.ownerName = placer.getCommandSenderName();
-			waypoint.type = Waypoint.Type.values()[stack.getMetadata()];
-			waypoint.color = stack.hasTagCompound() && stack.getTagCompound().hasKey("Color", 99) ? stack.getTagCompound().getInteger("Color") : 0xFFFFFF;
-			waypoint.owner = placer instanceof EntityPlayer ? ((EntityPlayer) placer).getGameProfile().getId() : placer.getPersistentID();
-			waypoint.nameDistance = 20;
-			Lanthanoid.inst.waypointManager.setWaypoint(world, x, y, z, waypoint);
+		if (!world.isRemote) {
+			if (stack.getMetadata() == 0 || stack.getMetadata() == 1 || stack.getMetadata() == 2) {
+				Waypoint waypoint = new Waypoint();
+				waypoint.setId();
+				waypoint.x = x;
+				waypoint.y = y;
+				waypoint.z = z;
+				waypoint.name = stack.getDisplayName();
+				waypoint.ownerName = placer.getCommandSenderName();
+				waypoint.type = Waypoint.Type.values()[stack.getMetadata()];
+				waypoint.color = stack.hasTagCompound() && stack.getTagCompound().hasKey("Color", 99) ? stack.getTagCompound().getInteger("Color") : 0xFFFFFF;
+				waypoint.owner = placer instanceof EntityPlayer ? ((EntityPlayer) placer).getGameProfile().getId() : placer.getPersistentID();
+				waypoint.nameDistance = 20;
+				Lanthanoid.inst.waypointManager.setWaypoint(world, x, y, z, waypoint);
+			} else {
+				TileEntity te = world.getTileEntity(x, y, z);
+				if (te instanceof IPlaceable) {
+					((IPlaceable) te).onBlockPlacedBy(placer, stack);
+				}
+			}
 		}
 	}
 
@@ -191,7 +220,11 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 			AxisAlignedBB aabb = ((IBounded)te).getBoundingBox();
 			setBlockBounds((float)aabb.minX, (float)aabb.minY, (float)aabb.minZ, (float)aabb.maxX, (float)aabb.maxY, (float)aabb.maxZ);
 		} else {
-			setBlockBounds(0, 0, 0, 1, 1, 1);
+			if (world.getBlockMetadata(x, y, z) == 5) {
+				setBlockBounds(0, 0, 0, 1, 31/32f, 1);
+			} else {
+				setBlockBounds(0, 0, 0, 1, 1, 1);
+			}
 		}
 	}
 	
@@ -249,6 +282,14 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 		IIcon distributor = register.registerIcon("lanthanoid:eldritch_distributor");
 		IIcon collector = register.registerIcon("lanthanoid:eldritch_collector");
 		IIcon faith_plate = register.registerIcon("lanthanoid:eldritch_faith");
+		boost_pad = register.registerIcon("lanthanoid:eldritch_boost_pad");
+		boost_pad_90 = register.registerIcon("lanthanoid:eldritch_boost_pad_90");
+		boost_pad_180 = register.registerIcon("lanthanoid:eldritch_boost_pad_180");
+		boost_pad_270 = register.registerIcon("lanthanoid:eldritch_boost_pad_270");
+		boost_pad_noanim = register.registerIcon("lanthanoid:eldritch_boost_pad_noanim");
+		boost_pad_90_noanim = register.registerIcon("lanthanoid:eldritch_boost_pad_90_noanim");
+		boost_pad_180_noanim = register.registerIcon("lanthanoid:eldritch_boost_pad_180_noanim");
+		boost_pad_270_noanim = register.registerIcon("lanthanoid:eldritch_boost_pad_270_noanim");
 		
 		IIcon chargerTop = register.registerIcon("lanthanoid:eldritch_charger_top");
 
@@ -265,7 +306,7 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 		sides[1] = diamondSide;
 		sides[2] = diasporeSide;
 
-		for (int i = 3; i <= 7; i++) {
+		for (int i = 3; i <= 8; i++) {
 			bottoms[i] = tops[i] = eldritch;
 		}
 		tops[5] = chargerTop;
@@ -274,12 +315,14 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 		sides[5] = charger;
 		sides[6] = faith_plate;
 		sides[7] = eldritch;
+		sides[8] = eldritch;
 
 		collectorGlyphs = register.registerIcon("lanthanoid:eldritch_glyph_take");
 		distributorGlyphs = register.registerIcon("lanthanoid:eldritch_glyph_give");
 		chargerGlyphs = register.registerIcon("lanthanoid:eldritch_glyph_charge");
 		coil = register.registerIcon("lanthanoid:eldritch_charger_coil");
 		faithPlateGlyphs = register.registerIcon("lanthanoid:eldritch_glyph_jump");
+		boostPadGlyphs = register.registerIcon("lanthanoid:eldritch_glyph_fast");
 	}
 
 	@Override
@@ -292,7 +335,7 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 
 	@Override
 	public void getSubBlocks(Item item, CreativeTabs tab, List li) {
-		for (int i = 0; i <= 7; i++) {
+		for (int i = 0; i <= 8; i++) {
 			li.add(new ItemStack(item, 1, i));
 		}
 	}

@@ -5,6 +5,7 @@ import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.init.LAchievements;
 import com.unascribed.lanthanoid.network.BootNoise;
 import com.unascribed.lanthanoid.network.BootZap;
+
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
@@ -43,7 +44,7 @@ public class ItemEldritchBoots extends ItemEldritchArmor {
 						64));
 				stack.damageItem(1, player);
 			}
-			player.moveFlying(0, 1, speed*50);
+			player.moveFlying(0, 1, Math.abs(speed*20));
 		}
 		if (!world.isRemote) {
 			if (sprintTicks < 0) {
@@ -63,7 +64,11 @@ public class ItemEldritchBoots extends ItemEldritchArmor {
 							}
 						}
 					}
-					setSprintingTicks(stack, (int) -(speed*40));
+					if (!player.isSprinting() || getMilliglyphs(stack) <= 0) {
+						setSprintingTicks(stack, (int) -(speed*40));
+					} else {
+						setSprintingTicks(stack, Math.max(0, sprintTicks-10));
+					}
 				}
 			}
 		}

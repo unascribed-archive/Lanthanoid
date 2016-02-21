@@ -29,7 +29,7 @@ public class MachineItemRenderer implements IItemRenderer {
 		return (type == ItemRenderType.ENTITY && (helper == ItemRendererHelper.ENTITY_BOBBING || helper == ItemRendererHelper.ENTITY_ROTATION)) ||
 				(type == ItemRenderType.EQUIPPED && helper == ItemRendererHelper.EQUIPPED_BLOCK) ||
 				(type == ItemRenderType.EQUIPPED_FIRST_PERSON && helper == ItemRendererHelper.EQUIPPED_BLOCK) ||
-				(item.getMetadata() >= 3 && item.getMetadata() <= 7 && type == ItemRenderType.INVENTORY && helper == ItemRendererHelper.INVENTORY_BLOCK);
+				(item.getMetadata() >= 3 && item.getMetadata() <= 8 && type == ItemRenderType.INVENTORY && helper == ItemRendererHelper.INVENTORY_BLOCK);
 	}
 
 	@Override
@@ -57,6 +57,7 @@ public class MachineItemRenderer implements IItemRenderer {
 				}
 			} else if (type == ItemRenderType.EQUIPPED || type == ItemRenderType.EQUIPPED_FIRST_PERSON) {
 				GL11.glTranslatef(0.45f, 0.525f, 0.5f);
+				GL11.glRotatef(-90F, 0.0F, 1.0F, 0.0F);
 			}
 			rb.renderBlockAsItem(LBlocks.machine, item.getMetadata(), 1.0f);
 		GL11.glPopMatrix();
@@ -117,7 +118,7 @@ public class MachineItemRenderer implements IItemRenderer {
 					GL11.glEnable(GL11.GL_DEPTH_TEST);
 				GL11.glPopMatrix();
 			}
-		} else if (meta >= 3 && meta <= 7) {
+		} else if (meta >= 3 && meta <= 8) {
 			GL11.glEnable(GL11.GL_DEPTH_TEST);
 			float partialTicks = Minecraft.getMinecraft().timer.renderPartialTicks;
 			IIcon glyphs = null;
@@ -136,6 +137,9 @@ public class MachineItemRenderer implements IItemRenderer {
 					break;
 				case 7:
 					glyphs = LBlocks.machine.collectorGlyphs;
+					break;
+				case 8:
+					glyphs = LBlocks.machine.boostPadGlyphs;
 					break;
 			}
 			if (glyphs != null) {

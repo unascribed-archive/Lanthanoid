@@ -57,48 +57,55 @@ public class TileEntityEldritchDistributor extends TileEntityEldritchWithBooks {
 								&& te.yCoord >= minY && te.yCoord <= maxY) {
 							if (te instanceof IGlyphHolder && te != this) {
 								IGlyphHolder holder = (IGlyphHolder) te;
-								LVec3 dir = new LVec3(te.xCoord - this.xCoord, te.yCoord - this.yCoord, te.zCoord - this.zCoord);
-								dir.normalize();
-								double sX = xCoord+0.5+dir.xCoord;
-								double sY = yCoord+0.5+dir.yCoord;
-								double sZ = zCoord+0.5+dir.zCoord;
-								double eX = te.xCoord+0.5;
-								double eY = te.yCoord+0.5;
-								double eZ = te.zCoord+0.5;
-								eX += worldObj.rand.nextGaussian()*0.15;
-								eY += worldObj.rand.nextGaussian()*0.15;
-								eZ += worldObj.rand.nextGaussian()*0.15;
-								MovingObjectPosition mop = worldObj.rayTraceBlocks(
-										Vec3.createVectorHelper(sX, sY, sZ),
-										Vec3.createVectorHelper(eX, eY, eZ));
-								if (mop != null) {
-									if (mop.typeOfHit == MovingObjectType.BLOCK && worldObj.getTileEntity(mop.blockX, mop.blockY, mop.blockZ) == holder) {
-										nearby++;
-										if (te instanceof TileEntityEldritchDistributor) {
-											distributorsNearby++;
-										} else if (holder.canReceiveGlyphs() && !holder.canSendGlyphs()) {
-											sinksNearby++;
-										} else if (!holder.canReceiveGlyphs() && holder.canSendGlyphs()) {
-											sourcesNearby++;
-										}
-										if (drain) {
-											if (holder.canReceiveGlyphs()) {
-												if (min == null || holder.getMilliglyphs() < min.getMilliglyphs() && holder.getMilliglyphs() < holder.getMaxMilliglyphs()) {
-													min = holder;
-													minDiff = Integer.MAX_VALUE;
-												}
+								boolean seen = false;
+								for (int i = 0; i < 5; i++) {
+									LVec3 dir = new LVec3(te.xCoord - this.xCoord, te.yCoord - this.yCoord, te.zCoord - this.zCoord);
+									dir.normalize();
+									double sX = xCoord+0.5+dir.xCoord;
+									double sY = yCoord+0.5+dir.yCoord;
+									double sZ = zCoord+0.5+dir.zCoord;
+									double eX = te.xCoord+0.5;
+									double eY = te.yCoord+0.5;
+									double eZ = te.zCoord+0.5;
+									eX += worldObj.rand.nextGaussian()*0.15;
+									eY += worldObj.rand.nextGaussian()*0.15;
+									eZ += worldObj.rand.nextGaussian()*0.15;
+									MovingObjectPosition mop = worldObj.rayTraceBlocks(
+											Vec3.createVectorHelper(sX, sY, sZ),
+											Vec3.createVectorHelper(eX, eY, eZ));
+									if (mop != null
+											&& mop.typeOfHit == MovingObjectType.BLOCK
+											&& worldObj.getTileEntity(mop.blockX, mop.blockY, mop.blockZ) == holder) {
+										seen = true;
+										break;
+									}
+								}
+								if (seen) {
+									nearby++;
+									if (te instanceof TileEntityEldritchDistributor) {
+										distributorsNearby++;
+									} else if (holder.canReceiveGlyphs() && !holder.canSendGlyphs()) {
+										sinksNearby++;
+									} else if (!holder.canReceiveGlyphs() && holder.canSendGlyphs()) {
+										sourcesNearby++;
+									}
+									if (drain) {
+										if (holder.canReceiveGlyphs()) {
+											if (min == null || holder.getMilliglyphs() < min.getMilliglyphs() && holder.getMilliglyphs() < holder.getMaxMilliglyphs()) {
+												min = holder;
+												minDiff = Integer.MAX_VALUE;
 											}
-										} else {
-											if (holder.getMilliglyphs() > this.getMilliglyphs() && holder.canSendGlyphs()) {
-												if (max == null || holder.getMilliglyphs() > max.getMilliglyphs()) {
-													max = holder;
-													maxDiff = holder.getMilliglyphs()-this.getMilliglyphs();
-												}
-											} else if (holder.getMilliglyphs() < this.getMilliglyphs() && holder.canReceiveGlyphs()) {
-												if (min == null || holder.getMilliglyphs() < min.getMilliglyphs()) {
-													min = holder;
-													minDiff = this.getMilliglyphs()-holder.getMilliglyphs();
-												}
+										}
+									} else {
+										if (holder.getMilliglyphs() > this.getMilliglyphs() && holder.canSendGlyphs()) {
+											if (max == null || holder.getMilliglyphs() > max.getMilliglyphs()) {
+												max = holder;
+												maxDiff = holder.getMilliglyphs()-this.getMilliglyphs();
+											}
+										} else if (holder.getMilliglyphs() < this.getMilliglyphs() && holder.canReceiveGlyphs()) {
+											if (min == null || holder.getMilliglyphs() < min.getMilliglyphs()) {
+												min = holder;
+												minDiff = this.getMilliglyphs()-holder.getMilliglyphs();
 											}
 										}
 									}

@@ -106,8 +106,7 @@ public abstract class ItemEldritchArmor extends ItemArmor implements IGlyphHolde
 	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float subX, float subY, float subZ) {
 		TileEntity te = world.getTileEntity(x, y, z);
 		if (te instanceof TileEntityEldritchInductor) {
-			TileEntityEldritchInductor inductor = (TileEntityEldritchInductor)te;
-			if (subY >= ((int)(inductor.getBoundingBox().maxY*16))/16f) {
+			if (subY >= ((int)((31/32D)*16))/16f) {
 				return false;
 			}
 		}

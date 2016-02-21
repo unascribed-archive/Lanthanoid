@@ -199,14 +199,13 @@ public abstract class TileEntityEldritch extends TileEntity implements IGlyphHol
 	@SideOnly(Side.CLIENT)
 	private void updateSound() {
 		if (playerAnim > 0) {
-			if (sound == null) {
+			if (sound == null && SoundEldritch.amountPlaying < 5) {
 				sound = new SoundEldritch(new ResourceLocation("lanthanoid", "pulsating"), this);
 				Minecraft.getMinecraft().getSoundHandler().playSound(sound);
 			}
 		} else {
 			if (sound != null) {
-				Minecraft.getMinecraft().getSoundHandler().stopSound(sound);
-				sound = null;
+				sound.stop();
 			}
 		}
 	}

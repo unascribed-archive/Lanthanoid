@@ -28,7 +28,7 @@ public class SoundEldritchBootNoise extends MovingSoundEntity {
 	public void update() {
 		super.update();
 		ItemStack boots = owner.getEquipmentInSlot(1);
-		if (boots == null || !(boots.getItem() instanceof ItemEldritchBoots) || !owner.isSprinting() || !owner.onGround) {
+		if (boots == null || !(boots.getItem() instanceof ItemEldritchBoots) || !owner.isSprinting()) {
 			stop();
 			return;
 		}
