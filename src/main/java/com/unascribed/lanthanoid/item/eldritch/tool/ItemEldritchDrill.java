@@ -5,6 +5,7 @@ import java.util.List;
 import com.google.common.base.Strings;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
+import com.unascribed.lanthanoid.init.LBlocks;
 import com.unascribed.lanthanoid.item.GlyphItemHelper;
 import com.unascribed.lanthanoid.util.LUtil;
 
@@ -16,6 +17,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
@@ -75,6 +77,33 @@ public class ItemEldritchDrill extends ItemPickaxe implements IGlyphHolderItem {
 			}
 		}
 		return true;
+	}
+	
+	@Override
+	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ) {
+		EnumFacing face = EnumFacing.values()[side];
+		int tX = x+face.getFrontOffsetX();
+		int tY = y+face.getFrontOffsetY();
+		int tZ = z+face.getFrontOffsetZ();
+		Block against = world.getBlock(x, y, z);
+		Block cur = world.getBlock(tX, tY, tZ);
+		if (against.isAir(world, tX, tY, tZ) || against.isReplaceable(world, tX, tY, tZ)) {
+			cur = against;
+			tX = x;
+			tY = y;
+			tZ = z;
+		}
+		if (cur.isAir(world, tX, tY, tZ) || cur.isReplaceable(world, tX, tY, tZ)) {
+			if (getMilliglyphs(stack) > 1000) {
+				setMilliglyphs(stack, getMilliglyphs(stack)-1000);
+				Block torch = LBlocks.technical;
+				int meta = 1;
+				world.setBlock(tX, tY, tZ, torch, meta, 3);
+				player.playSound("mob.zombie.infect", 1, 1.75f+(world.rand.nextFloat()/4));
+				return true;
+			}
+		}
+		return super.onItemUse(stack, player, world, x, y, z, side, hitX, hitY, hitZ);
 	}
 	
 	@Override
