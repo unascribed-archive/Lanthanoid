@@ -18,7 +18,7 @@ import net.minecraftforge.event.world.BlockEvent;
 
 public class LUtil {
 
-	public static boolean harvest(EntityPlayerMP player, World world, int x, int y, int z, boolean drop, boolean particles, boolean degrade) {
+	public static boolean harvest(EntityPlayerMP player, World world, int x, int y, int z, ItemStack stack, boolean drop, boolean particles, boolean degrade) {
 		BlockEvent.BreakEvent event = ForgeHooks.onBlockBreakEvent(world, player.theItemInWorldManager.getGameType(), player, x, y, z);
 		if (event.isCanceled()) {
 			return false;
@@ -49,7 +49,7 @@ public class LUtil {
 					block.harvestBlock(world, player, x, y, z, meta);
 					block.dropXpOnBlockBreak(world, x, y, z, event.getExpToDrop() != 0 ? event.getExpToDrop() : block.getExpDrop(world, meta, 0));
 				}
-				player.getHeldItem().damageItem(1, player);
+				stack.damageItem(1, player);
 			}
 			return success;
 		}

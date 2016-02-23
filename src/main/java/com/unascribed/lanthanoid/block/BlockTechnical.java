@@ -54,15 +54,17 @@ public class BlockTechnical extends Block {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void randomDisplayTick(World world, int x, int y, int z, Random rand) {
-		PrimaryMode mode = PrimaryMode.LIGHT;
-		float r = ((mode.color >> 16)&0xFF)/255f;
-		float g = ((mode.color >> 8)&0xFF)/255f;
-		float b = (mode.color&0xFF)/255f;
-		for (int i = 0; i < 2; i++) {
-			EntityRifleFX fx = new EntityRifleFX(Minecraft.getMinecraft().theWorld, (x+0.5)+(rand.nextDouble()-0.5), (y+0.5)+(rand.nextDouble()-0.5), (z+0.5)+(rand.nextDouble()-0.5), 1.0f, 0, 0, 0);
-			fx.motionX = fx.motionY = fx.motionZ = 0;
-			fx.setRBGColorF(r, g, b);
-			Minecraft.getMinecraft().effectRenderer.addEffect(fx);
+		if (world.getBlockMetadata(x, y, z) == 0) {
+			PrimaryMode mode = PrimaryMode.LIGHT;
+			float r = ((mode.color >> 16)&0xFF)/255f;
+			float g = ((mode.color >> 8)&0xFF)/255f;
+			float b = (mode.color&0xFF)/255f;
+			for (int i = 0; i < 2; i++) {
+				EntityRifleFX fx = new EntityRifleFX(Minecraft.getMinecraft().theWorld, (x+0.5)+(rand.nextDouble()-0.5), (y+0.5)+(rand.nextDouble()-0.5), (z+0.5)+(rand.nextDouble()-0.5), 1.0f, 0, 0, 0);
+				fx.motionX = fx.motionY = fx.motionZ = 0;
+				fx.setRBGColorF(r, g, b);
+				Minecraft.getMinecraft().effectRenderer.addEffect(fx);
+			}
 		}
 	}
 	

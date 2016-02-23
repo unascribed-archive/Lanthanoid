@@ -57,7 +57,7 @@ public class ItemEldritchAxe extends ItemAxe implements IGlyphHolderItem {
 			int meta = world.getBlockMetadata(x, y, z);
 			if (block == expected && meta == expectedMeta && GlyphItemHelper.doBlockDestroyed(getOuterType(), stack, world, block, x, y, z, player)) {
 				stack.damageItem(1, player);
-				LUtil.harvest(player, world, x, y, z, true, true, false);
+				LUtil.harvest(player, world, x, y, z, stack, true, true, false);
 				if (stack.getMetadata() >= stack.getMaxDurability()) {
 					player.destroyCurrentEquippedItem();
 				} else {

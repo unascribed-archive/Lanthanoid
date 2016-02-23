@@ -141,7 +141,7 @@ public class ItemWreckingBall extends ItemBase {
 					world.playAuxSFX(2001, x, y, z, Block.getIdFromBlock(block) + (world.getBlockMetadata(x, y, z) << 12));
 					continue;
 				}
-				if (LUtil.harvest(player, player.worldObj, x, y, z, itemRand.nextInt(4) == 0, true, true)) {
+				if (LUtil.harvest(player, player.worldObj, x, y, z, stack, itemRand.nextInt(4) == 0, true, true)) {
 					if (!stack.hasTagCompound()) {
 						stack.setTagCompound(new NBTTagCompound());
 					}
@@ -149,7 +149,7 @@ public class ItemWreckingBall extends ItemBase {
 					if (stack.getTagCompound().getInteger("blocksBroken") >= blocksBeforeCooldown) {
 						stack.getTagCompound().setInteger("cooldown", 40);
 						stack.getTagCompound().setInteger("blocksBroken", 0);
-						LUtil.harvest(player, player.worldObj, mop.blockX, mop.blockY, mop.blockZ, itemRand.nextInt(4) == 0, true, true);
+						LUtil.harvest(player, player.worldObj, mop.blockX, mop.blockY, mop.blockZ, stack, itemRand.nextInt(4) == 0, true, true);
 					}
 				}
 				if (stack.stackSize <= 0) {
@@ -190,7 +190,7 @@ public class ItemWreckingBall extends ItemBase {
 		if (!(destroyer instanceof EntityPlayerMP)) {
 			return false;
 		}
-		LUtil.harvest(((EntityPlayerMP)destroyer), world, x, y, z, itemRand.nextInt(4) == 0, false, true);
+		LUtil.harvest(((EntityPlayerMP)destroyer), world, x, y, z, stack, itemRand.nextInt(4) == 0, false, true);
 		/*if (breaking) return false;
 		if (!(destroyer instanceof EntityPlayerMP)) return false;
 		if (destroyer.isSneaking()) {

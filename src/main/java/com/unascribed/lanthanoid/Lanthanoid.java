@@ -125,6 +125,7 @@ public class Lanthanoid {
 		
 		LItems.init();
 		LBlocks.init();
+		LItems.initBlocks();
 		
 		LOres.register();
 		

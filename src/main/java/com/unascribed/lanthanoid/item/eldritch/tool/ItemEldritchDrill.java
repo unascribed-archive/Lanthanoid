@@ -68,8 +68,8 @@ public class ItemEldritchDrill extends ItemPickaxe implements IGlyphHolderItem {
 		if (GlyphItemHelper.doBlockDestroyed(this, stack, world, block, x, y, z, ent) && !breaking && ent instanceof EntityPlayerMP && !ent.isSneaking()) {
 			try {
 				breaking = true;
-				LUtil.harvest((EntityPlayerMP)ent, world, x, y-1, z, true, true, false);
-				LUtil.harvest((EntityPlayerMP)ent, world, x, y+1, z, true, true, false);
+				LUtil.harvest((EntityPlayerMP)ent, world, x, y-1, z, stack, true, true, false);
+				LUtil.harvest((EntityPlayerMP)ent, world, x, y+1, z, stack, true, true, false);
 			} finally {
 				breaking = false;
 			}

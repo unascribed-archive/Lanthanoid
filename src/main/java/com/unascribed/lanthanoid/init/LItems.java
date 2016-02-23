@@ -21,6 +21,7 @@ import com.unascribed.lanthanoid.item.rifle.ItemRifle;
 import com.unascribed.lanthanoid.util.LArrays;
 
 import cpw.mods.fml.common.registry.GameRegistry;
+import net.minecraft.item.ItemReed;
 import net.minecraft.item.Item.ToolMaterial;
 import net.minecraft.item.ItemArmor.ArmorMaterial;
 import net.minecraftforge.common.util.EnumHelper;
@@ -45,6 +46,8 @@ public class LItems {
 	public static ItemEldritchChestplate eldritch_chestplate;
 	public static ItemEldritchLeggings eldritch_leggings;
 	public static ItemEldritchBoots eldritch_boots;
+	
+	public static ItemReed cobble_repeater;
 	
 	public static void init() {
 		GameRegistry.registerItem(ingot = new ItemMulti(Lanthanoid.inst.creativeTabMaterials, LArrays.all(LMaterials.metals, "ingot")), "ingot");
@@ -123,5 +126,13 @@ public class LItems {
 		
 		eldritch_boots = new ItemEldritchBoots(eldritchArmor);
 		GameRegistry.registerItem(eldritch_boots, "eldritch_boots");
+		
+	}
+
+	public static void initBlocks() {
+		GameRegistry.registerItem(cobble_repeater = (ItemReed) new ItemReed(LBlocks.unpowered_cobble_repeater)
+				.setUnlocalizedName("diode")
+				.setCreativeTab(null)
+				.setTextureName("lanthanoid:repeater_cobble"), "cobble_repeater");
 	}
 }

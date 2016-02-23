@@ -71,7 +71,7 @@ public class ItemEldritchSpade extends ItemSpade implements IGlyphHolderItem {
 						|| world.getBlock(x, curY, z).getMaterial() == Material.ground)) {
 					if (iterations > 7) break;
 					if (GlyphItemHelper.doBlockDestroyed(this, stack, world, block, x, curY, z, ent)) {
-						LUtil.harvest((EntityPlayerMP)ent, world, x, curY, z, world.getBlock(x, curY, z).isToolEffective("shovel", world.getBlockMetadata(x, curY, z)), true, false);
+						LUtil.harvest((EntityPlayerMP)ent, world, x, curY, z, stack, world.getBlock(x, curY, z).isToolEffective("shovel", world.getBlockMetadata(x, curY, z)), true, false);
 					} else {
 						break;
 					}
