@@ -2,6 +2,7 @@ package com.unascribed.lanthanoid.block;
 
 import java.util.Random;
 
+import com.unascribed.lanthanoid.effect.EntityGlyphFX;
 import com.unascribed.lanthanoid.effect.EntityRifleFX;
 import com.unascribed.lanthanoid.item.rifle.PrimaryMode;
 
@@ -38,6 +39,11 @@ public class BlockTechnical extends Block {
 	}
 
 	@Override
+	public boolean isReplaceable(IBlockAccess world, int x, int y, int z) {
+		return true;
+	}
+	
+	@Override
 	public boolean isOpaqueCube() {
 		return false;
 	}
@@ -54,7 +60,8 @@ public class BlockTechnical extends Block {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void randomDisplayTick(World world, int x, int y, int z, Random rand) {
-		if (world.getBlockMetadata(x, y, z) == 0) {
+		int meta = world.getBlockMetadata(x, y, z);
+		if (meta == 0) {
 			PrimaryMode mode = PrimaryMode.LIGHT;
 			float r = ((mode.color >> 16)&0xFF)/255f;
 			float g = ((mode.color >> 8)&0xFF)/255f;
@@ -65,16 +72,31 @@ public class BlockTechnical extends Block {
 				fx.setRBGColorF(r, g, b);
 				Minecraft.getMinecraft().effectRenderer.addEffect(fx);
 			}
+		} else if (meta == 1) {
+			double cX = x+0.5;
+			double cY = y;
+			double cZ = z+0.5;
+			for (int i = 0; i < rand.nextInt(8)+3; i++) {
+				double pX = cX+(rand.nextGaussian()*0.3);
+				double pY = cY+1;
+				double pZ = cZ+(rand.nextGaussian()*0.3);
+				EntityGlyphFX fx = new EntityGlyphFX(world, pX, pY, pZ, cX-pX, cY-pY, cZ-pZ);
+				Minecraft.getMinecraft().effectRenderer.addEffect(fx);
+			}
 		}
 	}
 	
 	@Override
 	public int getLightValue(IBlockAccess world, int x, int y, int z) {
-		return world.getBlockMetadata(x, y, z) == 0 ? 10 : 0;
+		int meta = world.getBlockMetadata(x, y, z);
+		return meta == 0 ? 10 : meta == 1 ? 12 : 0;
 	}
 	
 	@Override
 	public void updateTick(World world, int x, int y, int z, Random rand) {
-		world.setBlock(x, y, z, Blocks.air, 0, 2);
+		int meta = world.getBlockMetadata(x, y, z);
+		if (meta == 0) {
+			world.setBlock(x, y, z, Blocks.air, 0, 2);
+		}
 	}
 }

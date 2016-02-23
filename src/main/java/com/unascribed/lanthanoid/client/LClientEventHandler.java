@@ -19,6 +19,7 @@ import com.unascribed.lanthanoid.client.gui.GuiLanthanoidAchievements;
 import com.unascribed.lanthanoid.client.gui.GuiLanthanoidButton;
 import com.unascribed.lanthanoid.client.gui.GuiLanthanoidOptions;
 import com.unascribed.lanthanoid.glyph.IGlyphHolder;
+import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
 import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchArmor;
 import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchBoots;
@@ -804,18 +805,22 @@ public class LClientEventHandler {
 				GL11.glScalef(ClientConfig.hudGlyphScale, ClientConfig.hudGlyphScale, 1);
 				int totalGlyphs = 0;
 				boolean hasSetBonus = true;
-				for (int i = 3; i >= 0; i--) {
-					ItemStack is = p.inventory.armorItemInSlot(i);
-					if (is != null && is.getItem() instanceof ItemEldritchArmor) {
-						ItemEldritchArmor iea = (ItemEldritchArmor)is.getItem();
-						IIcon glyphs = iea.getGlyphs(is);
+				for (int i = 4; i >= 0; i--) {
+					ItemStack is = p.getEquipmentInSlot(i);
+					if (is != null && is.getItem() instanceof IGlyphHolderItem) {
+						IGlyphHolderItem holder = (IGlyphHolderItem)is.getItem();
+						IIcon glyphs = holder.getGlyphs(is);
 						
-						totalGlyphs += iea.getMilliglyphs(is);
+						if (i != 0) {
+							totalGlyphs += holder.getMilliglyphs(is);
+						} else {
+							GL11.glTranslatef(0, 7, 0);
+						}
 						
-						float r = iea.getGlyphColorRed(is);
-						float g = iea.getGlyphColorGreen(is);
-						float b = iea.getGlyphColorBlue(is);
-						float a = iea.getGlyphColorAlpha(is);
+						float r = holder.getGlyphColorRed(is);
+						float g = holder.getGlyphColorGreen(is);
+						float b = holder.getGlyphColorBlue(is);
+						float a = holder.getGlyphColorAlpha(is);
 						
 						if (glyphs != null) {
 							GL11.glColor4f(r, g, b, a);
@@ -835,11 +840,11 @@ public class LClientEventHandler {
 								GL11.glVertex2f(0, 0);
 							GL11.glEnd();
 							GL11.glPushMatrix();
-								int percent = (int)(((float)iea.getMilliglyphs(is)/iea.getMaxMilliglyphs(is))*100f);
+								int percent = (int)(((float)holder.getMilliglyphs(is)/holder.getMaxMilliglyphs(is))*100f);
 								Minecraft.getMinecraft().fontRendererObj.drawString(percent+"%", 38, 5, -1);
 							GL11.glPopMatrix();
 						}
-					} else {
+					} else if (i != 0) {
 						hasSetBonus = false;
 					}
 					GL11.glTranslatef(0, 14, 0);

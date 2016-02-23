@@ -5,14 +5,13 @@ import java.util.List;
 import com.google.common.base.Strings;
 import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
+import com.unascribed.lanthanoid.init.LBlocks;
 import com.unascribed.lanthanoid.item.GlyphItemHelper;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -96,12 +95,15 @@ public class ItemEldritchPickaxe extends ItemPickaxe implements IGlyphHolderItem
 			tY = y;
 			tZ = z;
 		}
-		if (cur.isAir(world, tX, tY, tZ) || cur.isReplaceable(world, tX, tY, tZ)
-				&& player.inventory.consumeInventoryItem(Item.getItemFromBlock(Blocks.torch))) {
-			Block torch = Blocks.torch;
-			int meta = torch.onBlockPlaced(world, tX, tY, tZ, side, hitX, hitY, hitZ, 0);
-			world.setBlock(tX, tY, tZ, torch, meta, 3);
-			return true;
+		if (cur.isAir(world, tX, tY, tZ) || cur.isReplaceable(world, tX, tY, tZ)) {
+			if (getMilliglyphs(stack) > 1000) {
+				setMilliglyphs(stack, getMilliglyphs(stack)-1000);
+				Block torch = LBlocks.technical;
+				int meta = 1;
+				world.setBlock(tX, tY, tZ, torch, meta, 3);
+				player.playSound("mob.zombie.infect", 1, 1.75f+(world.rand.nextFloat()/4));
+				return true;
+			}
 		}
 		return super.onItemUse(stack, player, world, x, y, z, side, hitX, hitY, hitZ);
 	}
