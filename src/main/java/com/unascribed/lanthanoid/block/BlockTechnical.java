@@ -2,22 +2,26 @@ package com.unascribed.lanthanoid.block;
 
 import java.util.Random;
 
-import com.unascribed.lanthanoid.effect.EntityGlyphFX;
 import com.unascribed.lanthanoid.effect.EntityRifleFX;
 import com.unascribed.lanthanoid.item.rifle.PrimaryMode;
+import com.unascribed.lanthanoid.proxy.ClientProxy;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class BlockTechnical extends Block {
 
+	public IIcon glyphs;
+	
 	public BlockTechnical() {
 		super(Material.circuits);
 		setTickRandomly(true);
@@ -30,7 +34,7 @@ public class BlockTechnical extends Block {
 	
 	@Override
 	public int getRenderType() {
-		return -1;
+		return ClientProxy.technicalRenderId;
 	}
 
 	@Override
@@ -72,17 +76,6 @@ public class BlockTechnical extends Block {
 				fx.setRBGColorF(r, g, b);
 				Minecraft.getMinecraft().effectRenderer.addEffect(fx);
 			}
-		} else if (meta == 1) {
-			double cX = x+0.5;
-			double cY = y;
-			double cZ = z+0.5;
-			for (int i = 0; i < rand.nextInt(8)+3; i++) {
-				double pX = cX+(rand.nextGaussian()*0.3);
-				double pY = cY+1;
-				double pZ = cZ+(rand.nextGaussian()*0.3);
-				EntityGlyphFX fx = new EntityGlyphFX(world, pX, pY, pZ, cX-pX, cY-pY, cZ-pZ);
-				Minecraft.getMinecraft().effectRenderer.addEffect(fx);
-			}
 		}
 	}
 	
@@ -98,5 +91,10 @@ public class BlockTechnical extends Block {
 		if (meta == 0) {
 			world.setBlock(x, y, z, Blocks.air, 0, 2);
 		}
+	}
+	
+	@Override
+	public void registerIcons(IIconRegister reg) {
+		glyphs = reg.registerIcon("lanthanoid:glyphs");
 	}
 }

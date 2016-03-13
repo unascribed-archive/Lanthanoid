@@ -7,6 +7,7 @@ import com.unascribed.lanthanoid.Lanthanoid;
 import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
 import com.unascribed.lanthanoid.init.LBlocks;
 import com.unascribed.lanthanoid.item.GlyphItemHelper;
+
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
@@ -107,7 +108,7 @@ public class ItemEldritchPickaxe extends ItemPickaxe implements IGlyphHolderItem
 		}
 		return super.onItemUse(stack, player, world, x, y, z, side, hitX, hitY, hitZ);
 	}
-	
+
 	@Override
 	public String getUnlocalizedNameInefficiently(ItemStack p_77657_1_) {
 		return Strings.nullToEmpty(getUnlocalizedName(p_77657_1_));

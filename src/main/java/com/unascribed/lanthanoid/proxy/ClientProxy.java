@@ -3,6 +3,7 @@ package com.unascribed.lanthanoid.proxy;
 import com.unascribed.lanthanoid.client.ClientConfig;
 import com.unascribed.lanthanoid.client.LClientEventHandler;
 import com.unascribed.lanthanoid.client.TextureCompositorImpl;
+import com.unascribed.lanthanoid.client.render.block.TechnicalRenderer;
 import com.unascribed.lanthanoid.client.render.item.EldritchItemRenderer;
 import com.unascribed.lanthanoid.client.render.item.MachineItemRenderer;
 import com.unascribed.lanthanoid.client.render.item.RifleItemRenderer;
@@ -16,6 +17,7 @@ import com.unascribed.lanthanoid.tile.TileEntityWaypoint;
 import com.unascribed.lanthanoid.util.TextureCompositor;
 
 import cpw.mods.fml.client.registry.ClientRegistry;
+import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.SimpleReloadableResourceManager;
@@ -24,6 +26,7 @@ import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
 
 public class ClientProxy implements Proxy {
+	public static int technicalRenderId;
 	private TextureCompositor compositor;
 	@Override
 	public TextureCompositor createCompositor() {
@@ -47,6 +50,11 @@ public class ClientProxy implements Proxy {
 		ceh.init();
 		FMLCommonHandler.instance().bus().register(ceh);
 		MinecraftForge.EVENT_BUS.register(ceh);
+		
+		technicalRenderId = RenderingRegistry.getNextAvailableRenderId();
+		
+		RenderingRegistry.registerBlockHandler(technicalRenderId, new TechnicalRenderer());
+		
 		MinecraftForgeClient.registerItemRenderer(LItems.rifle, new RifleItemRenderer());
 		
 		MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(LBlocks.machine), new MachineItemRenderer());

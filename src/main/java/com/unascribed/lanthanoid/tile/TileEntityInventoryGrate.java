@@ -8,13 +8,14 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.EntityHorse;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
-public class TileEntityInventoryGrate extends TileEntity implements IInventory {
+public class TileEntityInventoryGrate extends TileEntity implements IInventory, ISidedInventory {
 	public class Slot {
 		public IInventory owner;
 		public int index;
@@ -97,32 +98,35 @@ public class TileEntityInventoryGrate extends TileEntity implements IInventory {
 	
 	private <T> T performOnOwningInventory(int slot, InventoryAction<T> action) {
 		Slot s = search(slot);
-		if (s.owner == null) return null;
+		if (s == null || s.owner == null) return null;
 		return action.perform(s.owner, s.index);
 	}
 	
 	private <T, U> T performOnOwningInventory(int slot, U arg, InventoryBiAction<T, U> action) {
 		Slot s = search(slot);
-		if (s.owner == null) return null;
+		if (s == null || s.owner == null) return null;
 		return action.perform(s.owner, s.index, arg);
 	}
 	
 	/*private void performOnOwningInventory(int slot, InventoryVoidAction action) {
 		Slot s = search(slot);
-		if (s.owner != null) {
+		if (s != null && s.owner != null) {
 			action.perform(s.owner, s.index);
 		}
 	}*/
 	
 	private <U> void performOnOwningInventory(int slot, U arg, InventoryBiVoidAction<U> action) {
 		Slot s = search(slot);
-		if (s.owner != null) {
+		if (s != null && s.owner != null) {
 			action.perform(s.owner, s.index, arg);
 		}
 	}
 	
 	@Override
 	public int getSizeInventory() {
+		// see below comment on getSlotsForFace for why we don't return 0 here
+		if (standingEntities.isEmpty()) return 1;
+		
 		int size = 0;
 		for (Entity e : standingEntities) {
 			IInventory inv = unwrapInventory(e);
@@ -153,7 +157,7 @@ public class TileEntityInventoryGrate extends TileEntity implements IInventory {
 
 	@Override
 	public String getInventoryName() {
-		return "Inventory Grate";
+		return "container.inventory_grate";
 	}
 
 	@Override
@@ -190,7 +194,40 @@ public class TileEntityInventoryGrate extends TileEntity implements IInventory {
 
 	@Override
 	public boolean isItemValidForSlot(int index, ItemStack stack) {
+		if (standingEntities.isEmpty()) return false;
 		return performOnOwningInventory(index, stack, IInventory::isItemValidForSlot);
+	}
+
+	@Override
+	public int[] getSlotsForFace(int side) {
+		if (side == 0) { // bottom
+			if (standingEntities.isEmpty()) {
+				/*
+				 * workaround for pipe mods, which assume an array of size zero
+				 * means "no connection". due to the way our implementation
+				 * works, any actions performed when no entities are standing on
+				 * the grate are silently ignored, so this should be safe.
+				 */ 
+				return new int[1];
+			}
+			int[] arr = new int[getSizeInventory()];
+			for (int i = 0; i < arr.length; i++) {
+				arr[i] = i;
+			}
+			return arr;
+		}
+		return new int[0];
+	}
+
+	@Override
+	public boolean canInsertItem(int slot, ItemStack item, int side) {
+		if (side != 0) return false;
+		return isItemValidForSlot(slot, item);
+	}
+
+	@Override
+	public boolean canExtractItem(int slot, ItemStack stack, int side) {
+		return side == 0;
 	}
 
 }

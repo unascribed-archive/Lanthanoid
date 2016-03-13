@@ -45,6 +45,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class BlockMachine extends BlockBase implements NameDelegate {
 
@@ -62,11 +63,6 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 		setHarvestLevel("pickaxe", 2);
 		setResistance(5000);
 		setHardness(2);
-	}
-
-	@Override
-	public boolean getUseNeighborBrightness() {
-		return true;
 	}
 	
 	@Override
@@ -135,11 +131,6 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 	@Override
 	public int colorMultiplier(IBlockAccess world, int x, int y, int z) {
 		return getRenderColor(world.getBlockMetadata(x, y, z));
-	}
-
-	@Override
-	public boolean isOpaqueCube() {
-		return false;
 	}
 
 	@Override
@@ -240,6 +231,17 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 			}
 		}
 	}
+
+	@Override
+	public boolean isSideSolid(IBlockAccess world, int x, int y, int z, ForgeDirection side) {
+		int meta = world.getBlockMetadata(x, y, z);
+		if (meta >= 0 && meta <= 8) {
+			return true;
+		} else if (meta == 9) {
+			return side == ForgeDirection.DOWN;
+		}
+		return super.isSideSolid(world, x, y, z, side);
+	}
 	
 	@Override
 	public void setBlockBoundsForItemRender() {
@@ -286,7 +288,36 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 	public boolean isNormalCube(IBlockAccess world, int x, int y, int z) {
 		return world.getBlockMetadata(x, y, z) != 9;
 	}
+	
+	@Override
+	public int getLightOpacity(IBlockAccess world, int x, int y, int z) {
+		return world.getBlockMetadata(x, y, z) == 9 ? 0 : super.getLightOpacity(world, x, y, z);
+	}
 
+	@Override
+	public boolean getUseNeighborBrightness() {
+		return true;
+	}
+	
+	@Override
+	public boolean isFullBlock() {
+		return false;
+	}
+	
+	@Override
+	public boolean isNormalCube() {
+		return false;
+	}
+	
+	@Override
+	public boolean isBlockNormalCube() {
+		return false;
+	}
+	
+	@Override
+	public boolean isOpaqueCube() {
+		return false;
+	}
 	
 	@Override
 	public void registerIcons(IIconRegister register) {

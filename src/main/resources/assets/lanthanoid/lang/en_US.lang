@@ -84,6 +84,7 @@ mode.light.name=Illumination
 
 
 machine.combustor=Combustor
+container.inventory_grate=Inventory Grate
 
 tile.ore.template=%s Ore
 tile.block.template=Block of %s

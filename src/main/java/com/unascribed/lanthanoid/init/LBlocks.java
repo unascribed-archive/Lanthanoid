@@ -3,7 +3,6 @@ package com.unascribed.lanthanoid.init;
 import java.util.Random;
 
 import com.unascribed.lanthanoid.Lanthanoid;
-import com.unascribed.lanthanoid.block.BlockCobbleRepeater;
 import com.unascribed.lanthanoid.block.BlockEnergizedLutetium;
 import com.unascribed.lanthanoid.block.BlockMachine;
 import com.unascribed.lanthanoid.block.BlockMulti;
@@ -21,7 +20,6 @@ import com.unascribed.lanthanoid.tile.TileEntityWaypoint;
 import com.unascribed.lanthanoid.util.LArrays;
 
 import cpw.mods.fml.common.registry.GameRegistry;
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
@@ -37,7 +35,6 @@ public class LBlocks {
 	public static BlockEnergizedLutetium energized_lutetium;
 	public static BlockMulti misc;
 	public static BlockMachine machine;
-	public static BlockCobbleRepeater unpowered_cobble_repeater, powered_cobble_repeater;
 	
 	public static void init() {
 		GameRegistry.registerBlock(ore_metal = new BlockMulti(
@@ -163,17 +160,6 @@ public class LBlocks {
 				
 				"lampThulite"
 				).setUnlocalizedName("lamp"), "misc");
-		
-		GameRegistry.registerBlock(unpowered_cobble_repeater = (BlockCobbleRepeater) new BlockCobbleRepeater(false)
-			.setHardness(0)
-			.setStepSound(Block.soundTypeWood)
-			.setUnlocalizedName("diode")
-			.setTextureName("lanthanoid:cobble_repeater_off"), "unpowered_cobble_repeater");
-		GameRegistry.registerBlock(powered_cobble_repeater = (BlockCobbleRepeater) new BlockCobbleRepeater(true)
-			.setHardness(0)
-			.setStepSound(Block.soundTypeWood)
-			.setUnlocalizedName("diode")
-			.setTextureName("lanthanoid:cobble_repeater_on"), "powered_cobble_repeater");
 		
 		GameRegistry.registerBlock(machine = new BlockMachine(), ItemBlockMachine.class, "machine");
 		GameRegistry.registerTileEntity(TileEntityWaypoint.class, "lanthanoid:waypoint");
