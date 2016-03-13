@@ -19,6 +19,7 @@ import com.unascribed.lanthanoid.tile.TileEntityEldritchDistributor;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchFaithPlate;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchInductor;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchInfiniteSource;
+import com.unascribed.lanthanoid.tile.TileEntityInventoryGrate;
 import com.unascribed.lanthanoid.tile.TileEntityWaypoint;
 import com.unascribed.lanthanoid.util.NameDelegate;
 import com.unascribed.lanthanoid.waypoint.Waypoint;
@@ -47,6 +48,7 @@ import net.minecraft.world.World;
 
 public class BlockMachine extends BlockBase implements NameDelegate {
 
+	public static boolean grateBounds = false;
 	private IIcon[] bottoms = new IIcon[16];
 	private IIcon[] tops = new IIcon[16];
 	private IIcon[] sides = new IIcon[16];
@@ -137,12 +139,12 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 
 	@Override
 	public boolean isOpaqueCube() {
-		return true;
+		return false;
 	}
 
 	@Override
 	public boolean hasTileEntity(int metadata) {
-		return metadata >= 0 && metadata <= 8;
+		return metadata >= 0 && metadata <= 9;
 	}
 
 	@Override
@@ -164,6 +166,8 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 				return new TileEntityEldritchInfiniteSource();
 			case 8:
 				return new TileEntityEldritchBoostPad();
+			case 9:
+				return new TileEntityInventoryGrate();
 			default:
 				return null;
 		}
@@ -209,8 +213,14 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 		if (te instanceof IBounded) {
 			return ((IBounded)te).getBoundingBox().getOffsetBoundingBox(x, y, z);
 		} else {
-			return AxisAlignedBB.getBoundingBox(x, y, z, x+1, y+1, z+1);
+			setBlockBoundsBasedOnState(world, x, y, z);
+			return AxisAlignedBB.getBoundingBox(x+minX, y+minY, z+minZ, x+maxX, y+maxY, z+maxZ);
 		}
+	}
+	
+	@Override
+	public AxisAlignedBB getSelectedBoundingBoxFromPool(World world, int x, int y, int z) {
+		return getCollisionBoundingBoxFromPool(world, x, y, z);
 	}
 	
 	@Override
@@ -220,8 +230,11 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 			AxisAlignedBB aabb = ((IBounded)te).getBoundingBox();
 			setBlockBounds((float)aabb.minX, (float)aabb.minY, (float)aabb.minZ, (float)aabb.maxX, (float)aabb.maxY, (float)aabb.maxZ);
 		} else {
-			if (world.getBlockMetadata(x, y, z) == 5) {
+			int meta = world.getBlockMetadata(x, y, z);
+			if (meta == 5) {
 				setBlockBounds(0, 0, 0, 1, 31/32f, 1);
+			} else if (meta == 9) {
+				setBlockBounds(0, 0, 0, 1, 0.0625f, 1);
 			} else {
 				setBlockBounds(0, 0, 0, 1, 1, 1);
 			}
@@ -230,7 +243,11 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 	
 	@Override
 	public void setBlockBoundsForItemRender() {
-		setBlockBounds(0, 0, 0, 1, 1, 1);
+		if (grateBounds) {
+			setBlockBounds(0, 0, 0, 1, 0.0625f, 1);
+		} else {
+			setBlockBounds(0, 0, 0, 1, 1, 1);
+		}
 	}
 	
 	@Override
@@ -264,6 +281,11 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 		}
 		return super.getDrops(world, x, y, z, metadata, fortune);
 	}
+	
+	@Override
+	public boolean isNormalCube(IBlockAccess world, int x, int y, int z) {
+		return world.getBlockMetadata(x, y, z) != 9;
+	}
 
 	
 	@Override
@@ -282,6 +304,8 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 		IIcon distributor = register.registerIcon("lanthanoid:eldritch_distributor");
 		IIcon collector = register.registerIcon("lanthanoid:eldritch_collector");
 		IIcon faith_plate = register.registerIcon("lanthanoid:eldritch_faith");
+		IIcon grate_top = register.registerIcon("lanthanoid:inventory_grate");
+		
 		boost_pad = register.registerIcon("lanthanoid:eldritch_boost_pad");
 		boost_pad_90 = register.registerIcon("lanthanoid:eldritch_boost_pad_90");
 		boost_pad_180 = register.registerIcon("lanthanoid:eldritch_boost_pad_180");
@@ -310,12 +334,15 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 			bottoms[i] = tops[i] = eldritch;
 		}
 		tops[5] = chargerTop;
+		tops[9] = grate_top;
+		bottoms[9] = grate_top;
 		sides[3] = collector;
 		sides[4] = distributor;
 		sides[5] = charger;
 		sides[6] = faith_plate;
 		sides[7] = eldritch;
 		sides[8] = eldritch;
+		sides[9] = eldritch;
 
 		collectorGlyphs = register.registerIcon("lanthanoid:eldritch_glyph_take");
 		distributorGlyphs = register.registerIcon("lanthanoid:eldritch_glyph_give");
@@ -335,7 +362,7 @@ public class BlockMachine extends BlockBase implements NameDelegate {
 
 	@Override
 	public void getSubBlocks(Item item, CreativeTabs tab, List li) {
-		for (int i = 0; i <= 8; i++) {
+		for (int i = 0; i <= 9; i++) {
 			li.add(new ItemStack(item, 1, i));
 		}
 	}

@@ -2,6 +2,7 @@ package com.unascribed.lanthanoid.client.render.item;
 
 import org.lwjgl.opengl.GL11;
 
+import com.unascribed.lanthanoid.block.BlockMachine;
 import com.unascribed.lanthanoid.client.RingRenderer;
 import com.unascribed.lanthanoid.client.render.tile.EldritchTileEntitySpecialRenderer;
 import com.unascribed.lanthanoid.init.LBlocks;
@@ -29,13 +30,16 @@ public class MachineItemRenderer implements IItemRenderer {
 		return (type == ItemRenderType.ENTITY && (helper == ItemRendererHelper.ENTITY_BOBBING || helper == ItemRendererHelper.ENTITY_ROTATION)) ||
 				(type == ItemRenderType.EQUIPPED && helper == ItemRendererHelper.EQUIPPED_BLOCK) ||
 				(type == ItemRenderType.EQUIPPED_FIRST_PERSON && helper == ItemRendererHelper.EQUIPPED_BLOCK) ||
-				(item.getMetadata() >= 3 && item.getMetadata() <= 8 && type == ItemRenderType.INVENTORY && helper == ItemRendererHelper.INVENTORY_BLOCK);
+				(item.getMetadata() >= 3 && item.getMetadata() <= 9 && type == ItemRenderType.INVENTORY && helper == ItemRendererHelper.INVENTORY_BLOCK);
 	}
 
 	@Override
 	public void renderItem(ItemRenderType type, ItemStack item, Object... data) {
 		RenderBlocks rb = (RenderBlocks)data[0];
 		int meta = item.getMetadata();
+		if (meta == 9) {
+			BlockMachine.grateBounds = true;
+		}
 		/*if (type == ItemRenderType.INVENTORY) {
 			float f = 20;
 			GL11.glScalef(f, f, f);
@@ -171,6 +175,9 @@ public class MachineItemRenderer implements IItemRenderer {
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glDepthMask(true);
+		if (meta == 9) {
+			BlockMachine.grateBounds = false;
+		}
 	}
 
 }

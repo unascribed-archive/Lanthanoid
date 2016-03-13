@@ -22,7 +22,7 @@ apply plugin: 'me.tatarka.retrolambda'
 
 group = "com.unascribed.lanthanoid"
 archivesBaseName = "Lanthanoid"
-version = "0.6.2"
+version = "0.7"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -62,7 +62,7 @@ jar {
 }
 
 minecraft {
-	version = "1.7.10-10.13.2.1342-1.7.10"
+	version = "1.7.10-10.13.4.1448-1.7.10"
 	mappings = "stable_12"
 	runDir = "eclipse"
 	

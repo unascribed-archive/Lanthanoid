@@ -16,6 +16,7 @@ import com.unascribed.lanthanoid.tile.TileEntityEldritchDistributor;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchFaithPlate;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchInductor;
 import com.unascribed.lanthanoid.tile.TileEntityEldritchInfiniteSource;
+import com.unascribed.lanthanoid.tile.TileEntityInventoryGrate;
 import com.unascribed.lanthanoid.tile.TileEntityWaypoint;
 import com.unascribed.lanthanoid.util.LArrays;
 
@@ -182,6 +183,8 @@ public class LBlocks {
 		GameRegistry.registerTileEntity(TileEntityEldritchInductor.class, "lanthanoid:eldritch_inductor");
 		GameRegistry.registerTileEntity(TileEntityEldritchInfiniteSource.class, "lanthanoid:eldritch_cheat_device");
 		GameRegistry.registerTileEntity(TileEntityEldritchBoostPad.class, "lanthanoid:eldritch_boost_pad");
+		GameRegistry.registerTileEntity(TileEntityInventoryGrate.class, "lanthanoid:inventory_grate");
 	}
 
 }
+
