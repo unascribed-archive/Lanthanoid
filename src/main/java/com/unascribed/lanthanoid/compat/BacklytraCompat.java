@@ -132,4 +132,8 @@ public class BacklytraCompat {
 		}
 	}
 
+	public static void addRecipes() {
+		GameRegistry.addShapelessRecipe(new ItemStack(LItems.eldritch_elytra), LItems.eldritch_chestplate, Backlytra.elytra);
+	}
+
 }
