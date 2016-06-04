@@ -146,5 +146,15 @@
 				"stream": false
 			}
 		]
+	},
+	"eldritch_elytra": {
+		"category": "player",
+		"sounds": [
+			{
+				"name": "jet",
+				"volume": 0.6,
+				"pitch": 2
+			}
+		]
 	}
 }

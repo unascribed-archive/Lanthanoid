@@ -14,6 +14,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.unascribed.lanthanoid.Lanthanoid;
+import com.unascribed.lanthanoid.LanthanoidProperties;
 import com.unascribed.lanthanoid.client.ClientConfig.Eagerness;
 import com.unascribed.lanthanoid.client.gui.GuiLanthanoidAchievements;
 import com.unascribed.lanthanoid.client.gui.GuiLanthanoidButton;
@@ -23,6 +24,7 @@ import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
 import com.unascribed.lanthanoid.init.LItems;
 import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchArmor;
 import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchBoots;
+import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchElytra;
 import com.unascribed.lanthanoid.item.rifle.ItemRifle;
 import com.unascribed.lanthanoid.item.rifle.Mode;
 import com.unascribed.lanthanoid.item.rifle.PrimaryMode;
@@ -377,12 +379,16 @@ public class LClientEventHandler {
 						}
 					}
 				}
-				if (ClientConfig.flightScheme == Eagerness.EAGER || !mc.gameSettings.keyBindJump.getIsKeyPressed()) {
+				ItemStack itemstack = mc.thePlayer.getEquipmentInSlot(3);
+				boolean isElytra = itemstack != null && itemstack.getItem() instanceof ItemEldritchElytra;
+				if (isElytra || ClientConfig.flightScheme == Eagerness.EAGER || !mc.gameSettings.keyBindJump.getIsKeyPressed()) {
 					jumpTainted = false;
 				}
 				State flyingState;
 				if (mc.gameSettings.keyBindJump.getIsKeyPressed() && !jumpTainted) {
-					if (ClientConfig.flightScheme == Eagerness.EAGER) {
+					if (isElytra) {
+						flyingState = State.ELYTRA_BOOST;
+					} else if (ClientConfig.flightScheme == Eagerness.EAGER) {
 						flyingState = State.FLYING;
 					} else {
 						if (lastOnGround) {
@@ -392,7 +398,7 @@ public class LClientEventHandler {
 							flyingState = State.FLYING;
 						}
 					}
-				} else if (lastFlyingState == State.FLYING || lastFlyingState == State.HOVER) {
+				} else if (lastFlyingState == State.FLYING || lastFlyingState == State.HOVER || lastFlyingState == State.ELYTRA_BOOST) {
 					flyingState = State.NONE;
 				} else {
 					flyingState = lastFlyingState;
@@ -406,6 +412,8 @@ public class LClientEventHandler {
 				}
 				if (flyingState != lastFlyingState) {
 					lastFlyingState = flyingState;
+					LanthanoidProperties props = (LanthanoidProperties) mc.thePlayer.getExtendedProperties("lanthanoid");
+					props.flyingState = flyingState;
 					SetFlyingState.Message msg = new SetFlyingState.Message(flyingState);
 					Lanthanoid.inst.network.sendToServer(msg);
 				}

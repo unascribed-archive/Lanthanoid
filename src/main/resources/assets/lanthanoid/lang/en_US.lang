@@ -152,6 +152,10 @@ item.eldritch_boots.name=Eldritch Boots
 item.eldritch_boots.ability.name=Acceleration
 item.eldritch_boots.ability.desc=Sprinting slowly increases speed, stopping sprinting resets. When paired with the helmet, food will automatically be consumed while sprinting
 
+item.eldritch_elytra.name=Eldritch Elytra
+item.eldritch_elytra.ability.name=Dive
+item.eldritch_elytra.ability.desc=Flying near enemies hurts them based on speed.
+
 ui.eldritch_set_bonus=Set Bonus: Flight
 
 

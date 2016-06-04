@@ -1,7 +1,9 @@
 package com.unascribed.lanthanoid.network;
 
 import com.unascribed.lanthanoid.LanthanoidProperties;
+import com.unascribed.lanthanoid.glyph.IGlyphHolderItem;
 import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchArmor;
+import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchElytra;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
@@ -16,7 +18,8 @@ public final class SetFlyingState {
 		NONE,
 		HOVER,
 		FLYING,
-		FALLING
+		FALLING,
+		ELYTRA_BOOST
 	}
 	
 	public static class Handler implements IMessageHandler<Message, IMessage> {
@@ -25,20 +28,24 @@ public final class SetFlyingState {
 		public IMessage onMessage(Message message, MessageContext ctx) {
 			EntityPlayerMP player = ctx.getServerHandler().playerEntity;
 			State state = message.state;
-			if (ItemEldritchArmor.hasSetBonus(player)) {
+			if (state == State.ELYTRA_BOOST) {
+				ItemStack stack = player.getEquipmentInSlot(3);
+				if (stack.getItem() instanceof ItemEldritchElytra) {
+					IGlyphHolderItem ighi = (IGlyphHolderItem)stack.getItem();
+					if (ighi.getMilliglyphs(stack) < 300) {
+						state = State.NONE;
+					}
+				}
+			} else if (ItemEldritchArmor.hasSetBonus(player)) {
 				int totalGlyphs = 0;
 				for (ItemStack is : player.inventory.armorInventory) {
 					totalGlyphs += ((ItemEldritchArmor)is.getItem()).getMilliglyphs(is);
 				}
 				if (totalGlyphs < 1000) {
-					if (state != State.NONE) {
-						state = State.NONE;
-					}
-				}
-			} else {
-				if (state != State.NONE) {
 					state = State.NONE;
 				}
+			} else {
+				state = State.NONE;
 			}
 			LanthanoidProperties props = (LanthanoidProperties) player.getExtendedProperties("lanthanoid");
 			props.flyingState = state;

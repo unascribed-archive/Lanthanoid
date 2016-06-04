@@ -241,6 +241,13 @@ public class LRecipes {
 				'y', "ingotYttriumBariumCopperOxide",
 				'1', "ingotPraseodymium",
 				'2', "ingotYtterbium"));
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(LBlocks.machine, 1, 9),
+				"did",
+				"ypy",
+				'y', "ingotYttriumBariumCopperOxide",
+				'd', "gemDiamond",
+				'i', Blocks.iron_bars,
+				'p', "ingotPraseodymium"));
 	}
 
 	private static void initStopgap() {

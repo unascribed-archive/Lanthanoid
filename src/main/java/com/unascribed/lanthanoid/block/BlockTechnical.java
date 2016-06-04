@@ -33,6 +33,7 @@ public class BlockTechnical extends Block {
 	}
 	
 	@Override
+	@SideOnly(Side.CLIENT)
 	public int getRenderType() {
 		return ClientProxy.technicalRenderId;
 	}

@@ -3,6 +3,7 @@ package com.unascribed.lanthanoid;
 import java.util.List;
 
 import com.unascribed.lanthanoid.client.LClientEventHandler;
+import com.unascribed.lanthanoid.compat.BacklytraCompat;
 import com.unascribed.lanthanoid.effect.EntityGlyphFX;
 import com.unascribed.lanthanoid.init.LAchievements;
 import com.unascribed.lanthanoid.init.LItems;
@@ -16,6 +17,7 @@ import com.unascribed.lanthanoid.network.SetScopeFactor;
 import com.unascribed.lanthanoid.waypoint.Waypoint;
 
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
@@ -114,6 +116,9 @@ public class LEventHandler {
 					Lanthanoid.inst.network.sendTo(new SetScopeFactor.Message(props.scopeFactor), (EntityPlayerMP)e.player);
 				}
 			}
+		}
+		if (Loader.isModLoaded("backlytra")) {
+			BacklytraCompat.tick(e.player);
 		}
 		if (ItemEldritchArmor.hasSetBonus(e.player)) {
 			e.player.triggerAchievement(LAchievements.setBonus);

@@ -1,6 +1,7 @@
 package com.unascribed.lanthanoid.init;
 
 import com.unascribed.lanthanoid.Lanthanoid;
+import com.unascribed.lanthanoid.compat.BacklytraCompat;
 import com.unascribed.lanthanoid.item.ItemChargedBook;
 import com.unascribed.lanthanoid.item.ItemDisabled;
 import com.unascribed.lanthanoid.item.ItemMulti;
@@ -11,6 +12,7 @@ import com.unascribed.lanthanoid.item.ItemWreckingBall;
 import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchBoots;
 import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchHelmet;
 import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchChestplate;
+import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchElytra;
 import com.unascribed.lanthanoid.item.eldritch.armor.ItemEldritchLeggings;
 import com.unascribed.lanthanoid.item.eldritch.tool.ItemEldritchAxe;
 import com.unascribed.lanthanoid.item.eldritch.tool.ItemEldritchDrill;
@@ -20,6 +22,7 @@ import com.unascribed.lanthanoid.item.eldritch.tool.ItemEldritchSword;
 import com.unascribed.lanthanoid.item.rifle.ItemRifle;
 import com.unascribed.lanthanoid.util.LArrays;
 
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.item.Item.ToolMaterial;
 import net.minecraft.item.ItemArmor.ArmorMaterial;
@@ -45,6 +48,8 @@ public class LItems {
 	public static ItemEldritchChestplate eldritch_chestplate;
 	public static ItemEldritchLeggings eldritch_leggings;
 	public static ItemEldritchBoots eldritch_boots;
+	
+	public static ItemEldritchElytra eldritch_elytra;
 	
 	public static void init() {
 		GameRegistry.registerItem(ingot = new ItemMulti(Lanthanoid.inst.creativeTabMaterials, LArrays.all(LMaterials.metals, "ingot")), "ingot");
@@ -123,6 +128,10 @@ public class LItems {
 		
 		eldritch_boots = new ItemEldritchBoots(eldritchArmor);
 		GameRegistry.registerItem(eldritch_boots, "eldritch_boots");
+		
+		if (Loader.isModLoaded("backlytra")) {
+			BacklytraCompat.init();
+		}
 		
 	}
 }

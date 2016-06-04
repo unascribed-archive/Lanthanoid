@@ -74,5 +74,6 @@ public class ClientProxy implements Proxy {
 		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_chestplate, new EldritchItemRenderer(0.35f, 0.35f, 0f));
 		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_leggings, new EldritchItemRenderer(0.35f, 0.7f, 0f));
 		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_boots, new EldritchItemRenderer(0.4f, 0.4f, 90f));
+		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_elytra, new EldritchItemRenderer(0.2f, 0.5f, -90f));
 	}
 }
