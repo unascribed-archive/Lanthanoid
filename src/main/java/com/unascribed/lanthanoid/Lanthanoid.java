@@ -49,7 +49,7 @@ import net.minecraftforge.common.MinecraftForge;
 	name="Lanthanoid",
 	version="@VERSION@",
 	acceptedMinecraftVersions="@MCVERSION@",
-	dependencies="required-after:malisiscore"
+	dependencies="required-after:malisiscore;after:backlytra"
 	)
 public class Lanthanoid {
 	public static Logger log;
