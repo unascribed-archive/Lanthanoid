@@ -32,7 +32,7 @@ public class LItems {
 	public static ItemMulti ingot, stick, dust, nugget, gem;
 	public static ItemTeleporter teleporter;
 	public static ItemRifle rifle;
-	public static ItemWreckingBall ytterbium_wrecking_ball, erbium_wrecking_ball, dysprosium_wrecking_ball;
+	public static ItemWreckingBall dysprosium_wrecking_ball;
 	public static ItemGlasses glasses;
 	public static ItemSpanner spanner;
 	public static ItemChargedBook charged_book;
@@ -72,16 +72,16 @@ public class LItems {
 			GameRegistry.registerItem(new ItemDisabled(Lanthanoid.inst.creativeTabEquipment).setUnlocalizedName("rifle"), "rifle");
 		}
 		
-		ytterbium_wrecking_ball = new ItemWreckingBall(ItemWreckingBall.Material.YTTERBIUM);
-		erbium_wrecking_ball = new ItemWreckingBall(ItemWreckingBall.Material.ERBIUM);
-		dysprosium_wrecking_ball = new ItemWreckingBall(ItemWreckingBall.Material.DYSPROSIUM);
+		//ytterbium_wrecking_ball = new ItemWreckingBall();
+		//erbium_wrecking_ball = new ItemWreckingBall();
+		dysprosium_wrecking_ball = new ItemWreckingBall();
 		if (LConfig.item_wreckingBall) {
-			GameRegistry.registerItem(ytterbium_wrecking_ball, "ytterbium_wrecking_ball");
-			GameRegistry.registerItem(erbium_wrecking_ball, "erbium_wrecking_ball");
+			//GameRegistry.registerItem(ytterbium_wrecking_ball, "ytterbium_wrecking_ball");
+			//GameRegistry.registerItem(erbium_wrecking_ball, "erbium_wrecking_ball");
 			GameRegistry.registerItem(dysprosium_wrecking_ball, "dysprosium_wrecking_ball");
 		} else {
-			GameRegistry.registerItem(new ItemDisabled(Lanthanoid.inst.creativeTabEquipment).setUnlocalizedName("ytterbium_wrecking_ball"), "ytterbium_wrecking_ball");
-			GameRegistry.registerItem(new ItemDisabled(Lanthanoid.inst.creativeTabEquipment).setUnlocalizedName("erbium_wrecking_ball"), "erbium_wrecking_ball");
+			//GameRegistry.registerItem(new ItemDisabled(Lanthanoid.inst.creativeTabEquipment).setUnlocalizedName("ytterbium_wrecking_ball"), "ytterbium_wrecking_ball");
+			//GameRegistry.registerItem(new ItemDisabled(Lanthanoid.inst.creativeTabEquipment).setUnlocalizedName("erbium_wrecking_ball"), "erbium_wrecking_ball");
 			GameRegistry.registerItem(new ItemDisabled(Lanthanoid.inst.creativeTabEquipment).setUnlocalizedName("dysprosium_wrecking_ball"), "dysprosium_wrecking_ball");
 		}
 		

@@ -85,8 +85,7 @@ public class LAchievements {
 		addAchievement("usedWaypoint", 1, -3, Items.emerald, craftWaypoint);
 		
 		
-		addAchievement("craftWreckingBall", -1, 2, LItems.ytterbium_wrecking_ball, null);
-		addAchievement("craftDysWreckingBall", -2, 4, LItems.dysprosium_wrecking_ball, craftWreckingBall);
+		addAchievement("craftDysWreckingBall", -2, 4, LItems.dysprosium_wrecking_ball, null);
 		
 		
 		addAchievement("goFast", 2, 5, LItems.eldritch_boots, null).setSpecial();

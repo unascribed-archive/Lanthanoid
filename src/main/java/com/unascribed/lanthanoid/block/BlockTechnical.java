@@ -4,7 +4,7 @@ import java.util.Random;
 
 import com.unascribed.lanthanoid.effect.EntityRifleFX;
 import com.unascribed.lanthanoid.item.rifle.PrimaryMode;
-import com.unascribed.lanthanoid.proxy.ClientProxy;
+import com.unascribed.lanthanoid.Lanthanoid;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -35,7 +35,7 @@ public class BlockTechnical extends Block {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public int getRenderType() {
-		return ClientProxy.technicalRenderId;
+		return Lanthanoid.proxy.getTechnicalRenderType();
 	}
 
 	@Override

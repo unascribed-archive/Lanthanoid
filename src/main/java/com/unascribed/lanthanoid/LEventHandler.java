@@ -50,7 +50,7 @@ public class LEventHandler {
 	
 	@SubscribeEvent
 	public void onDestroy(PlayerDestroyItemEvent e) {
-		if (e.original.getItem() == LItems.erbium_wrecking_ball) {
+		if (e.original.getItem() == LItems.dysprosium_wrecking_ball) {
 			e.entityPlayer.inventory.addItemStackToInventory(LItems.stick.getStackForName("stickHolmium"));
 		}
 	}

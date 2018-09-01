@@ -104,9 +104,7 @@ tile.machine.8.name=Eldritch Boost Pad
 tile.machine.9.name=Inventory Grate
 
 
-item.ytterbium_wrecking_ball.name=Ytterbium Wrecking Ball
-item.erbium_wrecking_ball.name=Erbium Wrecking Ball
-item.dysprosium_wrecking_ball.name=Dysprosium Wrecking Ball
+item.wrecking_ball.name=Dysprosium Wrecking Ball
 
 
 item.eldritch_sword.name=Eldritch Sword

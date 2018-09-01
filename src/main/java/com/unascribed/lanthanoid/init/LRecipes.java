@@ -49,7 +49,7 @@ public class LRecipes {
 		GameRegistry.addRecipe(new ShapelessOreRecipe(LItems.dust.getStackForName("dustYttriumBariumCopperOxide", 3), 
 				"dustYttrium", "dustBarium", "dustBarium", "dustCopper", "dustCopper", "dustCopper", Items.water_bucket));
 		
-		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.ytterbium_wrecking_ball,
+		/*GameRegistry.addRecipe(new ShapedOreRecipe(LItems.ytterbium_wrecking_ball,
 				", ,",
 				"d,B",
 				"h  ",
@@ -66,7 +66,7 @@ public class LRecipes {
 				',', "nuggetErbium",
 				'd', "stickErbium",
 				'h', "stickHolmium",
-				'B', "blockErbium"));
+				'B', "blockErbium"));*/
 		GameRegistry.addRecipe(new ShapedOreRecipe(LItems.dysprosium_wrecking_ball,
 				", ,",
 				"d,B",

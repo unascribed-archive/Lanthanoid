@@ -59,8 +59,8 @@ public class ClientProxy implements Proxy {
 		
 		MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(LBlocks.machine), new MachineItemRenderer());
 		
-		MinecraftForgeClient.registerItemRenderer(LItems.ytterbium_wrecking_ball, new WreckingBallItemRenderer());
-		MinecraftForgeClient.registerItemRenderer(LItems.erbium_wrecking_ball, new WreckingBallItemRenderer());
+		//MinecraftForgeClient.registerItemRenderer(LItems.ytterbium_wrecking_ball, new WreckingBallItemRenderer());
+		//MinecraftForgeClient.registerItemRenderer(LItems.erbium_wrecking_ball, new WreckingBallItemRenderer());
 		MinecraftForgeClient.registerItemRenderer(LItems.dysprosium_wrecking_ball, new WreckingBallItemRenderer());
 		
 		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_pickaxe, new EldritchItemRenderer(0.625f, 0.625f, -30f));
@@ -75,5 +75,9 @@ public class ClientProxy implements Proxy {
 		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_leggings, new EldritchItemRenderer(0.35f, 0.7f, 0f));
 		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_boots, new EldritchItemRenderer(0.4f, 0.4f, 90f));
 		MinecraftForgeClient.registerItemRenderer(LItems.eldritch_elytra, new EldritchItemRenderer(0.2f, 0.5f, -90f));
+	}
+	@Override
+	public int getTechnicalRenderType() {
+		return technicalRenderId;
 	}
 }

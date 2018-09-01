@@ -22,7 +22,7 @@ apply plugin: 'me.tatarka.retrolambda'
 
 group = "com.unascribed.lanthanoid"
 archivesBaseName = "Lanthanoid"
-version = "0.7.1"
+version = "0.7.3-wrecking-edition"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -49,7 +49,7 @@ repositories {
 
 dependencies {
 	compile 'net.malisis:malisiscore:1.7.10-0.12.10:dev'
-	compile 'com.unascribed:Backlytra:1.7.10-0.1.0'
+	compile files('../Backlytra1.7.10/build/libs/Backlytra-1.7.10-0.1.1-final.jar')
 }
 
 jar {

@@ -6,4 +6,5 @@ public class ServerProxy implements Proxy {
 	@Override public TextureCompositor createCompositor() { return null; }
 	@Override public void setup() {}
 	@Override public void init() {}
+	@Override public int getTechnicalRenderType() { return 0; }
 }

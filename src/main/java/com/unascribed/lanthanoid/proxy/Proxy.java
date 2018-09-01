@@ -7,5 +7,6 @@ public interface Proxy {
 	TextureCompositor createCompositor();
 	void setup();
 	void init();
+	int getTechnicalRenderType();
 
 }
